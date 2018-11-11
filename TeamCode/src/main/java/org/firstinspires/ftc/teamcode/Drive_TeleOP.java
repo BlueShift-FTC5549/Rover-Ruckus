@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.blueshiftrobotics.ftc.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,12 +17,6 @@ public class Drive_TeleOP extends OpMode {
     private DcMotor motorDriveLeft;
     private DcMotor motorDriveRight;
 
-    private BNO055IMU IMU;
-
-    //PID Proportionality Constants
-    private double turnKp = 0.5;
-    private float turningErrorAllowance = 5; //In Degrees
-
     private double motorDriveLeftPower, motorDriveRightPower;
     private double powerMultiplier = 1.0;
 
@@ -36,8 +30,6 @@ public class Drive_TeleOP extends OpMode {
         // Since one motor is reversed in relation to the other, we must reverse the motor on the right so positive powers mean forward.
         motorDriveLeft.setDirection(DcMotor.Direction.FORWARD);
         motorDriveRight.setDirection(DcMotor.Direction.REVERSE);
-
-        initIMU();
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -69,47 +61,5 @@ public class Drive_TeleOP extends OpMode {
 
     @Override public void stop() {
 
-    }
-
-    private void initIMU() {
-        IMU  = hardwareMap.get(BNO055IMU.class, "imu");
-
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json";
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
-
-        IMU.initialize(parameters);
-    }
-
-    private void turn(turnDirection direction) {
-        float headingInit = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-        float headingFinal;
-        float turnError;
-
-        //TODO: Use MOD to fix errors when the IMU jumps from 0 to 360 etc
-        if (direction == turnDirection.LEFT) {
-            headingFinal = headingInit + 90;
-        } else {
-            headingFinal = headingInit - 90;
-        }
-
-        turnError = headingFinal - headingInit;
-
-        while (Math.abs(turnError) > turningErrorAllowance) {
-            turnError = headingFinal - headingInit;
-
-            double turn = turnKp * turnError;
-
-            motorDriveLeft.setPower(-turn);
-            motorDriveRight.setPower(turn);
-        }
-    }
-
-    enum turnDirection {
-        LEFT, RIGHT;
     }
 }
