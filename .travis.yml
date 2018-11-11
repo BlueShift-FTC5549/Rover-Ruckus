@@ -1,1 +1,5 @@
 language: android
+
+before_install:
+    - yes | sdkmanager "platforms;android-23"
+    - yes | sdkmanager "build-tools;27.0.3"
