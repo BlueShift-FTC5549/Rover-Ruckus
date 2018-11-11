@@ -3,7 +3,7 @@
 
 (Work on Progress NPM and Build Status) <br>
 [![NPM Version][npm-image]][npm-url]
-[![Build Status][travis-image]][travis-url]
+[![Build Status](https://travis-ci.org/BlueShift-FTC5549/Rover-Ruckus.svg?branch=master)](https://travis-ci.org/BlueShift-FTC5549/Rover-Ruckus)
 
 ![](BlueShiftLogo.png)
 
