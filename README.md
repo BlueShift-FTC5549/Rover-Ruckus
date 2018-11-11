@@ -1,8 +1,6 @@
 # FTC Rover Ruckus
 > Rover Ruckus robot code created by the programmers of Team Blue Shift [FTC5549].
 
-(Work on Progress NPM and Build Status) <br>
-[![NPM Version][npm-image]][npm-url]
 [![Build Status](https://travis-ci.org/BlueShift-FTC5549/Rover-Ruckus.svg?branch=master)](https://travis-ci.org/BlueShift-FTC5549/Rover-Ruckus)
 
 ![](BlueShiftLogo.png)
@@ -15,15 +13,15 @@ Blue Shift shares all of our code so that other teams may learn from our program
 
 ## Release History
 
-* 0.0.1
-    * 20-grit programming, barely a release
+* 0.1.0
+    * TeleOP Skeleton
+    * Autonomous Library Skeleton
+    * IMU & PID Controller Skeleton
 
 ## Meta
 
 Gabriel Wong – [gabrieljw1](https://github.com/gabrieljw1/) – gabrieljw1@gmail.com <br>
 Kevin Jones  - [@] - <br>
 Joonha Kang  - [@] - <br>
-
-Distributed under the XYZ license. See ``LICENSE`` for more information.
 
 [https://github.com/BlueShift-FTC5549/Rover-Ruckus](https://github.com/BlueShift-FTC5549/)
