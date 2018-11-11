@@ -20,7 +20,7 @@ Blue Shift shares all of our code so that other teams may learn from our program
 
 ## Meta
 
-Gabriel Wong – [@gabrieljw1](https://github.com/gabrieljw1/) – gabrieljw1@gmail.com <br>
+Gabriel Wong – [gabrieljw1](https://github.com/gabrieljw1/) – gabrieljw1@gmail.com <br>
 Kevin Jones  - [@] - <br>
 Joonha Kang  - [@] - <br>
 
