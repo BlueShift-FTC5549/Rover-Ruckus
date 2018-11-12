@@ -74,6 +74,9 @@
   <script type="text/javascript" src="blocks/system.js"></script>
   <script type="text/javascript" src="blocks/telemetry.js"></script>
   <script type="text/javascript" src="blocks/temperature.js"></script>
+  <script type="text/javascript" src="blocks/tfod.js"></script>
+  <script type="text/javascript" src="blocks/tfod_recognition.js"></script>
+  <script type="text/javascript" src="blocks/tfod_rover_ruckus.js"></script>
   <script type="text/javascript" src="blocks/toolbox_util.js"></script>
   <script type="text/javascript" src="blocks/touch_sensor.js"></script>
   <script type="text/javascript" src="blocks/ultrasonic_sensor.js"></script>
@@ -235,7 +238,7 @@
     initializeProjects();
     initializeSamples();
   }
- 
+
   function initializeProjects() {
     projects = [];
     fetchProjects(function(jsonProjects, errorMessage) {
@@ -516,6 +519,8 @@
     var jsFileContent = '';
     try {
       var workspace = new Blockly.Workspace();
+      // For consistency with previous versions, we explicitly set oneBasedIndex to true.
+      workspace.options.oneBasedIndex = true;
       Blockly.Xml.domToWorkspace(dom, workspace);
       Blockly.JavaScript.addReservedWords('callRunOpMode');
       addReservedWordsForIdentifiersForJavaScript();

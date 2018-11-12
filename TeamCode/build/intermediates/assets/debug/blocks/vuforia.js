@@ -350,7 +350,7 @@ Blockly.FtcJava['vuforiaTrackingResults_getUpdatedRobotLocation'] = function(blo
       block, 'VUFORIA_TRACKING_RESULTS', Blockly.FtcJava.ORDER_MEMBER);
   var code = vuforiaTrackingResults + '.isUpdatedRobotLocation ' +
       '? ' + vuforiaTrackingResults + '.matrix' +
-      ': null'
+      ': null';
   return [code, Blockly.FtcJava.ORDER_CONDITIONAL];
 };
 
@@ -389,3 +389,34 @@ Blockly.FtcJava['vuforiaTrackingResults_formatAsTransform'] = function(block) {
   var code = vuforiaTrackingResults + '.formatAsTransform()';
   return [code, Blockly.FtcJava.ORDER_FUNCTION_CALL];
 };
+
+Blockly.Blocks['vuforiaTrackingResults_toText'] = {
+  init: function() {
+    this.setOutput(true, 'String');
+    this.appendDummyInput()
+        .appendField('call')
+        .appendField(createNonEditableField('VuforiaTrackingResults'))
+        .appendField('.')
+        .appendField(createNonEditableField('toText'));
+    this.appendValueInput('VUFORIA_TRACKING_RESULTS').setCheck('VuforiaBase.TrackingResults')
+        .appendField('vuforiaTrackingResults')
+        .setAlign(Blockly.ALIGN_RIGHT);
+    this.setColour(functionColor);
+    this.setTooltip('Returns a text representation of the given VuforiaTrackingResults.');
+  }
+};
+
+Blockly.JavaScript['vuforiaTrackingResults_toText'] = function(block) {
+  var vuforiaTrackingResults = Blockly.JavaScript.valueToCode(
+      block, 'VUFORIA_TRACKING_RESULTS', Blockly.JavaScript.ORDER_NONE);
+  var code = 'JSON.stringify(' + vuforiaTrackingResults + ')';
+  return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+};
+
+Blockly.FtcJava['vuforiaTrackingResults_toText'] = function(block) {
+  var vuforiaTrackingResults = Blockly.FtcJava.valueToCode(
+      block, 'VUFORIA_TRACKING_RESULTS', Blockly.FtcJava.ORDER_MEMBER);
+  var code = vuforiaTrackingResults + '.toString()';
+  return [code, Blockly.FtcJava.ORDER_FUNCTION_CALL];
+};
+

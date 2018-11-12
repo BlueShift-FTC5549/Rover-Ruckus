@@ -287,7 +287,7 @@ Blockly.JavaScript['vuforiaRoverRuckus_typedEnum_trackableName'] = function(bloc
 };
 
 Blockly.FtcJava['vuforiaRoverRuckus_typedEnum_trackableName'] = function(block) {
-  // Event in Java, trackable name is actually just a string, not an enum.
+  // Even in Java, a trackable name is actually just a string, not an enum.
   var code = '"' + block.getFieldValue('TRACKABLE_NAME') + '"';
   return [code, Blockly.FtcJava.ORDER_ATOMIC];
 };

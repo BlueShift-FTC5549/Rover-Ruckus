@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 /**
- * A simple OpMode used to test any two motor drive-based robot. Test Test Test
+ * A simple OpMode used to test any two motor drive-based robot.
  *
  * @Author Gabriel Wong
  */

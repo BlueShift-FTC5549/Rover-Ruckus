@@ -3,8 +3,6 @@
 <variable type="" id="FbaKvU!;|Tlp/}9nA2Ob">imuParameters</variable>
 <variable type="" id="~LUL9~Z;enziZiH||`!?">angles</variable>
 <variable type="" id="#]v^/7$}[x}*;PPYGOk(">gravity</variable>
-<variable type="" id="Ri]Y}v$6tj^N3`%/zHhe">{accelerationVariable}</variable>
-<variable type="" id="oUOw]}}@};t4@s3WMwH#">{parametersVariable}</variable>
 </variables>
 <block type="procedures_defnoreturn" id=".C5qAWP%TVp.hOLyFe(w" deletable="false" editable="false" x="50" y="50">
 <field name="NAME">runOpMode</field>

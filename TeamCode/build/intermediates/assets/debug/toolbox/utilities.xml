@@ -724,6 +724,7 @@
     <value name="TEMP_UNIT"><shadow type="navigation_typedEnum_tempUnit"></shadow></value>
   </block>
 </category>
+<placeholder_tfod_tensorFlowObjectDetection/>
 <category name="Time">
   <block type="system_nanoTime"></block>
   <category name="ElapsedTime">
@@ -886,7 +887,7 @@
       <value name="PHONE_LOCATION_ON_ROBOT_Z_ANGLE"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
       <value name="USE_COMPETITION_FIELD_TARGET_LOCATIONS"><shadow type="logic_boolean"><field name="BOOL">TRUE</field></shadow></value>
     </block>
-<placeholder_vuforiaRoverRuckus_initialize_withWebcam/>
+<placeholder_webcam_vuforiaRoverRuckus_initialize_withWebcam/>
     <block type="vuforiaRoverRuckus_activate"></block>
     <block type="vuforiaRoverRuckus_deactivate"></block>
     <block type="vuforiaRoverRuckus_track">
@@ -938,6 +939,9 @@
     <block type="vuforiaTrackingResults_formatAsTransform">
         <value name="VUFORIA_TRACKING_RESULTS"><block type="variables_get"><field name="VAR">{vuforiaTrackingResultsVariable}</field></block></value>
     </block>
+    <block type="vuforiaTrackingResults_toText">
+        <value name="VUFORIA_TRACKING_RESULTS"><block type="variables_get"><field name="VAR">{vuforiaTrackingResultsVariable}</field></block></value>
+    </block>
   </category>
   <category name="VuforiaLocalizer">
     <block type="vuforiaLocalizer_create">
@@ -962,8 +966,8 @@
       <value name="VUFORIA_LOCALIZER_PARAMETERS"><block type="variables_get"><field name="VAR">{vuforiaLocalizerParametersVariable}</field></block></value>
       <value name="CAMERA_DIRECTION"><shadow type="navigation_typedEnum_cameraDirection"></shadow></value>
     </block>
-<placeholder_vuforiaLocalizerParameters_setCameraName/>
-<placeholder_vuforiaLocalizerParameters_addWebcamCalibrationFile/>
+<placeholder_webcam_vuforiaLocalizerParameters_setCameraName/>
+<placeholder_webcam_vuforiaLocalizerParameters_addWebcamCalibrationFile/>
     <block type="vuforiaLocalizerParameters_setUseExtendedTracking">
       <value name="VUFORIA_LOCALIZER_PARAMETERS"><block type="variables_get"><field name="VAR">{vuforiaLocalizerParametersVariable}</field></block></value>
       <value name="USE_EXTENDED_TRACKING"><shadow type="logic_boolean"><field name="BOOL">TRUE</field></shadow></value>
@@ -988,7 +992,7 @@
       <field name="PROP">CameraDirection</field>
       <value name="VUFORIA_LOCALIZER_PARAMETERS"><block type="variables_get"><field name="VAR">{vuforiaLocalizerParametersVariable}</field></block></value>
     </block>
-<placeholder_vuforiaLocalizerParameters_getProperty_CameraName/>
+<placeholder_webcam_vuforiaLocalizerParameters_getProperty_CameraName/>
     <block type="vuforiaLocalizerParameters_getProperty_Boolean">
       <field name="PROP">UseExtendedTracking</field>
       <value name="VUFORIA_LOCALIZER_PARAMETERS"><block type="variables_get"><field name="VAR">{vuforiaLocalizerParametersVariable}</field></block></value>
@@ -1045,7 +1049,7 @@
       <value name="PHONE_LOCATION_ON_ROBOT"><block type="variables_get"><field name="VAR">{matrixVariable}</field></block></value>
       <value name="CAMERA_DIRECTION"><shadow type="navigation_typedEnum_cameraDirection"></shadow></value>
     </block>
-<placeholder_vuforiaTrackableDefaultListener_setCameraLocationOnRobot/>
+<placeholder_webcam_vuforiaTrackableDefaultListener_setCameraLocationOnRobot/>
     <block type="vuforiaTrackableDefaultListener_isVisible">
       <value name="VUFORIA_TRACKABLE_DEFAULT_LISTENER"><block type="variables_get"><field name="VAR">{vuforiaTrackableDefaultListenerVariable}</field></block></value>
     </block>

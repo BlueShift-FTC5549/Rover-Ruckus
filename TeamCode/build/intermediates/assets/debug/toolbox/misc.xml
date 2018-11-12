@@ -152,6 +152,9 @@
   </block>
   <block type="lists_length"></block>
   <block type="lists_isEmpty"></block>
+  <block type="misc_addItemToList">
+    <value name="LIST"><block type="variables_get"><field name="VAR">{listVariable}</field></block></value>
+  </block>
   <block type="lists_indexOf">
     <value name="VALUE"><block type="variables_get"><field name="VAR">{listVariable}</field></block></value>
   </block>

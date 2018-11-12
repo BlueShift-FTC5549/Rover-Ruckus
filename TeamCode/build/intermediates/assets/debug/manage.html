@@ -11,6 +11,10 @@
     <script type="text/javascript" src="/js/less.min.js"></script>
 </head>
 <body>
+    <div id="blocker" style="display: none; z-index: 10; width: 100%; height: 200%; background-color: rgba(201,201,201,.7); position: absolute; top: 0; left: 0;">
+        <h2 style="margin:auto; margin-top: 10%; width: 60%; text-align: center; background-color: #ffffff; border: 2px solid black ">Please
+            wait while upload finishes</h2>
+    </div>
 <div class="bordered-text-block">
     <div>
         <h1>Robot Controller Name</h1>
@@ -70,31 +74,20 @@
                 <button id="id_action_firmware" class="aligned-action-button" onclick="uploadFirmware();">Upload</button>
             </p>
             <p id="id_firmware_upload_complete" class="text-ok"></p>
-            <div class="progress hidden">
-                <div id="id_firmware_progress" class="progress-bar" role="progressbar"
-                     aria-valuemin="0" aria-valuemax="100" aria-valuenow="70" style="width:70%">
-                    70%
-                </div>
-            </div>
         </div>
     </div>
     <div id="id_update_robot_controller_application">
         <h1>Update Robot Controller App &amp; Reboot</h1>
-        <p>Upload and install a new Robot Controller App to the REV Control Hub. Once the
-            upload completes, the Control Hub will be rebooted to allow the new app to complete installation.</p>
+        <p>Upload and install a new Robot Controller App to the REV Control Hub. Once the upload completes, the Control Hub will
+            be rebooted to allow the new app to complete installation.</p>
         <div>
             <p>
                 <input id="id_input_file_apk" type="file" class="hidden hidden-input-file">
-                <input id="id_apk_feedback" readonly class="upload-feedback" type="text" value="(apk)"><button id="id_apk_button" class="aligned-select-button">Select App...</button>
+                <input id="id_apk_feedback" readonly class="upload-feedback" type="text" value="(apk)"><button id="id_apk_button"
+                    class="aligned-select-button">Select App...</button>
                 <button id="id_action_apk" class="aligned-action-button" onclick="updateApk();">Update &amp; Reboot</button>
             </p>
-            <div class="progress hidden">
-                <div id="id_apk_progress" class="progress-bar" role="progressbar"
-                     aria-valuemin="0" aria-valuemax="100" aria-valuenow="30" style="width:30%">
-                    30%
-                </div>
-            </div>
-         </div>
+        </div>
     </div>
     <div id="id_upload_webcam_calibration">
         <h1>Upload Webcam Calibration File</h1>
@@ -107,12 +100,6 @@
                 <button id="id_action_webcam_calibration" class="aligned-action-button" onclick="uploadWebcamCalibration();">Upload</button>
             </p>
             <p id="id_webcam_calibration_upload_complete" class="text-ok"></p>
-            <div class="progress hidden">
-                <div id="id_webcam_calibration_progress" class="progress-bar" role="progressbar"
-                     aria-valuemin="0" aria-valuemax="100" aria-valuenow="70" style="width:70%">
-                    70%
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -121,16 +108,11 @@
 <script type="text/javascript" src="/js/util.js"></script>
 <script type="text/javascript">
 
-    var barOfProgress = function(progress) {
-        return progress ? progress.parentElement : null;
-    }
-
-    var initUpload = function (idInput, idFeedback, idButton, ext, idAction, idProgress) {
+    var initUpload = function (idInput, idFeedback, idButton, ext, idAction) {
         var input = document.getElementById(idInput);
         var feedback = document.getElementById(idFeedback);
         var button = document.getElementById(idButton);
         var action = document.getElementById(idAction);
-        var progress = idProgress ? document.getElementById(idProgress) : null;
 
         feedback.value = "";
         feedback.onclick = function () { input.click(); };
@@ -138,7 +120,6 @@
         input.accept = ext;
         input.onchange = function () { fileInputChange(input, feedback, ext, action); };
         hideElement(action, true);
-        if (progress) hideElement(barOfProgress(progress), true);
     }
 
     var fileInputChange = function(input, feedback, ext, action) {
@@ -158,64 +139,44 @@
     }
 
     $('#id_firmware_upload_complete').hide();
-    initUpload('id_input_file_firmware', 'id_firmware_feedback', 'id_firmware_button', '.bin', 'id_action_firmware', null /* 'id_firmware_progress' */);
-    initUpload('id_input_file_apk',      'id_apk_feedback',      'id_apk_button',      '.apk', 'id_action_apk',      'id_apk_progress');
+    initUpload('id_input_file_firmware', 'id_firmware_feedback', 'id_firmware_button', '.bin', 'id_action_firmware');
+    initUpload('id_input_file_apk',      'id_apk_feedback',      'id_apk_button',      '.apk', 'id_action_apk',);
 
     $('#id_id_webcam_calibration_upload_complete').hide();
-    initUpload('id_input_file_webcam_calibration', 'id_webcam_calibration_feedback', 'id_webcam_calibration_button', '.xml', 'id_action_webcam_calibration', null /* 'id_webcam_calibration_progress' */);
+    initUpload('id_input_file_webcam_calibration', 'id_webcam_calibration_feedback', 'id_webcam_calibration_button', '.xml', 'id_action_webcam_calibration');
 
-    var uploadProgress = function(file, progress, xhr, e) {
-        if (e.lengthComputable) {
-            var loaded = Math.round(100 * (e.loaded / e.total));
-            var percent = loaded + "%";
-            console.log("loaded: " + percent);
-            if (progress) {
-                hideElement(barOfProgress(progress), false);
-                progress.style.width = percent;
-                progress.innerHTML = percent;
-                progress.setAttribute("aria-valuenow", loaded);
-            }
-        }
+    var uploadSuccess = function(file, xhr, e) {
+        $('#blocker').hide();
     }
 
-    var uploadSuccess = function(file, progress, xhr, e) {
-        if (progress) {
-            hideElement(barOfProgress(progress), true);
-        }
-    }
-
-    var uploadFailure = function(file, progress, xhr, e) {
-        if (progress) {
-            hideElement(barOfProgress(progress), true);
-        }
+    var uploadFailure = function(file, xhr, e) {
+        $('#blocker').hide();
         alert("Failed to upload file: " + file.name);
     }
 
     var uploadFirmware = function () {
         var feedback = document.getElementById('id_firmware_feedback');
-        var progress = null // hasFunctionalProgress() ? document.getElementById('id_firmware_progress') : null;
         var file = feedback.dataFile;
         console.log("uploadFirmware() name=" + file.name);
         var url = URI_UPLOAD_EXPANSION_HUB_FIRMWARE;
+        $('#blocker').show();
         uploadFile(file, url,
-            function(xhr, e) { uploadProgress(file, progress, xhr, e); },
             function(xhr, e) {
-                uploadSuccess(file, progress, xhr, e);
+                uploadSuccess(file, xhr, e);
                 showToast('id_firmware_upload_complete', 'Firmware upload complete');
             },
-            function(xhr, e) { uploadFailure(file, progress, xhr, e); });
+            function(xhr, e) { uploadFailure(file, xhr, e); });
     }
 
     var updateApk = function() {
         var feedback = document.getElementById('id_apk_feedback');
-        var progress = hasFunctionalProgress() ? document.getElementById('id_apk_progress') : null;
         var file = feedback.dataFile;
         console.log("updateApk() name=" + file.name);
         var url = URI_UPDATE_CONTROL_HUB_APK;
+        $('#blocker').show();
         uploadFile(file, url,
-            function(xhr, e) { uploadProgress(file, progress, xhr, e); },
-            function(xhr, e) { uploadSuccess(file, progress, xhr, e); reboot(); },
-            function(xhr, e) { uploadFailure(file, progress, xhr, e); });
+            function(xhr, e) { uploadSuccess(file, xhr, e); reboot(); },
+            function(xhr, e) { uploadFailure(file, xhr, e); });
     }
 
     var reboot = function() {
@@ -236,17 +197,16 @@
 
     var uploadWebcamCalibration = function () {
         var feedback = document.getElementById('id_webcam_calibration_feedback');
-        var progress = null // hasFunctionalProgress() ? document.getElementById('id_webcam_calibration_progress') : null;
         var file = feedback.dataFile;
         console.log("uploadWebcamCalibration() name=" + file.name);
         var url = URI_UPLOAD_WEBCAM_CALIBRATION_FILE;
+        $('#blocker').show();
         uploadFile(file, url,
-            function(xhr, e) { uploadProgress(file, progress, xhr, e); },
             function(xhr, e) {
-                uploadSuccess(file, progress, xhr, e);
+                uploadSuccess(file, xhr, e);
                 showToast('id_webcam_calibration_upload_complete', 'Webcam Calibration upload complete');
             },
-            function(xhr, e) { uploadFailure(file, progress, xhr, e); });
+            function(xhr, e) { uploadFailure(file, xhr, e); });
     }
 
     var onRenameRC = function () {

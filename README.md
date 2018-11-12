@@ -21,7 +21,7 @@ Blue Shift shares all of our code so that other teams may learn from our program
 ## Meta
 
 Gabriel Wong – [gabrieljw1](https://github.com/gabrieljw1/) – gabrieljw1@gmail.com <br>
-Kevin Jones  - [@] - <br>
-Joonha Kang  - [@] - <br>
+Kevin Jones  - [robo19](https://github.com/robo19/) - jonesk22@ashevilleschool.org <br>
+Joonha Kang  - [jjoon137](https://github.com/jjoon137/) - kangj21@ashevilleschool.org <br>
 
 [https://github.com/BlueShift-FTC5549/Rover-Ruckus](https://github.com/BlueShift-FTC5549/)

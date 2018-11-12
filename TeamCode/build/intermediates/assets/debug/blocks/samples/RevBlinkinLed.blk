@@ -245,11 +245,13 @@
 <comment pinned="false" h="64" w="353">Set a variable called "pattern" to be a BlinkinPattern.</comment>
 <value name="VALUE">
 <block type="revBlinkinLedDriver_typedEnum_blinkinPatternByCategoryPalette" id="I{a2F7Aju]2=J#BsVK3k">
+<field name="CATEGORY">RAINBOW</field>
+<field name="PALETTE">RAINBOW_PALETTE</field>
 </block>
 </value>
 <next>
 <block type="revBlinkinLedDriver_setProperty_BlinkinPattern" id=";4|/WV+UMmf$|(*5q,1r">
-<field name="IDENTIFIER">servoAsRevBlinkinLedDriver</field>
+<field name="IDENTIFIER">blinkinAsRevBlinkinLedDriver</field>
 <field name="PROP">Pattern</field>
 <value name="VALUE">
 <block type="variables_get" id="6b7t,.O0vNTAGPj;K+r$">
@@ -501,7 +503,7 @@
 </value>
 <next>
 <block type="revBlinkinLedDriver_setProperty_BlinkinPattern" id="75E@YsddAw$=T-xwv/Wo">
-<field name="IDENTIFIER">servoAsRevBlinkinLedDriver</field>
+<field name="IDENTIFIER">blinkinAsRevBlinkinLedDriver</field>
 <field name="PROP">Pattern</field>
 <value name="VALUE">
 <block type="variables_get" id="k=L[IrIhdp8l2-GpSXJF">
@@ -547,7 +549,7 @@
 </value>
 <next>
 <block type="revBlinkinLedDriver_setProperty_BlinkinPattern" id="ZzbYfh,WK=2a|q!C=|$A">
-<field name="IDENTIFIER">servoAsRevBlinkinLedDriver</field>
+<field name="IDENTIFIER">blinkinAsRevBlinkinLedDriver</field>
 <field name="PROP">Pattern</field>
 <value name="VALUE">
 <block type="variables_get" id="b6@f;).ukVj6=OFENT~w">
@@ -625,7 +627,7 @@
 </value>
 <next>
 <block type="revBlinkinLedDriver_setProperty_BlinkinPattern" id="Pnhosf=i,c.9H`|K:bK;">
-<field name="IDENTIFIER">servoAsRevBlinkinLedDriver</field>
+<field name="IDENTIFIER">blinkinAsRevBlinkinLedDriver</field>
 <field name="PROP">Pattern</field>
 <value name="VALUE">
 <block type="variables_get" id="^_^DokO8=,w:mSsV|Ip/">

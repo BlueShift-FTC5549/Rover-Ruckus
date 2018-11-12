@@ -163,7 +163,8 @@ Blockly.FtcJava['controls_forEach'] = function(block) {
     Blockly.FtcJava.generateImport_('List');
     code += 'List ' + listVar + ' = ' + argument0 + ';\n';
   }
-  code += 'for (Object ' + variable0 + ' : ' + listVar + ') {\n' + branch + '}\n';
+  code += '// TODO: Enter the type for variable named ' + variable0 + '\n' +
+      'for (UNKNOWN_TYPE ' + variable0 + ' : ' + listVar + ') {\n' + branch + '}\n';
   return code;
 };
 

@@ -239,3 +239,35 @@ Blockly.FtcJava['misc_roundDecimal'] = function(block) {
   var code = 'Double.parseDouble(JavaUtil.formatNumber(' + number + ', ' + precision + '))';
   return [code, Blockly.FtcJava.ORDER_FUNCTION_CALL];
 };
+
+Blockly.Blocks['misc_addItemToList'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField('add item');
+    this.appendValueInput('ITEM');
+    this.appendDummyInput()
+        .appendField('to list');
+    this.appendValueInput('LIST')
+        .setCheck('Array');
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour(Blockly.Msg.LISTS_HUE);
+    this.setTooltip('Add the item to the end of the list.');
+  }
+};
+
+Blockly.JavaScript['misc_addItemToList'] = function(block) {
+  var item = Blockly.JavaScript.valueToCode(
+      block, 'ITEM', Blockly.JavaScript.ORDER_NONE);
+  var list = Blockly.JavaScript.valueToCode(
+      block, 'LIST', Blockly.JavaScript.ORDER_MEMBER);
+  return list + '.push(' + item + ')';
+};
+
+Blockly.FtcJava['misc_addItemToList'] = function(block) {
+  var item = Blockly.FtcJava.valueToCode(
+      block, 'ITEM', Blockly.FtcJava.ORDER_NONE);
+  var list = Blockly.FtcJava.valueToCode(
+      block, 'LIST', Blockly.FtcJava.ORDER_MEMBER);
+  return list + '.add(' + item + ')';
+};

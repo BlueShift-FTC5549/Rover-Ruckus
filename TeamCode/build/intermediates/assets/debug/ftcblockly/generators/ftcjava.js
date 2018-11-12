@@ -84,12 +84,14 @@ Blockly.FtcJava.addReservedWords(
     // org.firstinspires.ftc.robotcore.external.matrices
     'MatrixF,OpenGLMatrix,VectorF,' +
     // org.firstinspires.ftc.robotcore.external.navigation
-    'Acceleration,AngleUnit,AngularVelocity,AxesOrder,AxesReference,Axis,DistanceUnit,MagneticFlux,' +
-    'Orientation,Position,Quaternion,RelicRecoveryVuMark,Temperature,TempUnit,' +
+    'Acceleration,AngleUnit,AngularVelocity,AxesOrder,AxesReference,Axis,DistanceUnit,' +
+    'MagneticFlux,Orientation,Position,Quaternion,RelicRecoveryVuMark,Temperature,TempUnit,' +
     'UnnormalizedAngleUnit,Velocity,VuforiaBase,VuforiaLocalizer,VuforiaRelicRecovery,' +
     'VuforiaRoverRuckus,VuforiaTrackable,VuforiaTrackableDefaultListener,VuforiaTrackables,' +
     // org.firstinspires.ftc.robotcore.internal.system
     'AppUtil,' +
+    // org.firstinspires.ftc.robotcore.external.tfod
+    'Recognition,TfodBase,TfodRoverRuckus,' +
     // LinearOpMode members
     'waitForStart,idle,sleep,opModeIsActive,isStarted,' +
     'isStopRequested,init,init_loop,start,loop,stop,handleLoop,' +
@@ -123,7 +125,7 @@ Blockly.FtcJava.addReservedWords(
     'Iterable,LinkageError,Long,Math,NegativeArraySizeException,' +
     'NoClassDefFoundError,NoSuchFieldError,NoSuchFieldException,' +
     'NoSuchMethodError,NoSuchMethodException,NullPointerException,Number,' +
-    'NumberFormatException,Object,Object,OutOfMemoryError,Override,Package,' +
+    'NumberFormatException,Object,OutOfMemoryError,Override,Package,' +
     'Process,ProcessBuilder,ProcessBuilder.Redirect,' +
     'ProcessBuilder.Redirect.Type,Readable,ReflectiveOperationException,' +
     'Runnable,Runtime,RuntimeException,RuntimePermission,SafeVarargs,' +
@@ -1207,6 +1209,10 @@ Blockly.FtcJava.generateImport_ = function(type) {
     case 'AppUtil':
       importCode = 'import org.firstinspires.ftc.robotcore.internal.system.' + type + ';';
       break;
+    case 'Recognition':
+    case 'TfodBase':
+    case 'TfodRoverRuckus':
+      importCode = 'import org.firstinspires.ftc.robotcore.external.tfod.' + type + ';';
   }
   if (importCode) {
     Blockly.FtcJava.definitions_['import_' + type] = importCode;
@@ -1250,6 +1256,13 @@ Blockly.FtcJava.importDeclareAssign_ = function(block, identifierFieldName, java
       // androidTextToSpeechIdentifierForFtcJava is defined dynamically in
       // HardwareUtil.fetchJavaScriptForHardware().
       identifierForFtcJava = identifier = androidTextToSpeechIdentifierForFtcJava;
+      rvalue = 'new ' + javaType + '()';
+      needsToBeClosed = true;
+      break;
+    case 'TfodRoverRuckus':
+      // tfodRoverRuckusIdentifierForFtcJava is defined dynamically in
+      // HardwareUtil.fetchJavaScriptForHardware().
+      identifierForFtcJava = identifier = tfodRoverRuckusIdentifierForFtcJava;
       rvalue = 'new ' + javaType + '()';
       needsToBeClosed = true;
       break;

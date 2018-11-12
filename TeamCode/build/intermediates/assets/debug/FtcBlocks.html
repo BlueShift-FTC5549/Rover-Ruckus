@@ -56,77 +56,80 @@
 
     var asyncScripts = [
       "blocks/acceleration.js",
-      "blocks/acceleration_sensor.js", 
-      "blocks/analog_input.js", 
-      "blocks/analog_output.js", 
-      "blocks/android_accelerometer.js", 
-      "blocks/android_gyroscope.js", 
-      "blocks/android_orientation.js", 
-      "blocks/android_sound_pool.js", 
-      "blocks/android_text_to_speech.js", 
-      "blocks/angular_velocity.js", 
-      "blocks/bno055imu.js", 
-      "blocks/bno055imu_parameters.js", 
-      "blocks/clipboard_util.js", 
-      "blocks/color.js", 
-      "blocks/color_sensor.js", 
-      "blocks/compass_sensor.js", 
-      "blocks/cr_servo.js", 
-      "blocks/dbg_log.js", 
-      "blocks/dc_motor.js", 
-      "blocks/digital_channel.js", 
-      "blocks/distance_sensor.js", 
-      "blocks/elapsed_time.js", 
-      "blocks/elapsed_time2.js", 
-      "blocks/gamepad.js", 
-      "blocks/gyro_sensor.js", 
-      "blocks/hardware_util.js", 
-      "blocks/ir_seeker_sensor.js", 
-      "blocks/led.js", 
-      "blocks/light_sensor.js", 
-      "blocks/linear_op_mode.js", 
-      "blocks/lynx_i2c_color_range_sensor.js", 
-      "blocks/magnetic_flux.js", 
-      "blocks/matrix_f.js", 
-      "blocks/misc.js", 
-      "blocks/mr_i2c_compass_sensor.js", 
-      "blocks/mr_i2c_range_sensor.js", 
-      "blocks/navigation.js", 
-      "blocks/open_gl_matrix.js", 
-      "blocks/optical_distance_sensor.js", 
-      "blocks/orientation.js", 
+      "blocks/acceleration_sensor.js",
+      "blocks/analog_input.js",
+      "blocks/analog_output.js",
+      "blocks/android_accelerometer.js",
+      "blocks/android_gyroscope.js",
+      "blocks/android_orientation.js",
+      "blocks/android_sound_pool.js",
+      "blocks/android_text_to_speech.js",
+      "blocks/angular_velocity.js",
+      "blocks/bno055imu.js",
+      "blocks/bno055imu_parameters.js",
+      "blocks/clipboard_util.js",
+      "blocks/color.js",
+      "blocks/color_sensor.js",
+      "blocks/compass_sensor.js",
+      "blocks/cr_servo.js",
+      "blocks/dbg_log.js",
+      "blocks/dc_motor.js",
+      "blocks/digital_channel.js",
+      "blocks/distance_sensor.js",
+      "blocks/elapsed_time.js",
+      "blocks/elapsed_time2.js",
+      "blocks/gamepad.js",
+      "blocks/gyro_sensor.js",
+      "blocks/hardware_util.js",
+      "blocks/ir_seeker_sensor.js",
+      "blocks/led.js",
+      "blocks/light_sensor.js",
+      "blocks/linear_op_mode.js",
+      "blocks/lynx_i2c_color_range_sensor.js",
+      "blocks/magnetic_flux.js",
+      "blocks/matrix_f.js",
+      "blocks/misc.js",
+      "blocks/mr_i2c_compass_sensor.js",
+      "blocks/mr_i2c_range_sensor.js",
+      "blocks/navigation.js",
+      "blocks/open_gl_matrix.js",
+      "blocks/optical_distance_sensor.js",
+      "blocks/orientation.js",
       "blocks/pidf_coefficients.js",
-      "blocks/position.js", 
-      "blocks/project_util.js", 
-      "blocks/quaternion.js", 
-      "blocks/range.js", 
-      "blocks/rev_blinkin_led_driver.js", 
-      "blocks/servo.js", 
-      "blocks/servo_controller.js", 
-      "blocks/system.js", 
-      "blocks/telemetry.js", 
-      "blocks/temperature.js", 
-      "blocks/toolbox_util.js", 
-      "blocks/touch_sensor.js", 
-      "blocks/ultrasonic_sensor.js", 
-      "blocks/vars.js", 
-      "blocks/vector_f.js", 
-      "blocks/velocity.js", 
-      "blocks/voltage_sensor.js", 
-      "blocks/vuforia.js", 
-      "blocks/vuforia_localizer.js", 
-      "blocks/vuforia_localizer_parameters.js", 
+      "blocks/position.js",
+      "blocks/project_util.js",
+      "blocks/quaternion.js",
+      "blocks/range.js",
+      "blocks/rev_blinkin_led_driver.js",
+      "blocks/servo.js",
+      "blocks/servo_controller.js",
+      "blocks/system.js",
+      "blocks/telemetry.js",
+      "blocks/temperature.js",
+      "blocks/tfod.js",
+      "blocks/tfod_recognition.js",
+      "blocks/tfod_rover_ruckus.js",
+      "blocks/toolbox_util.js",
+      "blocks/touch_sensor.js",
+      "blocks/ultrasonic_sensor.js",
+      "blocks/vars.js",
+      "blocks/vector_f.js",
+      "blocks/velocity.js",
+      "blocks/voltage_sensor.js",
+      "blocks/vuforia.js",
+      "blocks/vuforia_localizer.js",
+      "blocks/vuforia_localizer_parameters.js",
       "blocks/vuforia_relic_recovery.js",
       "blocks/vuforia_rover_ruckus.js",
-      "blocks/vuforia_trackable.js", 
-      "blocks/vuforia_trackable_default_listener.js", 
+      "blocks/vuforia_trackable.js",
+      "blocks/vuforia_trackable_default_listener.js",
       "blocks/vuforia_trackables.js"
     ];
 
     syncLoadScripts(syncScripts, function() {
       asyncLoadScripts(asyncScripts, callback);
     });
-  }
+  };
   </script>
 
   <meta charset="utf-8">
@@ -148,11 +151,11 @@
             <button id="exportJavaButton" disabled="true"
                onclick="exportJavaButtonClicked()">Export to Java</button>
             <button onclick="downloadButtonClicked()">Download Op Mode</button>
-            <button id="downloadImageButton" style="visibility:hidden" disabled="true"
+            <button id="downloadImageButton" style="display:none" disabled="true"
                onclick="downloadImageButtonClicked()">Download Image of Blocks</button>
             <a id="download_link"></a>
-            <span id="saveSuccess"></span>
-            <span id="saveFailure"></span>
+            <span id="saveSuccess" style="display:none">Save completed successfully.</span>
+            <span id="saveFailure" style="display:none"></span>
           </td>
           <td align="right">
           </td>
@@ -194,6 +197,20 @@
   </category>
 </xml>
 
+<div id="saveWithWarningsDialog" class="modal_dialog"><div class="modal_dialog_container"><div class="modal_dialog_content">
+  <center>
+  <h3 style="margin-top: 0px">Save Op Mode</h3><br>
+  <div id="saveWithWarningsMessage"></div><br>
+  Are you sure you want to save now?<br><br>
+  <table width="100%">
+    <tr>
+      <td align="center"><button onclick="noSaveWithWarningsDialog()">No</button></td>
+      <td align="center"><button onclick="yesSaveWithWarningsDialog()">Yes</button></td>
+    </tr>
+  </table>
+  </center>
+</div></div></div>
+
 <!-- https://developers.google.com/blockly/guides/configure/web/resizable -->
 <script type="text/javascript">
   document.addEventListener('mousemove', onMouseMove);
@@ -213,7 +230,23 @@
   var projectEnabled = true;
 
   // Initialize global variables & blockly itself
-  var initializeBlockly = function() {
+  function initializeBlockly() {
+    // Blockly's text_quotes extension (which uses images for the quotes) causes the Download
+    // Image feature fail. Here, we replace it with one that uses quote characters.
+    Blockly.Extensions.ALL_['text_quotes'] = function() {
+      for (var i = 0, input; input = this.inputList[i]; i++) {
+        for (var j = 0, field; field = input.fieldRow[j]; j++) {
+          if ('TEXT' == field.name) {
+            var before = workspace.RTL ? '\u201D' : '\u201C';
+            var after = workspace.RTL ? '\u201C' : '\u201D';
+            input.insertFieldAt(j, new Blockly.FieldLabel(before));
+            input.insertFieldAt(j + 2, new Blockly.FieldLabel(after));
+            return;
+          }
+        }
+      }
+    };
+
     isDirty = false;
     blocklyArea = document.getElementById('blocklyArea');
     blocklyDiv = document.getElementById('blocklyDiv');
@@ -229,6 +262,8 @@
       trashcan: false,
       toolbox: document.getElementById('toolbox')
     });
+    // For consistency with previous versions, we explicitly set oneBasedIndex to true.
+    workspace.options.oneBasedIndex = true;
 
     window.addEventListener('resize', onresize, false /*false==execute in bubbling phase, true==capture phase*/);
     onresize();
@@ -424,7 +459,7 @@
         if (missingHardware.length > 0) {
           message += 'The following hardware devices were not found:\n';
           for (var i = 0; i < missingHardware.length; i++) {
-            message += '\t"' + missingHardware[i] + '"\n';
+            message += '    "' + missingHardware[i] + '"\n';
           }
         }
         message += '\nIf the current configuration is not the appropriate configuration for this ' +
@@ -455,7 +490,7 @@
 
           if (typeof field.getOptions === 'function') {
             // The identifier field is a dropdown field with options.
-            // Check if identifierFieldValue is one of the options.
+            // Check if identifierFieldValue is the value of one of the options.
             var options = field.getOptions();
             fieldHasOptions = true;
             identifierFound = false;
@@ -463,6 +498,17 @@
               if (options[iOption][1] == identifierFieldValue) {
                 identifierFound = true;
                 break;
+              }
+            }
+            if (!identifierFound) {
+              // Check if identifierFieldValue is the visible name of one of the options.
+              for (var iOption = 0; iOption < options.length; iOption++) {
+                if (options[iOption][0] == identifierFieldValue) {
+                  identifierFieldValue = options[iOption][1];
+                  field.setValue(identifierFieldValue);
+                  identifierFound = true;
+                  break;
+                }
               }
             }
           } else {
@@ -669,6 +715,34 @@
    * Called from Save button onclick.
    */
   function saveButtonClicked() {
+    if (blockIdsWithWarnings.length == 0) {
+      saveProjectNow();
+    } else {
+      var messageDiv = document.getElementById('saveWithWarningsMessage');
+      if (blockIdsWithWarnings.length == 1) {
+        messageDiv.innerHTML = 'There is 1 block that uses a missing hardware device.';
+      } else {
+        if (missingHardware.length == 1) {
+          messageDiv.innerHTML = 'There are ' + blockIdsWithWarnings.length +
+              ' blocks that use a missing hardware device.';
+        } else {
+          messageDiv.innerHTML = 'There are ' + blockIdsWithWarnings.length +
+              ' blocks that use missing hardware devices.';
+        }
+      }
+
+      document.getElementById('saveWithWarningsDialog').style.display = 'block';
+    }
+  }
+
+  function noSaveWithWarningsDialog() {
+    // Close the dialog.
+    document.getElementById('saveWithWarningsDialog').style.display = 'none';
+  }
+
+  function yesSaveWithWarningsDialog() {
+    // Close the dialog.
+    document.getElementById('saveWithWarningsDialog').style.display = 'none';
     saveProjectNow();
   }
 
@@ -691,17 +765,18 @@
             function(success, errorMessage) {
           if (success) {
             isDirty = false;
-            document.getElementById('saveSuccess').innerHTML = 'Save completed successfully.';
-            document.getElementById('saveFailure').innerHTML = '';
+            document.getElementById('saveSuccess').style.display = 'inline-block';
+            document.getElementById('saveFailure').style.display = 'none';
             window.setTimeout(function() {
-              document.getElementById('saveSuccess').innerHTML = '';
+              document.getElementById('saveSuccess').style.display = 'none';
             }, 3000);
             if (opt_success_callback) {
               opt_success_callback();
             }
           } else {
-            document.getElementById('saveSuccess').innerHTML = '';
+            document.getElementById('saveSuccess').style.display = 'none';
             document.getElementById('saveFailure').innerHTML = errorMessage;
+            document.getElementById('saveFailure').style.display = 'inline-block';
           }
         });
       }
@@ -764,7 +839,7 @@
       if (canvasElement.toBlob !== undefined) {
         var downloadImageButton = document.getElementById('downloadImageButton');
         downloadImageButton.disabled = false;
-        downloadImageButton.style.visibility = 'visible';
+        downloadImageButton.style.display = 'inline';
       }
     }
   }
@@ -861,7 +936,7 @@
       });
     };
     image.onerror = function (e) {
-      console.log('Error while downloading blocks image', e);
+      alert('Unable to download blocks image. Sorry about that!');
     };
     image.src = uri;
   }

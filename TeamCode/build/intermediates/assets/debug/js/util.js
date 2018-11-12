@@ -112,6 +112,7 @@ var fetchRcInfoAndScaleText = function () {
 
 var hideElement = function(element, hide) {
     if (hide) {
+        removeClass(element, "hidden");
         addClass(element, "hidden");
     } else {
         removeClass(element, "hidden");
@@ -215,42 +216,34 @@ var loadRcInfo = function(callback) {
     });
 };
 
-// undoubtedly this could be sped up :-)
+//This is conservative only allow alphanumerics and underscore
 var makeAndroidSafeFileName = function(fileName) {
-        return fileName.replace(/[^\w\d_\-+,@£\$€!½§~'=()[]{}]/g, '_');
+        return fileName.replace(/\W/g, '_');
 };
 
-// Uploads the file by posting to the indicted URL. progress is periodically
-// called while this occurs
-// https://en.wikipedia.org/wiki/XMLHttpRequest
-// https://xhr.spec.whatwg.org/
-// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
-// https://developer.mozilla.org/en-US/docs/Web/Events/progress
-// https://developer.mozilla.org/en-US/docs/Web/API/File
-var uploadFile = function (localFile /*a File*/, url, progress, success, failure) {
+var uploadFile = function (localFile /*a File*/, url, success, failure) {
     var xhr = new XMLHttpRequest();
-
-    if (progress) {
-        // Note: on Chrome, the progress events do eventually fire, but only, it seems,
-        // after the upload is complete. Not very useful. IE and other browsers are fine.
-        var progressEvent = function (e) { progress(xhr, e); }
-        xhr.upload.addEventListener("progress", progressEvent, false /*useCapture*/);
-    }
-    if (success) {
-        var successEvent = function (e) { success(xhr, e); }
-        xhr.upload.addEventListener("load", successEvent);
-    }
-    if (failure) {
-        var failureEvent = function (e) { failure(xhr, e); }
-        xhr.upload.addEventListener("error", failureEvent);
-        xhr.upload.addEventListener("abort", failureEvent);
-        xhr.upload.addEventListener("timeout", failureEvent);
-    }
+    var lastDotIndex = localFile.name.lastIndexOf(".");
+    var base = localFile.name.substring(0, lastDotIndex);
+    var ext = localFile.name.substring(lastDotIndex, localFile.name.length);
+    var fileName = makeAndroidSafeFileName(base) + ext;
 
     xhr.open("POST", url);
     xhr.setRequestHeader('Content-type', 'application/octet-stream');
     xhr.overrideMimeType('application/octet-stream');
-    xhr.setRequestHeader('Content-Disposition', 'attachment; filename=' + '"' + makeAndroidSafeFileName(localFile.name) + '"');  // TODO: do we need to URI-encode this?
+    xhr.setRequestHeader('Content-Disposition', 'attachment; filename=' + '"' + fileName + '"');
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                success();
+            }
+            else {
+                failure();
+                alert("Failed to upload file: " + localFile.name + " : " + xhr.responseText);
+            }
+        }
+    }
 
     // On Chrome, give the wait cursor a chance to show up, dang it.
     addClass(document.documentElement, "wait");
@@ -264,7 +257,7 @@ var uploadFile = function (localFile /*a File*/, url, progress, success, failure
          };
         console.log("reading " + localFile.name);
         reader.readAsArrayBuffer(localFile);
-    }, hasFunctionalProgress() ? 0 : 1000);
+    }, 1000);
 }
 
 //----------------------------------------------------------------------------------------------
@@ -283,13 +276,6 @@ var isInternetExplorer = function() {
 
 window.isFtcRobotController = function isFtcRobotController() {
     return ftcUserAgentCategory !== null && ftcUserAgentCategory !== 'OTHER';
-};
-
-// Returns whether we get progress callbacks in a reasonable time or not. Chrome is notorious:
-// it defers all the progress callbacks until the end, which is of course, useless. We haven't
-// tested (yet) on Safari.
-var hasFunctionalProgress = function() {
-    return isInternetExplorer() || isFireFox();
 };
 
 // The endsWith() method is not supported in IE 11 (and earlier versions). So we roll our own.
