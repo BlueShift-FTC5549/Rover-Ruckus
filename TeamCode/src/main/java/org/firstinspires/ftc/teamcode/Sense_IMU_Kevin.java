@@ -62,10 +62,19 @@ public class Sense_IMU_Kevin extends OpMode
      */
     @Override
     public void loop() {
-        imu.getHeading();
+        if (gamepad1.a);
+            float degree = 90;
+            float new_heading = imu.getHeading() - degree;
+            if (new_heading < 0) {
+                new_heading = 360 + new_heading;
+            }
+            for(;imu.getHeading() != new_heading;)
+                left.setPower(-0.25);
+                right.setPower(0.25);
 
-        left.setPower(1);
-        right.setPower(1);
+
+
+
     }
 
     /*
