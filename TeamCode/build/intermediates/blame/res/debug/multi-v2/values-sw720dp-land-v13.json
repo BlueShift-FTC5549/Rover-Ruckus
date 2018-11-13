@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/incremental/mergeDebugResources/merged.dir/values-sw720dp-land-v13/values-sw720dp-land-v13.xml",
+            "outputFile": "/Users/Kangj21/Desktop/Robotics 2018-19/Rover-Ruckus/TeamCode/build/intermediates/incremental/mergeDebugResources/merged.dir/values-sw720dp-land-v13/values-sw720dp-land-v13.xml",
             "map": [
                 {
-                    "source": "/Users/wongg19/Documents/GitHub/Rover-Ruckus/FtcRobotController/build/intermediates/packaged_res/debug/values-sw720dp-land-v13/values-sw720dp-land-v13.xml",
+                    "source": "/Users/Kangj21/Desktop/Robotics 2018-19/Rover-Ruckus/FtcRobotController/build/intermediates/packaged_res/debug/values-sw720dp-land-v13/values-sw720dp-land-v13.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
