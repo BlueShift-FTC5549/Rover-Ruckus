@@ -40,6 +40,8 @@ public class Sense_Joon extends OpMode
         imu = new IMU(hardwareMap, "imu");
         left = hardwareMap.get(DcMotor.class, "left");
         right = hardwareMap.get(DcMotor.class, "right");
+        float Startdegree = imu.getHeading();
+
     }
 
     /*
@@ -62,10 +64,33 @@ public class Sense_Joon extends OpMode
      */
     @Override
     public void loop() {
-        imu.getHeading();
+        float currentdegree = imu.getHeading();
+        float sum;
 
-        left.setPower(1);
-        right.setPower(1);
+        if (currentdegree <= 90.0 && Startdegree >= 270.0 ){
+            sum = (360.0 - Startdegree) + currentdegree;
+        }
+        else if ( Startdegree <= 90 && currentdegree >= 270){
+            sum = (360.0 - currentdegree) + Startdegree;
+        }
+        else if(Startdegree >= currentdegree){
+            sum = Startdegree - currentdegree;
+        }
+        else if(Startdegree <= currentdegree){
+            sum = currentdegree - Startdegree;
+        }
+
+        if(sum >= 89.5 && sum <= 90.5) {
+            left.setpower(0.0);
+            right.setpower(0.0);
+        }
+        else{
+            float powervalue = (90.0 - sum)/90.0;
+            if(powervalue <= 0.1)
+                powervalue += 0.1;
+            left.setpower(powervalue);
+            right.setpower(-powervalue);
+        }
     }
 
     /*
