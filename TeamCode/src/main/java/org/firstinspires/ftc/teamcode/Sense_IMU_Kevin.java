@@ -5,6 +5,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -40,6 +41,9 @@ public class Sense_IMU_Kevin extends OpMode
         imu = new IMU(hardwareMap, "imu");
         left = hardwareMap.get(DcMotor.class, "left");
         right = hardwareMap.get(DcMotor.class, "right");
+
+        left.setDirection(DcMotorSimple.Direction.FORWARD);
+        right.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     /*
@@ -64,17 +68,18 @@ public class Sense_IMU_Kevin extends OpMode
     public void loop() {
         float degree = 90;
         float new_heading = imu.getHeading() - degree;
-        if (gamepad1.a);
+        if (gamepad1.a) {
             if (new_heading < 0) {
                 new_heading = 360 + new_heading;
             }
-            while(new_heading - 0.5 <= imu.getHeading() &&  imu.getHeading() <= new_heading + 0.5 )
+            while (Math.abs(imu.getHeading() - new_heading) > 0.5) {
                 left.setPower(-0.25);
                 right.setPower(0.25);
+            }
 
             left.setPower(0.0);
             right.setPower(0.0);
-
+        }
     }
 
     /*
