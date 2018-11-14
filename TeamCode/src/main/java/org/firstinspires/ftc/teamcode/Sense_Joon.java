@@ -31,6 +31,7 @@ public class Sense_Joon extends OpMode
     private ElapsedTime runtime = new ElapsedTime();
     DcMotor left, right;
     IMU imu;
+    double Startdegree = imu.getHeading();
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -40,7 +41,6 @@ public class Sense_Joon extends OpMode
         imu = new IMU(hardwareMap, "imu");
         left = hardwareMap.get(DcMotor.class, "left");
         right = hardwareMap.get(DcMotor.class, "right");
-        float Startdegree = imu.getHeading();
 
     }
 
@@ -64,13 +64,13 @@ public class Sense_Joon extends OpMode
      */
     @Override
     public void loop() {
-        float currentdegree = imu.getHeading();
-        float sum;
+        double currentdegree = imu.getHeading();
+        double sum;
 
         if (currentdegree <= 90.0 && Startdegree >= 270.0 ){
             sum = (360.0 - Startdegree) + currentdegree;
         }
-        else if ( Startdegree <= 90 && currentdegree >= 270){
+        else if ( Startdegree <= 90.0 && currentdegree >= 270.0){
             sum = (360.0 - currentdegree) + Startdegree;
         }
         else if(Startdegree >= currentdegree){
@@ -85,9 +85,9 @@ public class Sense_Joon extends OpMode
             right.setpower(0.0);
         }
         else{
-            float powervalue = (90.0 - sum)/90.0;
+            double powervalue = (90.0 - sum)/90.0;
             if(powervalue <= 0.1)
-                powervalue += 0.1;
+                powervalue = 0.1;
             left.setpower(powervalue);
             right.setpower(-powervalue);
         }
