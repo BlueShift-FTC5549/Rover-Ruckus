@@ -7,8 +7,8 @@
 <!-- The package name here determines the package for your R class and your BuildConfig class -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.qualcomm.ftcrobotcontroller"
-    android:versionCode="28"
-    android:versionName="4.0" >
+    android:versionCode="31"
+    android:versionName="4.3" >
 
     <uses-sdk
         android:minSdkVersion="19"
@@ -59,6 +59,7 @@
         android:name="android.permission.WAKE_LOCK"
         android:required="true" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <uses-feature android:name="android.hardware.usb.accessory" />
     <uses-feature android:glEsVersion="0x00020000" />
@@ -91,7 +92,8 @@
             android:name="org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
-            android:launchMode="singleTask" >
+            android:launchMode="singleTask"
+            android:screenOrientation="fullUser" >
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
 
@@ -104,6 +106,9 @@
             <meta-data
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
+            <meta-data
+                android:name="org.firstinspires.main.entry"
+                android:value="true" />
         </activity> <!-- The robot controller service in which most of the robot functionality is managed -->
         <service
             android:name="com.qualcomm.ftccommon.FtcRobotControllerService"
