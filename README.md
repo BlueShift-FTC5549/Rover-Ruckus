@@ -13,10 +13,15 @@ Blue Shift shares all of our code so that other teams may learn from our program
 
 ## Release History
 
+* 0.2.0
+    * Auto Encoder Drive
+    * IMU Code Update
+    * Blue Shift Utilities
 * 0.1.0
     * TeleOP Skeleton
     * Autonomous Library Skeleton
     * IMU & PID Controller Skeleton
+
 
 ## Meta
 

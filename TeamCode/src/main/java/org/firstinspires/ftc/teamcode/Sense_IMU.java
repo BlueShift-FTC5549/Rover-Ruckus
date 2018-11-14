@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.blueshiftrobotics.ftc.AutoTwoWheelDrive;
+import com.blueshiftrobotics.ftc.IMU;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -29,28 +31,17 @@ public class Sense_IMU extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    BNO055IMU IMU;
+    private AutoTwoWheelDrive autoTwoWheelDrive;
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Status", "Starting Init");
 
-        IMU  = hardwareMap.get(BNO055IMU.class, "imu");
+        autoTwoWheelDrive = new AutoTwoWheelDrive(hardwareMap, "left", "right", "imu");
 
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json";
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
-
-        IMU.initialize(parameters);
-
-        // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
 
@@ -74,9 +65,12 @@ public class Sense_IMU extends OpMode
      */
     @Override
     public void loop() {
-        // Show the elapsed game time and wheel power.
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Headings", IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
+        int test = 0;
+
+        while (test == 0) {
+            autoTwoWheelDrive.turn(90);
+            test++;
+        }
     }
 
     /*

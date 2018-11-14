@@ -1,12 +1,11 @@
 
 .idea/
-.DS_Store
-TeamCode/build/
-.gradle/
-.idea/workspace.xml
-local.properties
-FtcRobotController/build/
-TeamCode/build/
 doc/
 build/
+.DS_Store
+.gradle/
+local.properties
+TeamCode/build/
+TeamCode/.idea/
+FtcRobotController/build/
 *.iml
