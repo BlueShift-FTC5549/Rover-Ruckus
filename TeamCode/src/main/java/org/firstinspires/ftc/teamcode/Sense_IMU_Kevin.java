@@ -68,7 +68,7 @@ public class Sense_IMU_Kevin extends OpMode
             if (new_heading < 0) {
                 new_heading = 360 + new_heading;
             }
-            while(new_heading - 0.5 >= imu.getHeading() && new_heading + 0.5 >= imu.getHeading())
+            while(new_heading - 0.5 <= imu.getHeading() &&  imu.getHeading() <= new_heading + 0.5 )
                 left.setPower(-0.25);
                 right.setPower(0.25);
 
