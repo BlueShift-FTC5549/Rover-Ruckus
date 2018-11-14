@@ -7,13 +7,13 @@
     format="10"
     ir-eligibility="COMPATIBLE"
     plugin-version="3.1.3"
-    timestamp="1542228183767"
+    timestamp="1542228968662"
     token="-2930976614412581111"
     verifier="COLD_SWAP_REQUESTED" >
 
     <task
         name="javac"
-        duration="144" />
+        duration="94" />
     <task
         name="instant-run-dex"
         duration="0" />
@@ -22,10 +22,10 @@
         duration="11" />
     <task
         name="verifier"
-        duration="6" />
+        duration="4" />
 
     <artifact
-        location="/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/split-apk/debug/slices/slice_6.apk"
+        location="/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/split-apk/debug/slices/slice_2.apk"
         type="SPLIT" />
     <artifact
         location="/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/instant-run-apk/debug/TeamCode-debug.apk"
@@ -74,17 +74,17 @@
     </build>
     <build
         build-mode="COLD"
-        ir-eligibility="COMPATIBLE"
-        timestamp="1542227605197"
+        ir-eligibility="FIELD_ADDED"
+        timestamp="1542228519860"
         verifier="COLD_SWAP_REQUESTED" >
         <artifact
-            location="/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/split-apk/debug/slices/slice_2.apk"
+            location="/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/split-apk/debug/slices/slice_6.apk"
             type="SPLIT" />
     </build>
     <build
         build-mode="COLD"
         ir-eligibility="COMPATIBLE"
-        timestamp="1542227931473"
+        timestamp="1542228815930"
         verifier="COLD_SWAP_REQUESTED" >
         <artifact
             location="/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/instant-run-apk/debug/TeamCode-debug.apk"
@@ -93,10 +93,10 @@
     <build
         build-mode="COLD"
         ir-eligibility="COMPATIBLE"
-        timestamp="1542228183767"
+        timestamp="1542228968662"
         verifier="COLD_SWAP_REQUESTED" >
         <artifact
-            location="/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/split-apk/debug/slices/slice_6.apk"
+            location="/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/split-apk/debug/slices/slice_2.apk"
             type="SPLIT" />
         <artifact
             location="/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/instant-run-apk/debug/TeamCode-debug.apk"
