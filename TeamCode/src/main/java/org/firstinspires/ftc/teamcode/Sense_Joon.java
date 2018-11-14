@@ -5,6 +5,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -31,7 +32,7 @@ public class Sense_Joon extends OpMode
     private ElapsedTime runtime = new ElapsedTime();
     DcMotor left, right;
     IMU imu;
-    double Startdegree = imu.getHeading();
+    double Startdegree;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -42,6 +43,10 @@ public class Sense_Joon extends OpMode
         left = hardwareMap.get(DcMotor.class, "left");
         right = hardwareMap.get(DcMotor.class, "right");
 
+        left.setDirection(DcMotorSimple.Direction.FORWARD);
+        right.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        Startdegree = imu.getHeading();
     }
 
     /*
@@ -65,7 +70,7 @@ public class Sense_Joon extends OpMode
     @Override
     public void loop() {
         double currentdegree = imu.getHeading();
-        double sum;
+        double sum = 0;
 
         if (currentdegree <= 90.0 && Startdegree >= 270.0 ){
             sum = (360.0 - Startdegree) + currentdegree;
@@ -81,15 +86,15 @@ public class Sense_Joon extends OpMode
         }
 
         if(sum >= 89.5 && sum <= 90.5) {
-            left.setpower(0.0);
-            right.setpower(0.0);
+            left.setPower(0.0);
+            right.setPower(0.0);
         }
         else{
             double powervalue = (90.0 - sum)/90.0;
             if(powervalue <= 0.1)
                 powervalue = 0.1;
-            left.setpower(powervalue);
-            right.setpower(-powervalue);
+            left.setPower(powervalue);
+            right.setPower(-powervalue);
         }
     }
 

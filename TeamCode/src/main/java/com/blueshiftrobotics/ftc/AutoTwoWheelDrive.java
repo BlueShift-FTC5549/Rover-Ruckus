@@ -71,9 +71,11 @@ public class AutoTwoWheelDrive {
         thetaPercentError = thetaErrorInit / thetaErrorInit;
 
         while (Math.abs(thetaPercentError * dTheta) > turningErrorAllowance) {
-            System.out.println(thetaPercentError * dTheta);
+            System.out.println("Percent Error * dTheta: " + thetaPercentError * dTheta);
 
             float thetaError = (float)BlueShiftUtil.getDegreeDifference(thetaFinal, thetaInit);
+            System.out.println("Theta Error: " + thetaError);
+
             thetaPercentError = thetaError / thetaErrorInit; //Modulus to protect against over 360 (wrap-around to 0) degrees.
 
             double turn = turnKp * thetaPercentError;
