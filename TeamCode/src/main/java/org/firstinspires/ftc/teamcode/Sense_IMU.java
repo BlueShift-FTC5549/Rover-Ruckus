@@ -68,6 +68,7 @@ public class Sense_IMU extends OpMode
         int test = 0;
 
         while (test == 0) {
+            telemetry.addData("Status", "Testing...");
             autoTwoWheelDrive.turn(90);
             test++;
         }
