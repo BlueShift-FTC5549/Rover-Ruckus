@@ -24,11 +24,11 @@ public class AutoTwoWheelDrive {
     private DcMotor motorDriveRight;
     private IMU imu;
 
-    private double turnKp = 0.5;
-    private float turningErrorAllowance = 2; //In Degrees
+    private static final double turnKp = 0.5;
+    private static final float turningErrorAllowance = 2; //In Degrees
 
-    private double encoderDriveKp = 0.5;
-    private int encoderDriveErrorAllowance = 10;
+    private static final double encoderDriveKp = 0.5;
+    private static final int encoderDriveErrorAllowance = 10;
 
     /**
      * Create a new instance of a two wheel drive library using the current hardware map and names
@@ -70,7 +70,9 @@ public class AutoTwoWheelDrive {
         thetaErrorInit = (float)BlueShiftUtil.getDegreeDifference(thetaFinal, thetaInit);
         thetaPercentError = thetaErrorInit / thetaErrorInit;
 
-        while (Math.abs(thetaPercentError) > turningErrorAllowance) {
+        while (Math.abs(thetaPercentError * dTheta) > turningErrorAllowance) {
+            System.out.println(thetaPercentError * dTheta);
+
             float thetaError = (float)BlueShiftUtil.getDegreeDifference(thetaFinal, thetaInit);
             thetaPercentError = thetaError / thetaErrorInit; //Modulus to protect against over 360 (wrap-around to 0) degrees.
 
