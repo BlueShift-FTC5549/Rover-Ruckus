@@ -3,6 +3,7 @@ package com.blueshiftrobotics.ftc;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -25,17 +26,49 @@ public class IMU {
      * @param IMUName The name of the BNO055IMU in the robot controller.
      */
     public IMU(HardwareMap hardwareMap, String IMUName) {
-        revIMU = hardwareMap.get(BNO055IMU.class, IMUName);
+        try {
+            revIMU = hardwareMap.get(BNO055IMU.class, IMUName);
 
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json";
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
+            parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.calibrationDataFile = "BNO055IMUCalibration.json";
+            parameters.loggingEnabled = true;
+            parameters.loggingTag = "IMU";
 
-        revIMU.initialize(parameters);
+            revIMU.initialize(parameters);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Create a new BNO055IMU with preset parameters, the hardware component being added with a
+     * HardwareMap parameter and the robot configuration name for the IMU's I2C bus.
+     *
+     * @param telemetry The driver station telemetry for status communication.
+     * @param hardwareMap The robot controller's hardware map.
+     * @param IMUName The name of the BNO055IMU in the robot controller.
+     */
+    public IMU(Telemetry telemetry, HardwareMap hardwareMap, String IMUName) {
+        try {
+            revIMU = hardwareMap.get(BNO055IMU.class, IMUName);
+
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+            parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.calibrationDataFile = "BNO055IMUCalibration.json";
+            parameters.loggingEnabled = true;
+            parameters.loggingTag = "IMU";
+
+            revIMU.initialize(parameters);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            telemetry.addData("IMU Status", "ERROR ERROR ERROR");
+        }
     }
 
     /**
@@ -45,6 +78,6 @@ public class IMU {
      */
     public float getHeading() {
         //TODO: If the axes of the orientation of the REV hub changes, we must change the Axes Order to get the correct angle.
-        return revIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        return revIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
     }
 }

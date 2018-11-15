@@ -1,8 +1,12 @@
 package com.blueshiftrobotics.ftc;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
  * Name Breakdown
@@ -24,7 +28,10 @@ public class AutoTwoWheelDrive {
     private DcMotor motorDriveRight;
     private IMU imu;
 
-    private static final double turnKp = 0.5;
+    private Telemetry telemetry;
+    private LinearOpMode opMode;
+
+    private static final double turnKp = 0.45;
     private static final float turningErrorAllowance = 2; //In Degrees
 
     private static final double encoderDriveKp = 0.5;
@@ -39,16 +46,42 @@ public class AutoTwoWheelDrive {
      * @param motorDriveRightName Name of the right drive motor
      * @param IMUName Name of the IMU sensor on the REV Expansion Hub
      */
-    public AutoTwoWheelDrive(HardwareMap hardwareMap, String motorDriveLeftName, String motorDriveRightName, String IMUName) {
+    public AutoTwoWheelDrive(Telemetry telemetry, HardwareMap hardwareMap, String motorDriveLeftName, String motorDriveRightName, String IMUName) {
         this.motorDriveLeft = hardwareMap.get(DcMotor.class, motorDriveLeftName);
         this.motorDriveRight = hardwareMap.get(DcMotor.class, motorDriveRightName);
-        this.imu = new IMU(hardwareMap, IMUName);
+        this.imu = new IMU(opMode.telemetry, hardwareMap, IMUName);
 
         motorDriveLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         motorDriveRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         motorDriveLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorDriveRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        this.telemetry = telemetry;
+    }
+
+    /**
+     * Create a new instance of a two wheel drive library using the current hardware map and names
+     * of components of interest.
+     *
+     * @param hardwareMap Current hardware map
+     * @param motorDriveLeftName Name of the left drive motor
+     * @param motorDriveRightName Name of the right drive motor
+     * @param IMUName Name of the IMU sensor on the REV Expansion Hub
+     */
+    public AutoTwoWheelDrive(LinearOpMode opMode, HardwareMap hardwareMap, String motorDriveLeftName, String motorDriveRightName, String IMUName) {
+        this.motorDriveLeft = hardwareMap.get(DcMotor.class, motorDriveLeftName);
+        this.motorDriveRight = hardwareMap.get(DcMotor.class, motorDriveRightName);
+        this.imu = new IMU(opMode.telemetry, hardwareMap, IMUName);
+
+        motorDriveLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        motorDriveRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        motorDriveLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorDriveRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        this.telemetry = opMode.telemetry;
+        this.opMode = opMode;
     }
 
     /**
@@ -61,27 +94,31 @@ public class AutoTwoWheelDrive {
      */
     public void turn(float dTheta) {
         float thetaInit;
-        float thetaFinal;
-        float thetaPercentError; // A Percent error is used to not have the `turn` power parameter skyrocket when dTheta is big.
-        float thetaErrorInit;
+        float thetaTarget;
+        float thetaCurrent;
+        float thetaPercentError = 1; // A Percent error is used to not have the `turn` power parameter skyrocket when dTheta is big.
 
         thetaInit = imu.getHeading();
-        thetaFinal = thetaInit + dTheta;
-        thetaErrorInit = (float)BlueShiftUtil.getDegreeDifference(thetaFinal, thetaInit);
-        thetaPercentError = thetaErrorInit / thetaErrorInit;
 
-        while (Math.abs(thetaPercentError * dTheta) > turningErrorAllowance) {
+        thetaTarget = thetaInit + dTheta;
+
+        while (Math.abs(thetaPercentError * dTheta) > turningErrorAllowance && opMode.opModeIsActive()) {
+            thetaCurrent = imu.getHeading();
+
+            float thetaError = (float)BlueShiftUtil.getDegreeDifference(thetaTarget, thetaCurrent);
+
             System.out.println("Percent Error * dTheta: " + thetaPercentError * dTheta);
-
-            float thetaError = (float)BlueShiftUtil.getDegreeDifference(thetaFinal, thetaInit);
             System.out.println("Theta Error: " + thetaError);
 
-            thetaPercentError = thetaError / thetaErrorInit; //Modulus to protect against over 360 (wrap-around to 0) degrees.
+            thetaPercentError = thetaError / dTheta;
 
-            double turn = turnKp * thetaPercentError;
+            motorDriveLeft.setPower(turnKp * thetaPercentError);
+            motorDriveRight.setPower(-turnKp * thetaPercentError);
 
-            motorDriveLeft.setPower(-turn);
-            motorDriveRight.setPower(turn);
+            telemetry.addData("Percent Error", thetaPercentError);
+            telemetry.addData("Current Heading", thetaCurrent);
+            telemetry.addData("Target Heading", thetaTarget);
+            telemetry.update();
         }
 
         motorDriveLeft.setPower(0);
@@ -104,7 +141,7 @@ public class AutoTwoWheelDrive {
         int motorDriveLeftEncoderError, motorDriveRightEncoderError;
         double motorDriveLeftPercentEncoderError, motorDriveRightPercentEncoderError;
 
-        while (Math.abs(motorDriveLeft.getCurrentPosition() - targetEncoderValue) > encoderDriveErrorAllowance || Math.abs(motorDriveRight.getCurrentPosition() - targetEncoderValue) > encoderDriveErrorAllowance) {
+        while (Math.abs(motorDriveLeft.getCurrentPosition() - targetEncoderValue) > encoderDriveErrorAllowance || Math.abs(motorDriveRight.getCurrentPosition() - targetEncoderValue) > encoderDriveErrorAllowance && opMode.opModeIsActive()) {
             motorDriveLeftEncoderError = targetEncoderValue - motorDriveLeft.getCurrentPosition();
             motorDriveRightEncoderError = targetEncoderValue - motorDriveRight.getCurrentPosition();
             motorDriveLeftPercentEncoderError = (double)motorDriveLeftEncoderError / (double)targetEncoderValue;
@@ -119,5 +156,8 @@ public class AutoTwoWheelDrive {
 
         motorDriveLeft.setPower(0);
         motorDriveRight.setPower(0);
+
+        motorDriveLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorDriveRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 }

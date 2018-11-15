@@ -93,8 +93,8 @@ public class Sense_Joon extends OpMode
             double powervalue = (90.0 - sum)/180.0;
             if(powervalue < 0.05)
                 powervalue = 0.05;
-            left.setpower(powervalue);
-            right.setpower(-powervalue);
+            left.setPower(powervalue);
+            right.setPower(-powervalue);
         }
     }
 

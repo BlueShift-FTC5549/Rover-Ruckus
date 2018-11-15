@@ -40,7 +40,7 @@ public class Sense_IMU extends OpMode
     public void init() {
         telemetry.addData("Status", "Starting Init");
 
-        autoTwoWheelDrive = new AutoTwoWheelDrive(hardwareMap, "left", "right", "imu");
+        autoTwoWheelDrive = new AutoTwoWheelDrive(this, hardwareMap, "left", "right", "imu");
 
         telemetry.addData("Status", "Initialized");
     }
@@ -58,6 +58,10 @@ public class Sense_IMU extends OpMode
     @Override
     public void start() {
         runtime.reset();
+        telemetry.addData("Status", "Turning...");
+        telemetry.update();
+        autoTwoWheelDrive.turn(90);
+        telemetry.addData("Status", "Finished!");
     }
 
     /*
@@ -65,13 +69,7 @@ public class Sense_IMU extends OpMode
      */
     @Override
     public void loop() {
-        int test = 0;
 
-        while (test == 0) {
-            telemetry.addData("Status", "Testing...");
-            autoTwoWheelDrive.turn(90);
-            test++;
-        }
     }
 
     /*
