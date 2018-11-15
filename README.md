@@ -13,6 +13,10 @@ Blue Shift shares all of our code so that other teams may learn from our program
 
 ## Release History
 
+* 0.3.0
+    * Autonomous Linear Conversion
+    * Gyro Turning Method Examples
+    * Blue Shift Utilities Fix
 * 0.2.0
     * Auto Encoder Drive
     * IMU Code Update
