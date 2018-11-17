@@ -31,6 +31,13 @@ public class Auto_Linear extends LinearOpMode {
         telemetry.addData("Status", "Turning...");
         telemetry.update();
         autoTwoWheelDrive.turn(90);
+        sleep(3000);
+        autoTwoWheelDrive.turn(180);
+        sleep(3000);
+        autoTwoWheelDrive.turn(90);
+        sleep(3000);
+
+        autoTwoWheelDrive.encoderDrive(3000);
         telemetry.addData("Status", "Finished!");
     }
 }

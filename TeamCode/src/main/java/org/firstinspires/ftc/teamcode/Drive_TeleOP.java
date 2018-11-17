@@ -37,7 +37,11 @@ public class Drive_TeleOP extends OpMode {
     @Override public void loop() {
         // The power multiplier scales down non-linearly as the left trigger is pushed more.
         // Scaling follows the function (2/3)*(1-x)^2+(1/3) where x is the trigger value.
-        powerMultiplier = (2/3)*Math.pow(1 - gamepad1.left_trigger, 2) + (1/3);
+        if (gamepad1.left_trigger > 0) {
+            powerMultiplier = (2 / 3) * Math.pow(1 - gamepad1.left_trigger, 2) + (1 / 3);
+        } else {
+            powerMultiplier = 1;
+        }
 
         double drive = -gamepad1.left_stick_y;
         double turn  =  gamepad1.right_stick_x;

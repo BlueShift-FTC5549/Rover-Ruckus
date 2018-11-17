@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -31,8 +32,9 @@ public class AutoTwoWheelDrive {
     private Telemetry telemetry;
     private LinearOpMode opMode;
 
-    private static final double turnKp = 0.45;
-    private static final float turningErrorAllowance = 2; //In Degrees
+    private static final float turnKp = (float)0.85;
+    private static final float turningErrorAllowance = 1; //In Degrees
+    private static final float turningPowerThreshold = (float)0.05; //TODO: Tune this constant
 
     private static final double encoderDriveKp = 0.5;
     private static final int encoderDriveErrorAllowance = 10;
@@ -41,6 +43,7 @@ public class AutoTwoWheelDrive {
      * Create a new instance of a two wheel drive library using the current hardware map and names
      * of components of interest.
      *
+     * @param telemetry The Telemetry from the calling OpMode class
      * @param hardwareMap Current hardware map
      * @param motorDriveLeftName Name of the left drive motor
      * @param motorDriveRightName Name of the right drive motor
@@ -64,6 +67,7 @@ public class AutoTwoWheelDrive {
      * Create a new instance of a two wheel drive library using the current hardware map and names
      * of components of interest.
      *
+     * @param opMode The Linear Op Mode that constructs this library.
      * @param hardwareMap Current hardware map
      * @param motorDriveLeftName Name of the left drive motor
      * @param motorDriveRightName Name of the right drive motor
@@ -100,7 +104,7 @@ public class AutoTwoWheelDrive {
 
         thetaInit = imu.getHeading();
 
-        thetaTarget = thetaInit + dTheta;
+        thetaTarget = (thetaInit + dTheta) % 360;
 
         while (Math.abs(thetaPercentError * dTheta) > turningErrorAllowance && opMode.opModeIsActive()) {
             thetaCurrent = imu.getHeading();
@@ -112,8 +116,14 @@ public class AutoTwoWheelDrive {
 
             thetaPercentError = thetaError / dTheta;
 
-            motorDriveLeft.setPower(turnKp * thetaPercentError);
-            motorDriveRight.setPower(-turnKp * thetaPercentError);
+            float turningPower = turnKp * thetaPercentError;
+
+            if (turningPower < turningPowerThreshold && Math.abs(thetaPercentError * dTheta) > turningErrorAllowance) {
+                turningPower = turningPowerThreshold;
+            }
+
+            motorDriveLeft.setPower(turningPower);
+            motorDriveRight.setPower(-turningPower);
 
             telemetry.addData("Percent Error", thetaPercentError);
             telemetry.addData("Current Heading", thetaCurrent);
@@ -134,9 +144,11 @@ public class AutoTwoWheelDrive {
      *
      * @param targetEncoderValue The encoder value to drive to
      */
-    private void encoderDrive(int targetEncoderValue) {
+    public void encoderDrive(int targetEncoderValue) {
         motorDriveLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorDriveRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        telemetry.addData("Status", "Driving!");
 
         int motorDriveLeftEncoderError, motorDriveRightEncoderError;
         double motorDriveLeftPercentEncoderError, motorDriveRightPercentEncoderError;
@@ -149,6 +161,9 @@ public class AutoTwoWheelDrive {
 
             double motorDriveLeftPower = encoderDriveKp * motorDriveLeftPercentEncoderError;
             double motorDriveRightPower = encoderDriveKp * motorDriveRightPercentEncoderError;
+
+            telemetry.addData("Left Encoder", motorDriveLeft.getCurrentPosition());
+            telemetry.addData("Right Encoder", motorDriveLeft.getCurrentPosition());
 
             motorDriveLeft.setPower(motorDriveLeftPower);
             motorDriveRight.setPower(motorDriveRightPower);

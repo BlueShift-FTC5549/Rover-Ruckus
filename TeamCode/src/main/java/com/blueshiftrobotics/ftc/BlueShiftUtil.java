@@ -11,7 +11,7 @@ public class BlueShiftUtil {
 
         if (rawDifference > 180) {
             return 360 - rawDifference;
-        } else if (rawDifference < 180) {
+        } else if (rawDifference < -180) {
             return 360 + rawDifference;
         } else {
             return rawDifference;

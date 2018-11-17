@@ -13,6 +13,8 @@ Blue Shift shares all of our code so that other teams may learn from our program
 
 ## Release History
 
+* 0.4.0
+    * Turning Code Pre-Final
 * 0.3.0
     * Autonomous Linear Conversion
     * Gyro Turning Method Examples
