@@ -34,10 +34,11 @@ public class AutoTwoWheelDrive {
 
     private static final float turnKp = (float)0.85;
     private static final float turningErrorAllowance = 1; //In Degrees
-    private static final float turningPowerThreshold = (float)0.05; //TODO: Tune this constant
+    private static final float turningPowerThreshold = (float)0.05; //TODO: Tune this constant.
 
-    private static final double encoderDriveKp = 0.5;
+    private static final float encoderDriveKp = (float)0.5;
     private static final int encoderDriveErrorAllowance = 10;
+    private static final float encoderDrivePowerThreshold = (float)0.1; //TODO: Tune this constant.
 
     /**
      * Create a new instance of a two wheel drive library using the current hardware map and names
@@ -94,6 +95,8 @@ public class AutoTwoWheelDrive {
      * control the speed of the motors as the destination is approached at different rates to
      * reduce final error rates from overshoot and undershoot.
      *
+     * //TODO: Fix zero at beginning at end
+     *
      * @param dTheta The angular displacement target
      */
     public void turn(float dTheta) {
@@ -111,16 +114,9 @@ public class AutoTwoWheelDrive {
 
             float thetaError = (float)BlueShiftUtil.getDegreeDifference(thetaTarget, thetaCurrent);
 
-            System.out.println("Percent Error * dTheta: " + thetaPercentError * dTheta);
-            System.out.println("Theta Error: " + thetaError);
-
             thetaPercentError = thetaError / dTheta;
 
-            float turningPower = turnKp * thetaPercentError;
-
-            if (turningPower < turningPowerThreshold && Math.abs(thetaPercentError * dTheta) > turningErrorAllowance) {
-                turningPower = turningPowerThreshold;
-            }
+            float turningPower = turnKp * thetaPercentError * (1 - thetaPercentError) + turningPowerThreshold;
 
             motorDriveLeft.setPower(turningPower);
             motorDriveRight.setPower(-turningPower);
@@ -159,8 +155,8 @@ public class AutoTwoWheelDrive {
             motorDriveLeftPercentEncoderError = (double)motorDriveLeftEncoderError / (double)targetEncoderValue;
             motorDriveRightPercentEncoderError = (double)motorDriveRightEncoderError / (double)targetEncoderValue;
 
-            double motorDriveLeftPower = encoderDriveKp * motorDriveLeftPercentEncoderError;
-            double motorDriveRightPower = encoderDriveKp * motorDriveRightPercentEncoderError;
+            double motorDriveLeftPower = encoderDriveKp * motorDriveLeftPercentEncoderError * (1 - motorDriveLeftPercentEncoderError) + encoderDrivePowerThreshold;
+            double motorDriveRightPower = encoderDriveKp * motorDriveRightPercentEncoderError * (1 - motorDriveRightPercentEncoderError) + encoderDrivePowerThreshold;
 
             telemetry.addData("Left Encoder", motorDriveLeft.getCurrentPosition());
             telemetry.addData("Right Encoder", motorDriveLeft.getCurrentPosition());
