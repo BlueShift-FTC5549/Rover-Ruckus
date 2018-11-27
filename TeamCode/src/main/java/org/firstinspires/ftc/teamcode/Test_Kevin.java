@@ -55,17 +55,20 @@ public class Test_Kevin extends OpMode {
             motorDriveLeft.setPower(gamepad1.left_stick_x);
             motorDriveRight.setPower(-gamepad1.left_stick_x);
         }
-        else if (gamepad1.a){
+        else if (gamepad1.a) {
             motorDriveLeft.setPower(1);
             motorDriveRight.setPower(-1);
-            try{
+            try {
                 Thread.sleep(3000);
-            }catch (InterruptedException e){
+            } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
             motorDriveRight.setPower(0);
             motorDriveLeft.setPower(0);
-            }
-
+        }
+        else {
+            motorDriveRight.setPower(0);
+            motorDriveLeft.setPower(0);
         }
     }
 
