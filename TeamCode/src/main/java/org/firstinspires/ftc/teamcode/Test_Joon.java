@@ -39,9 +39,12 @@ public class Test_Joon extends OpMode{
         //right joystick -> right moter
 
 
-        motorDriveLeft.setPower(gamepad1.left_stick_y);
-        motorDriveRight.setPower(gamepad1.right_stick_y);
-
+        if(gamepad1.left_stick_y != 0 ) {
+            motorDriveLeft.setPower(gamepad1.left_stick_y);
+        }
+        if(gamepad1.right_stick_y != 0){
+            motorDriveRight.setPower(gamepad1.right_stick_y);
+        }
 
         if(gamepad1.a){
             motorDriveLeft.setPower(1.0);
@@ -52,10 +55,9 @@ public class Test_Joon extends OpMode{
             } catch (InterruptedException e){
                 e.printStackTrace();
             }
-
-            motorDriveLeft.setPower(0.0);
-            motorDriveRight.setPower(0.0);
         }
+        motorDriveLeft.setPower(0.0);
+        motorDriveRight.setPower(0.0);
     }
 
     @Override public void stop() {
