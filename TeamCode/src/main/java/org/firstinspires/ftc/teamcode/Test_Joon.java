@@ -38,12 +38,10 @@ public class Test_Joon extends OpMode{
         //left joystick -> left moter
         //right joystick -> right moter
 
-        if(gamepad1.left_stick_y != 0){
-            motorDriveLeft.setPower(gamepad1.left_stick_y);
-        }
-        if(gamepad1.right_stick_y != 0){
-            motorDriveRight.setPower(gamepad1.right_stick_y);
-        }
+
+        motorDriveLeft.setPower(gamepad1.left_stick_y);
+        motorDriveRight.setPower(gamepad1.right_stick_y);
+
 
         if(gamepad1.a){
             motorDriveLeft.setPower(1.0);
