@@ -62,6 +62,8 @@ public class Test_Kevin extends OpMode {
                 Thread.sleep(3000);
             }catch (InterruptedException e){
                 e.printStackTrace();
+            motorDriveRight.setPower(0);
+            motorDriveLeft.setPower(0);
             }
 
         }
