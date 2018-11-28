@@ -39,21 +39,21 @@ public class Test_Kevin extends OpMode {
 
     @Override
     public void loop() {
-        if (gamepad1.right_trigger > 0) {
-            motorDriveLeft.setPower(1);
-            motorDriveRight.setPower(1);
+        if (gamepad1.left_stick_y > 0) {
+            motorDriveLeft.setPower(gamepad1.left_stick_y);
+            motorDriveRight.setPower(gamepad1.left_stick_y);
         }
-        else if (gamepad1.left_trigger < 0) {
-            motorDriveLeft.setPower(-1);
-            motorDriveRight.setPower(-1);
+        else if (gamepad1.left_stick_y < 0) {
+            motorDriveLeft.setPower(gamepad1.left_stick_y);
+            motorDriveRight.setPower(gamepad1.left_stick_y);
         }
         else if(gamepad1.left_stick_x > 0){
             motorDriveLeft.setPower(-gamepad1.left_stick_x);
             motorDriveRight.setPower(gamepad1.left_stick_x);
         }
         else if (gamepad1.left_stick_x < 0) {
-            motorDriveLeft.setPower(gamepad1.left_stick_x);
-            motorDriveRight.setPower(-gamepad1.left_stick_x);
+            motorDriveLeft.setPower(-gamepad1.left_stick_x);
+            motorDriveRight.setPower(gamepad1.left_stick_x);
         }
         else if (gamepad1.a) {
             motorDriveLeft.setPower(1);
