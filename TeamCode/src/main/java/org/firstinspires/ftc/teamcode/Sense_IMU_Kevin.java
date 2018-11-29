@@ -66,27 +66,11 @@ public class Sense_IMU_Kevin extends OpMode
      */
     @Override
     public void loop() {
-        float degree = 90;
-        float new_heading = imu.getHeading() - degree;
-        if (gamepad1.a) {
-            if (new_heading < 0) {
-                new_heading = 360 + new_heading;
-            }
-            while (Math.abs(imu.getHeading() - new_heading) > 5) {
-                telemetry.addData("Current Heading", imu.getHeading());
-                telemetry.addData("Goal/New Heading", new_heading);
+        left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-                left.setPower(-0.35);
-                right.setPower(0.35);
-
-                telemetry.update();
-            }
-
-
-
-            left.setPower(0.0);
-            right.setPower(0.0);
-        }
+        left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     /*
