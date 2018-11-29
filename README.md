@@ -36,6 +36,7 @@ Blue Shift shares all of our code so that other teams may learn from our program
     * Autonomous Library Skeleton
     * IMU & PID Controller Skeleton
 
+Base application [ftc_app]: https://github.com/ftctechnh/ftc_app.
 
 ## Meta
 
