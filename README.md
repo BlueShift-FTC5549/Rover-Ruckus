@@ -13,6 +13,10 @@ Blue Shift shares all of our code so that other teams may learn from our program
 
 ## Release History
 
+* 0.6.0
+    * Encoder drive fix
+    * Encoder drive timeout function
+    * AutoTwoWheelDrive constructor fix
 * 0.5.0
     * Archival Structure Implementation
     * All Three TeleOP Variations

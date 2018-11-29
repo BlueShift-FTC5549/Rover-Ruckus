@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.util.Range;
  *
  * @author Joon Kang
  */
-@TeleOp(name="Encoder Test Joon", group="Drive")
+@TeleOp(name="Encoder Test Joon", group="Test")
 public class Encoder_Test_Joon extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor motorDriveLeft;

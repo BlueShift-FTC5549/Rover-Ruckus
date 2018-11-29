@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@Autonomous(name="Basic: Linear OpMode", group="Linear Opmode")
+@Autonomous(name="Autobots Rollout", group="Main")
 public class Auto_Linear extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private AutoTwoWheelDrive autoTwoWheelDrive;
@@ -19,7 +19,7 @@ public class Auto_Linear extends LinearOpMode {
         telemetry.addData("Status", "Initializing");
         telemetry.update();
 
-        autoTwoWheelDrive = new AutoTwoWheelDrive(this, hardwareMap, "left", "right", "imu");
+        autoTwoWheelDrive = new AutoTwoWheelDrive(this,"left", "right", "imu");
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -37,7 +37,7 @@ public class Auto_Linear extends LinearOpMode {
         autoTwoWheelDrive.turn(90);
         sleep(3000);
 
-        autoTwoWheelDrive.encoderDrive(3000);
+        autoTwoWheelDrive.encoderDrive(10, 10);
         telemetry.addData("Status", "Finished!");
     }
 }
