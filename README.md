@@ -13,6 +13,14 @@ Blue Shift shares all of our code so that other teams may learn from our program
 
 ## Release History
 
+* 0.6.0
+    * Encoder drive fix
+    * Encoder drive timeout function
+    * AutoTwoWheelDrive constructor fix
+* 0.5.0
+    * Archival Structure Implementation
+    * All Three TeleOP Variations
+    * Name Refactor for TeleOP Variations
 * 0.4.0
     * Turning Code Pre-Final
 * 0.3.0
@@ -28,6 +36,7 @@ Blue Shift shares all of our code so that other teams may learn from our program
     * Autonomous Library Skeleton
     * IMU & PID Controller Skeleton
 
+Base application [ftc_app]: https://github.com/ftctechnh/ftc_app.
 
 ## Meta
 

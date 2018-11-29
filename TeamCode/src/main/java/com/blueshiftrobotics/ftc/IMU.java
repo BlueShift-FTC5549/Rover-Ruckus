@@ -72,7 +72,8 @@ public class IMU {
     }
 
     /**
-     * Retrieve the current compass heading from the BNO055IMU using a preset selected axis.
+     * Retrieve the current compass heading from the BNO055IMU using a preset selected axis. 180
+     * must be added to the return value so that the range changes from (-180,180) to (0,360).
      *
      * @return the current magnetic heading
      */

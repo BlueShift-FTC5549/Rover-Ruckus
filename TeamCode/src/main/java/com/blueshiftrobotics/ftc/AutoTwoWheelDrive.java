@@ -1,7 +1,6 @@
 package com.blueshiftrobotics.ftc;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -22,6 +21,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  * phase. Using the IMU, the robot can turn precisely to a degree translation using the `turn`
  * method.
  *
+ * @version 0.8
  * @author Gabriel Wong
  */
 public class AutoTwoWheelDrive {
@@ -32,52 +32,35 @@ public class AutoTwoWheelDrive {
     private Telemetry telemetry;
     private LinearOpMode opMode;
 
+    private ElapsedTime elapsedTime = new ElapsedTime();
+
+    //Turning Constants
     private static final float turnKp = (float)0.85;
     private static final float turningErrorAllowance = 1; //In Degrees
     private static final float turningPowerThreshold = (float)0.05; //TODO: Tune this constant.
 
-    private static final float encoderDriveKp = (float)0.5;
-    private static final int encoderDriveErrorAllowance = 10;
-    private static final float encoderDrivePowerThreshold = (float)0.1; //TODO: Tune this constant.
-
-    /**
-     * Create a new instance of a two wheel drive library using the current hardware map and names
-     * of components of interest.
-     *
-     * @param telemetry The Telemetry from the calling OpMode class
-     * @param hardwareMap Current hardware map
-     * @param motorDriveLeftName Name of the left drive motor
-     * @param motorDriveRightName Name of the right drive motor
-     * @param IMUName Name of the IMU sensor on the REV Expansion Hub
-     */
-    public AutoTwoWheelDrive(Telemetry telemetry, HardwareMap hardwareMap, String motorDriveLeftName, String motorDriveRightName, String IMUName) {
-        this.motorDriveLeft = hardwareMap.get(DcMotor.class, motorDriveLeftName);
-        this.motorDriveRight = hardwareMap.get(DcMotor.class, motorDriveRightName);
-        this.imu = new IMU(opMode.telemetry, hardwareMap, IMUName);
-
-        motorDriveLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        motorDriveRight.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        motorDriveLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorDriveRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        this.telemetry = telemetry;
-    }
+    //Encoder Constants
+    private static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
+    private static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // This is < 1.0 if geared UP
+    private static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
+    private static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
+    private static final float      ENCODER_DRIVE_Kp        = (float)0.5;
+    private static final int        ENCODER_DRIVE_ERROR_ALLOWANCE = 10;
+    private static final float      ENCODER_DRIVE_POWER_THRESHOLD = (float)0.1; //TODO: Tune this constant.
 
     /**
      * Create a new instance of a two wheel drive library using the current hardware map and names
      * of components of interest.
      *
      * @param opMode The Linear Op Mode that constructs this library.
-     * @param hardwareMap Current hardware map
      * @param motorDriveLeftName Name of the left drive motor
      * @param motorDriveRightName Name of the right drive motor
      * @param IMUName Name of the IMU sensor on the REV Expansion Hub
      */
-    public AutoTwoWheelDrive(LinearOpMode opMode, HardwareMap hardwareMap, String motorDriveLeftName, String motorDriveRightName, String IMUName) {
-        this.motorDriveLeft = hardwareMap.get(DcMotor.class, motorDriveLeftName);
-        this.motorDriveRight = hardwareMap.get(DcMotor.class, motorDriveRightName);
-        this.imu = new IMU(opMode.telemetry, hardwareMap, IMUName);
+    public AutoTwoWheelDrive(LinearOpMode opMode, String motorDriveLeftName, String motorDriveRightName, String IMUName) {
+        this.motorDriveLeft = opMode.hardwareMap.get(DcMotor.class, motorDriveLeftName);
+        this.motorDriveRight = opMode.hardwareMap.get(DcMotor.class, motorDriveRightName);
+        this.imu = new IMU(opMode.telemetry, opMode.hardwareMap, IMUName);
 
         motorDriveLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         motorDriveRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -96,6 +79,7 @@ public class AutoTwoWheelDrive {
      * reduce final error rates from overshoot and undershoot.
      *
      * //TODO: Fix zero at beginning at end
+     * //TODO: Add runtime timeout
      *
      * @param dTheta The angular displacement target
      */
@@ -138,25 +122,34 @@ public class AutoTwoWheelDrive {
      *
      * //TODO: Add IMU Heading Correction
      *
-     * @param targetEncoderValue The encoder value to drive to
+     * @param targetDistance The distance in inches to travel
+     * @param errorTimeout The maximum seconds to run the loop for
      */
-    public void encoderDrive(int targetEncoderValue) {
+    public void encoderDrive(double targetDistance, double errorTimeout) {
         motorDriveLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorDriveRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        telemetry.addData("Status", "Driving!");
+        motorDriveLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorDriveRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        telemetry.addData("Status", "Encoder Driving");
+        telemetry.addData("Path",  "Starting at %7d :%7d", motorDriveLeft.getCurrentPosition(), motorDriveRight.getCurrentPosition());
+        telemetry.update();
+
+        int encoderTarget = (int)(targetDistance * COUNTS_PER_INCH);
         int motorDriveLeftEncoderError, motorDriveRightEncoderError;
         double motorDriveLeftPercentEncoderError, motorDriveRightPercentEncoderError;
 
-        while (Math.abs(motorDriveLeft.getCurrentPosition() - targetEncoderValue) > encoderDriveErrorAllowance || Math.abs(motorDriveRight.getCurrentPosition() - targetEncoderValue) > encoderDriveErrorAllowance && opMode.opModeIsActive()) {
-            motorDriveLeftEncoderError = targetEncoderValue - motorDriveLeft.getCurrentPosition();
-            motorDriveRightEncoderError = targetEncoderValue - motorDriveRight.getCurrentPosition();
-            motorDriveLeftPercentEncoderError = (double)motorDriveLeftEncoderError / (double)targetEncoderValue;
-            motorDriveRightPercentEncoderError = (double)motorDriveRightEncoderError / (double)targetEncoderValue;
+        elapsedTime.reset();
 
-            double motorDriveLeftPower = encoderDriveKp * motorDriveLeftPercentEncoderError * (1 - motorDriveLeftPercentEncoderError) + encoderDrivePowerThreshold;
-            double motorDriveRightPower = encoderDriveKp * motorDriveRightPercentEncoderError * (1 - motorDriveRightPercentEncoderError) + encoderDrivePowerThreshold;
+        while (elapsedTime.seconds() <= errorTimeout && Math.abs(motorDriveLeft.getCurrentPosition() - encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE || Math.abs(motorDriveRight.getCurrentPosition() - encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE && opMode.opModeIsActive()) {
+            motorDriveLeftEncoderError = encoderTarget - motorDriveLeft.getCurrentPosition();
+            motorDriveRightEncoderError = encoderTarget - motorDriveRight.getCurrentPosition();
+            motorDriveLeftPercentEncoderError = (double)motorDriveLeftEncoderError / (double)encoderTarget;
+            motorDriveRightPercentEncoderError = (double)motorDriveRightEncoderError / (double)encoderTarget;
+
+            double motorDriveLeftPower = ENCODER_DRIVE_Kp * motorDriveLeftPercentEncoderError * (1 - motorDriveLeftPercentEncoderError) + ENCODER_DRIVE_POWER_THRESHOLD;
+            double motorDriveRightPower = ENCODER_DRIVE_Kp * motorDriveRightPercentEncoderError * (1 - motorDriveRightPercentEncoderError) + ENCODER_DRIVE_POWER_THRESHOLD;
 
             telemetry.addData("Left Encoder", motorDriveLeft.getCurrentPosition());
             telemetry.addData("Right Encoder", motorDriveLeft.getCurrentPosition());
@@ -170,5 +163,8 @@ public class AutoTwoWheelDrive {
 
         motorDriveLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorDriveRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        telemetry.addData("Status", "Encoder Driving COMPLETE");
+        telemetry.update();
     }
 }
