@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package com.blueshiftrobotics.ftc.archive;
 
 import com.blueshiftrobotics.ftc.IMU;
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -25,13 +25,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
-@TeleOp(name="Kevin IMU", group="Sense")
-public class Sense_IMU_Kevin extends OpMode
+@TeleOp(name="Joon IMU", group="Sense")
+public class Sense_Joon extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     DcMotor left, right;
     IMU imu;
+    double Startdegree;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -44,6 +45,8 @@ public class Sense_IMU_Kevin extends OpMode
 
         left.setDirection(DcMotorSimple.Direction.FORWARD);
         right.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        Startdegree = imu.getHeading();
     }
 
     /*
@@ -66,26 +69,32 @@ public class Sense_IMU_Kevin extends OpMode
      */
     @Override
     public void loop() {
-        float degree = 90;
-        float new_heading = imu.getHeading() - degree;
-        if (gamepad1.a) {
-            if (new_heading < 0) {
-                new_heading = 360 + new_heading;
-            }
-            while (Math.abs(imu.getHeading() - new_heading) > 5) {
-                telemetry.addData("Current Heading", imu.getHeading());
-                telemetry.addData("Goal/New Heading", new_heading);
+        double currentdegree = imu.getHeading();
+        double sum = 0;
 
-                left.setPower(-0.35);
-                right.setPower(0.35);
+        if (currentdegree <= 90.0 && Startdegree >= 270.0 ){
+            sum = (360.0 - Startdegree) + currentdegree;
+        }
+        else if ( Startdegree <= 90.0 && currentdegree >= 270.0){
+            sum = (360.0 - currentdegree) + Startdegree;
+        }
+        else if(Startdegree >= currentdegree){
+            sum = Startdegree - currentdegree;
+        }
+        else if(Startdegree <= currentdegree){
+            sum = currentdegree - Startdegree;
+        }
 
-                telemetry.update();
-            }
-
-
-
+        if(sum >= 89.5 && sum <= 90.5) {
             left.setPower(0.0);
             right.setPower(0.0);
+        }
+        else{
+            double powervalue = (90.0 - sum)/180.0;
+            if(powervalue < 0.05)
+                powervalue = 0.05;
+            left.setPower(powervalue);
+            right.setPower(-powervalue);
         }
     }
 

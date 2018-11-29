@@ -12,10 +12,18 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+/**
+ * Encoder drive function testing.
+ *
+ * @author Joon Kang
+ */
+@TeleOp(name="Encoder Test Joon", group="Drive")
 public class Encoder_Test_Joon extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor motorDriveLeft;
     private DcMotor motorDriveRight;
+
+    int Counter = 0;
 
     @Override public void init() {
         telemetry.addData("Status", "Initialization In Progress");
@@ -34,7 +42,7 @@ public class Encoder_Test_Joon extends OpMode {
 
     @Override public void loop() {
 
-        int Counter = 0;
+
         int distance = 30;
 
         if (Counter == 1) {
@@ -50,7 +58,10 @@ public class Encoder_Test_Joon extends OpMode {
             motorDriveLeft.setPower(1.0);
             motorDriveRight.setPower(1.0);
 
+            System.out.println("Is Busy:" + motorDriveLeft.isBusy());
+
             while (motorDriveLeft.isBusy()) {
+                System.out.println("Pos: " + motorDriveLeft.getCurrentPosition());
                 idle();
             }
 
@@ -83,8 +94,9 @@ public class Encoder_Test_Joon extends OpMode {
             Counter = Counter + 1;
         }
 
-        if (gamepad1.a)
+        if (gamepad1.a) {
             Counter = Counter + 1;
+        }
     }
 
     private void idle() {

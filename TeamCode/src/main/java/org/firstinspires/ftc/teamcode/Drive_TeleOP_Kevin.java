@@ -6,16 +6,14 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-
-@TeleOp(name="Test_Joon", group="Drive")
-public class Test_Joon extends OpMode{
+@TeleOp(name="Drive_TeleOP_Kevin", group="Drive")
+public class Drive_TeleOP_Kevin extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor motorDriveLeft;
     private DcMotor motorDriveRight;
 
-
-
-    @Override public void init() {
+    @Override
+    public void init() {
         telemetry.addData("Status", "Initialization In Progress");
 
         // Retrieve the motor objects from the hardware map. These names come from the configuration in the robot controller.
@@ -30,37 +28,51 @@ public class Test_Joon extends OpMode{
         telemetry.addData("Status", "Initialized");
     }
 
-    @Override public void init_loop() { }
+    @Override
+    public void init_loop() {
+    }
 
-    @Override public void start() { runtime.reset(); }
+    @Override
+    public void start() {
+        runtime.reset();
+    }
 
-    @Override public void loop() {
-        //left joystick -> left moter
-        //right joystick -> right moter
-
-
-        if(gamepad1.left_stick_y != 0 ) {
+    @Override
+    public void loop() {
+        if (gamepad1.left_stick_y > 0) {
             motorDriveLeft.setPower(gamepad1.left_stick_y);
+            motorDriveRight.setPower(gamepad1.left_stick_y);
         }
-        if(gamepad1.right_stick_y != 0){
-            motorDriveRight.setPower(gamepad1.right_stick_y);
+        else if (gamepad1.left_stick_y < 0) {
+            motorDriveLeft.setPower(gamepad1.left_stick_y);
+            motorDriveRight.setPower(gamepad1.left_stick_y);
         }
-
-        if(gamepad1.a){
-            motorDriveLeft.setPower(1.0);
-            motorDriveRight.setPower(1.0);
-
-            try{
+        else if(gamepad1.left_stick_x > 0){
+            motorDriveLeft.setPower(-gamepad1.left_stick_x);
+            motorDriveRight.setPower(gamepad1.left_stick_x);
+        }
+        else if (gamepad1.left_stick_x < 0) {
+            motorDriveLeft.setPower(-gamepad1.left_stick_x);
+            motorDriveRight.setPower(gamepad1.left_stick_x);
+        }
+        else if (gamepad1.a) {
+            motorDriveLeft.setPower(1);
+            motorDriveRight.setPower(-1);
+            try {
                 Thread.sleep(3000);
-            } catch (InterruptedException e){
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            motorDriveRight.setPower(0);
+            motorDriveLeft.setPower(0);
         }
-        motorDriveLeft.setPower(0.0);
-        motorDriveRight.setPower(0.0);
+        else {
+            motorDriveRight.setPower(0);
+            motorDriveLeft.setPower(0);
+        }
     }
 
-    @Override public void stop() {
-
+    @Override public void stop () {
     }
+
 }
