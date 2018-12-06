@@ -7,12 +7,12 @@ package com.blueshiftrobotics.ftc;
  */
 public class BlueShiftUtil {
     public static double getDegreeDifference(double theta_1, double theta_2) {
-        double rawDifference = theta_1 - theta_2;
+        double rawDifference = theta_2 - theta_1;
 
         if (rawDifference > 180) {
-            return 360 - rawDifference;
+            return rawDifference - 360;
         } else if (rawDifference < -180) {
-            return 360 + rawDifference;
+            return rawDifference + 360;
         } else {
             return rawDifference;
         }

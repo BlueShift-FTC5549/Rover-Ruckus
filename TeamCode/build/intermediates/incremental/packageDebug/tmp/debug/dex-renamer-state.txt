@@ -1,4 +1,13 @@
-#Thu Nov 29 12:05:06 EST 2018
-base.0=/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/transforms/dexMerger/debug/51
+#Thu Nov 29 15:29:08 EST 2018
+path.3=classes.dex
+path.2=classes.dex
+path.1=classes.dex
 path.0=classes.dex
+renamed.3=classes4.dex
+renamed.2=classes3.dex
+renamed.1=classes2.dex
 renamed.0=classes.dex
+base.3=/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/transforms/dexMerger/debug/64
+base.2=/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/transforms/dexMerger/debug/65
+base.1=/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/transforms/dexMerger/debug/63
+base.0=/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/transforms/dexMerger/debug/66

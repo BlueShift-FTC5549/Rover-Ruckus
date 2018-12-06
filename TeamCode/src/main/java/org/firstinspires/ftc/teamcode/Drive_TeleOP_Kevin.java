@@ -39,37 +39,11 @@ public class Drive_TeleOP_Kevin extends OpMode {
 
     @Override
     public void loop() {
-        if (gamepad1.left_stick_y > 0) {
-            motorDriveLeft.setPower(gamepad1.left_stick_y);
-            motorDriveRight.setPower(gamepad1.left_stick_y);
-        }
-        else if (gamepad1.left_stick_y < 0) {
-            motorDriveLeft.setPower(gamepad1.left_stick_y);
-            motorDriveRight.setPower(gamepad1.left_stick_y);
-        }
-        else if(gamepad1.left_stick_x > 0){
-            motorDriveLeft.setPower(-gamepad1.left_stick_x);
-            motorDriveRight.setPower(gamepad1.left_stick_x);
-        }
-        else if (gamepad1.left_stick_x < 0) {
-            motorDriveLeft.setPower(-gamepad1.left_stick_x);
-            motorDriveRight.setPower(gamepad1.left_stick_x);
-        }
-        else if (gamepad1.a) {
-            motorDriveLeft.setPower(1);
-            motorDriveRight.setPower(-1);
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            motorDriveRight.setPower(0);
-            motorDriveLeft.setPower(0);
-        }
-        else {
-            motorDriveRight.setPower(0);
-            motorDriveLeft.setPower(0);
-        }
+        double drive = -gamepad1.left_stick_y;
+        double turn = gamepad1.left_stick_x;
+
+        motorDriveLeft.setPower( Range.clip(drive + turn, 0 ,1) );
+        motorDriveRight.setPower( Range.clip(drive - turn, 0 ,1) );
     }
 
     @Override public void stop () {
