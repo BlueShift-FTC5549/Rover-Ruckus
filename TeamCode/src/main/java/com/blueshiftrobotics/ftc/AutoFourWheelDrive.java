@@ -13,7 +13,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  *   TwoWheel - Uses a 2-wheel-drive robot.
  *   Drive - Includes code for moving the robot.
  *
- * Necessary Sensors
+ * Necessary SensorsToday I listen to it
  *   IMU (REV Expansion Hub)
  *
  * The autonomous library for the hasAborted of a two wheeled robot during the thirty second autonomous
@@ -53,6 +53,7 @@ public class AutoFourWheelDrive {
     private static final float      ENCODER_DRIVE_Kp        = (float)0.8; //TODO: Tune this constant.
     private static final int        ENCODER_DRIVE_ERROR_ALLOWANCE = 15; //TODO: Tune this constant.
     private static final float      ENCODER_DRIVE_POWER_THRESHOLD = (float)0.2; //TODO: Tune this constant.
+    private static final float      ENCODER_DRIVE_IMU_ERROR_ALLOWANCE = (float)2; //TODO: Tune this constant
 
     /**
      * Create a new instance of a two wheel drive library using the current hardware map and names
@@ -163,6 +164,8 @@ public class AutoFourWheelDrive {
         int encoderTarget = (int)(targetDistance * COUNTS_PER_INCH);
         int motorDriveLeftEncoderError, motorDriveRightEncoderError;
         double motorDriveLeftPercentEncoderError, motorDriveRightPercentEncoderError;
+        float targetEncoderHeading = imu.getHeading();
+        float encoderDrift = 0;
 
         elapsedTime.reset();
 
@@ -180,6 +183,8 @@ public class AutoFourWheelDrive {
             double motorDriveLeftPower = ENCODER_DRIVE_Kp * motorDriveLeftPercentEncoderError * (1 - motorDriveLeftPercentEncoderError) + ENCODER_DRIVE_POWER_THRESHOLD;
             double motorDriveRightPower = ENCODER_DRIVE_Kp * motorDriveRightPercentEncoderError * (1 - motorDriveRightPercentEncoderError) + ENCODER_DRIVE_POWER_THRESHOLD;
 
+            encoderDrift = imu.getHeading() - targetEncoderHeading;
+
             motorDriveLeftBack.setPower(motorDriveLeftPower);
             motorDriveLeftFront.setPower(motorDriveLeftPower);
             motorDriveRightBack.setPower(motorDriveRightPower);
@@ -188,6 +193,7 @@ public class AutoFourWheelDrive {
             telemetry.addData("Front Encoders", "(%.2f):(%.2f)", motorDriveLeftFront.getCurrentPosition(),  motorDriveLeftFront.getCurrentPosition());
             telemetry.addData("Back Encoders", "(%.2f):(%.2f)", motorDriveLeftBack.getCurrentPosition(),  motorDriveLeftBack.getCurrentPosition());
             telemetry.addData("Power", "Left (%.2f), Right (%.2f)", motorDriveLeftPower, motorDriveRightPower);
+            telemetry.addData("Encoder Drift", encoderDrift);
             telemetry.update();
         }
 

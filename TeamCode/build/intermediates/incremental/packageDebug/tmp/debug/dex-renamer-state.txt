@@ -1,4 +1,0 @@
-#Tue Jan 08 13:51:51 EST 2019
-base.0=/Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/build/intermediates/transforms/dexMerger/debug/68
-path.0=classes.dex
-renamed.0=classes.dex
