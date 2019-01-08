@@ -9,3 +9,5 @@ TeamCode/build/
 TeamCode/.idea/
 FtcRobotController/build/
 *.iml
+FtcRobotController/FtcRobotController.iml
+TeamCode/build.gradle

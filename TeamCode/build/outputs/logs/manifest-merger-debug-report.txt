@@ -5,10 +5,12 @@ INJECTED from /Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/src/main/And
 INJECTED from /Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/src/main/AndroidManifest.xml:8:1-12:12
 INJECTED from /Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/src/main/AndroidManifest.xml:8:1-12:12
 MERGED from [:FtcRobotController] /Users/wongg19/Documents/GitHub/Rover-Ruckus/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-51:12
+MERGED from [:DogeCV] /Users/wongg19/Documents/GitHub/Rover-Ruckus/DogeCV/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-17:12
 MERGED from [:RobotCore-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/35f57b12259cd0408dc9c8c8ccc8e0d9/AndroidManifest.xml:2:1-99:12
 MERGED from [:Hardware-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/Hardware-release.aar/367df4a70f922e7b7a7b054c07da53d0/AndroidManifest.xml:2:1-11:12
 MERGED from [:FtcCommon-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/FtcCommon-release.aar/0139c58b380cc584d785ad2639223a52/AndroidManifest.xml:3:1-235:12
 MERGED from [:WirelessP2p-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/WirelessP2p-release.aar/60418f859ee2ef8b516e0545e4fcad3d/AndroidManifest.xml:2:1-11:12
+MERGED from [:openCVLibrary3] /Users/wongg19/Documents/GitHub/Rover-Ruckus/openCVLibrary3/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-11:12
 MERGED from [:Inspection-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/Inspection-release.aar/ed9fe0f4d76b429bb6134fb5ddfb414d/AndroidManifest.xml:2:1-32:12
 MERGED from [:Blocks-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/Blocks-release.aar/08f060af68ab6c75943f80b0135592dc/AndroidManifest.xml:2:1-41:12
 INJECTED from /Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/src/main/AndroidManifest.xml:8:1-12:12
@@ -32,6 +34,8 @@ application
 ADDED from /Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/src/main/AndroidManifest.xml:11:5-19
 MERGED from [:FtcRobotController] /Users/wongg19/Documents/GitHub/Rover-Ruckus/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:14:5-49:19
 MERGED from [:FtcRobotController] /Users/wongg19/Documents/GitHub/Rover-Ruckus/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:14:5-49:19
+MERGED from [:DogeCV] /Users/wongg19/Documents/GitHub/Rover-Ruckus/DogeCV/build/intermediates/manifests/full/debug/AndroidManifest.xml:11:5-15:19
+MERGED from [:DogeCV] /Users/wongg19/Documents/GitHub/Rover-Ruckus/DogeCV/build/intermediates/manifests/full/debug/AndroidManifest.xml:11:5-15:19
 MERGED from [:RobotCore-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/35f57b12259cd0408dc9c8c8ccc8e0d9/AndroidManifest.xml:78:5-97:19
 MERGED from [:RobotCore-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/35f57b12259cd0408dc9c8c8ccc8e0d9/AndroidManifest.xml:78:5-97:19
 MERGED from [:FtcCommon-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/FtcCommon-release.aar/0139c58b380cc584d785ad2639223a52/AndroidManifest.xml:23:5-233:19
@@ -40,6 +44,8 @@ MERGED from [:Inspection-release:] /Users/wongg19/.gradle/caches/transforms-1/fi
 MERGED from [:Inspection-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/Inspection-release.aar/ed9fe0f4d76b429bb6134fb5ddfb414d/AndroidManifest.xml:19:5-30:19
 MERGED from [:Blocks-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/Blocks-release.aar/08f060af68ab6c75943f80b0135592dc/AndroidManifest.xml:18:5-39:19
 MERGED from [:Blocks-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/Blocks-release.aar/08f060af68ab6c75943f80b0135592dc/AndroidManifest.xml:18:5-39:19
+	android:supportsRtl
+		ADDED from [:DogeCV] /Users/wongg19/Documents/GitHub/Rover-Ruckus/DogeCV/build/intermediates/manifests/full/debug/AndroidManifest.xml:14:9-35
 	android:label
 		ADDED from [:FtcRobotController] /Users/wongg19/Documents/GitHub/Rover-Ruckus/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:17:9-41
 	android:largeHeap
@@ -58,6 +64,8 @@ INJECTED from /Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/src/main/And
 INJECTED from /Users/wongg19/Documents/GitHub/Rover-Ruckus/TeamCode/src/main/AndroidManifest.xml
 MERGED from [:FtcRobotController] /Users/wongg19/Documents/GitHub/Rover-Ruckus/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:8:5-10:41
 MERGED from [:FtcRobotController] /Users/wongg19/Documents/GitHub/Rover-Ruckus/FtcRobotController/build/intermediates/manifests/full/debug/AndroidManifest.xml:8:5-10:41
+MERGED from [:DogeCV] /Users/wongg19/Documents/GitHub/Rover-Ruckus/DogeCV/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
+MERGED from [:DogeCV] /Users/wongg19/Documents/GitHub/Rover-Ruckus/DogeCV/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
 MERGED from [:RobotCore-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/35f57b12259cd0408dc9c8c8ccc8e0d9/AndroidManifest.xml:7:5-9:41
 MERGED from [:RobotCore-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/RobotCore-release.aar/35f57b12259cd0408dc9c8c8ccc8e0d9/AndroidManifest.xml:7:5-9:41
 MERGED from [:Hardware-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/Hardware-release.aar/367df4a70f922e7b7a7b054c07da53d0/AndroidManifest.xml:7:5-9:41
@@ -66,6 +74,8 @@ MERGED from [:FtcCommon-release:] /Users/wongg19/.gradle/caches/transforms-1/fil
 MERGED from [:FtcCommon-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/FtcCommon-release.aar/0139c58b380cc584d785ad2639223a52/AndroidManifest.xml:8:5-10:41
 MERGED from [:WirelessP2p-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/WirelessP2p-release.aar/60418f859ee2ef8b516e0545e4fcad3d/AndroidManifest.xml:5:5-7:41
 MERGED from [:WirelessP2p-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/WirelessP2p-release.aar/60418f859ee2ef8b516e0545e4fcad3d/AndroidManifest.xml:5:5-7:41
+MERGED from [:openCVLibrary3] /Users/wongg19/Documents/GitHub/Rover-Ruckus/openCVLibrary3/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
+MERGED from [:openCVLibrary3] /Users/wongg19/Documents/GitHub/Rover-Ruckus/openCVLibrary3/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
 MERGED from [:Inspection-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/Inspection-release.aar/ed9fe0f4d76b429bb6134fb5ddfb414d/AndroidManifest.xml:7:5-9:41
 MERGED from [:Inspection-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/Inspection-release.aar/ed9fe0f4d76b429bb6134fb5ddfb414d/AndroidManifest.xml:7:5-9:41
 MERGED from [:Blocks-release:] /Users/wongg19/.gradle/caches/transforms-1/files-1.1/Blocks-release.aar/08f060af68ab6c75943f80b0135592dc/AndroidManifest.xml:7:5-9:41
