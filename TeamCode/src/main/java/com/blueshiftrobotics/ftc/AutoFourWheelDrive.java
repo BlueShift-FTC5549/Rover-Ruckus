@@ -170,7 +170,7 @@ public class AutoFourWheelDrive {
                 && ( Math.abs(motorDriveLeftBack.getCurrentPosition() - encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE
                      || Math.abs(motorDriveRightBack.getCurrentPosition() - encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE )
                 && opMode.opModeIsActive()
-                && hasAborted) {
+                && !hasAborted) {
 
             motorDriveLeftEncoderError = encoderTarget - motorDriveLeftBack.getCurrentPosition();
             motorDriveRightEncoderError = encoderTarget - motorDriveRightBack.getCurrentPosition();
@@ -180,14 +180,15 @@ public class AutoFourWheelDrive {
             double motorDriveLeftPower = ENCODER_DRIVE_Kp * motorDriveLeftPercentEncoderError * (1 - motorDriveLeftPercentEncoderError) + ENCODER_DRIVE_POWER_THRESHOLD;
             double motorDriveRightPower = ENCODER_DRIVE_Kp * motorDriveRightPercentEncoderError * (1 - motorDriveRightPercentEncoderError) + ENCODER_DRIVE_POWER_THRESHOLD;
 
-            telemetry.addData("Left Encoder", motorDriveLeftBack.getCurrentPosition());
-            telemetry.addData("Right Encoder", motorDriveLeftBack.getCurrentPosition());
-            telemetry.update();
-
             motorDriveLeftBack.setPower(motorDriveLeftPower);
             motorDriveLeftFront.setPower(motorDriveLeftPower);
             motorDriveRightBack.setPower(motorDriveRightPower);
             motorDriveRightFront.setPower(motorDriveRightPower);
+
+            telemetry.addData("Front Encoders", "(%.2f):(%.2f)", motorDriveLeftFront.getCurrentPosition(),  motorDriveLeftFront.getCurrentPosition());
+            telemetry.addData("Back Encoders", "(%.2f):(%.2f)", motorDriveLeftBack.getCurrentPosition(),  motorDriveLeftBack.getCurrentPosition());
+            telemetry.addData("Power", "Left (%.2f), Right (%.2f)", motorDriveLeftPower, motorDriveRightPower);
+            telemetry.update();
         }
 
         abortMotion();

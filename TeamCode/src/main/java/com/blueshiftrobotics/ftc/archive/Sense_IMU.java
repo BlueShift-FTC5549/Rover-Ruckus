@@ -52,7 +52,7 @@ public class Sense_IMU extends OpMode
         runtime.reset();
         telemetry.addData("Status", "Turning...");
         telemetry.update();
-        autoFourWheelDrive.turn(90);
+        autoFourWheelDrive.turn(90, 10);
         telemetry.addData("Status", "Finished!");
     }
 
