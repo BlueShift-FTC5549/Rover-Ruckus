@@ -1,4 +1,4 @@
-package com.blueshiftrobotics.ftc.archive;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -9,20 +9,28 @@ import com.qualcomm.robotcore.util.Range;
 @TeleOp(name="Drive_TeleOP_Kevin", group="Drive")
 public class Drive_TeleOP_Kevin extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor motorDriveLeft;
-    private DcMotor motorDriveRight;
+    private DcMotor motorDriveLeftOne;
+    private DcMotor motorDriveLeftTwo;
+    private DcMotor motorDriveRightOne;
+    private DcMotor motorDriveRightTwo;
+    private double motorDriveLeftPower, motorDriveRightPower;
+    private double powerMultiplier = 1.0;
 
     @Override
     public void init() {
         telemetry.addData("Status", "Initialization In Progress");
 
         // Retrieve the motor objects from the hardware map. These names come from the configuration in the robot controller.
-        motorDriveLeft = hardwareMap.get(DcMotor.class, "motorDriveLeft");
-        motorDriveRight = hardwareMap.get(DcMotor.class, "motorDriveRight");
+        motorDriveLeftOne = hardwareMap.get(DcMotor.class, "motorDriveLeftOne");
+        motorDriveLeftTwo = hardwareMap.get(DcMotor.class, "motorDriveLeftTwo");
+        motorDriveRightOne = hardwareMap.get(DcMotor.class, "motorDriveRightOne");
+        motorDriveRightTwo = hardwareMap.get(DcMotor.class, "motorDriveRightTwo");
 
         // Since one motor is reversed in relation to the other, we must reverse the motor on the right so positive powers mean forward.
-        motorDriveLeft.setDirection(DcMotor.Direction.FORWARD);
-        motorDriveRight.setDirection(DcMotor.Direction.REVERSE);
+        motorDriveLeftOne.setDirection(DcMotor.Direction.FORWARD);
+        motorDriveLeftTwo.setDirection(DcMotor.Direction.FORWARD);
+        motorDriveLeftOne.setDirection(DcMotor.Direction.REVERSE);
+        motorDriveRightTwo.setDirection(DcMotor.Direction.REVERSE);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -40,10 +48,17 @@ public class Drive_TeleOP_Kevin extends OpMode {
     @Override
     public void loop() {
         double drive = -gamepad1.left_stick_y;
-        double turn = gamepad1.left_stick_x;
+        double turn  =  gamepad1.right_stick_x;
 
-        motorDriveLeft.setPower( Range.clip(drive + turn, 0 ,1) );
-        motorDriveRight.setPower( Range.clip(drive - turn, 0 ,1) );
+        motorDriveLeftPower = Range.clip(drive + turn, -1.0, 1.0) * powerMultiplier;
+        motorDriveRightPower = Range.clip(drive - turn, -1.0, 1.0) * powerMultiplier;
+
+        // Send calculated power to wheels
+        motorDriveLeftOne.setPower(motorDriveLeftPower);
+        motorDriveLeftTwo.setPower(motorDriveLeftPower);
+        motorDriveRightOne.setPower(motorDriveRightPower);
+        motorDriveRightTwo.setPower(motorDriveRightPower);
+
     }
 
     @Override public void stop () {
