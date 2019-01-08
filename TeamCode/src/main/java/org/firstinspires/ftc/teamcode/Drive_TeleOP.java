@@ -3,28 +3,41 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="TeleOP", group="Drive")
 public class Drive_TeleOP extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor motorDriveLeft;
-    private DcMotor motorDriveRight;
+    private DcMotor motorDriveLeftBack;
+    private DcMotor motorDriveLeftFront;
+    private DcMotor motorDriveRightBack;
+    private DcMotor motorDriveRightFront;
+    private DcMotor motorSweeper;
 
     private double motorDriveLeftPower, motorDriveRightPower;
-    private double powerMultiplier = 1.0;
 
     @Override public void init() {
         telemetry.addData("Status", "Initialization In Progress");
 
+
         // Retrieve the motor objects from the hardware map. These names come from the configuration in the robot controller.
-        motorDriveLeft = hardwareMap.get(DcMotor.class, "motorDriveLeft");
-        motorDriveRight = hardwareMap.get(DcMotor.class, "motorDriveRight");
+        motorDriveLeftBack = hardwareMap.get(DcMotor.class,   "motorDriveLeftBack");
+        motorDriveLeftFront = hardwareMap.get(DcMotor.class,  "motorDriveLeftFront");
+        motorDriveRightBack = hardwareMap.get(DcMotor.class,  "motorDriveRightBack");
+        motorDriveRightFront = hardwareMap.get(DcMotor.class, "motorDriveRightFront");
+
+        motorSweeper = hardwareMap.get(DcMotor.class, "motorSweeper");
+
 
         // Since one motor is reversed in relation to the other, we must reverse the motor on the right so positive powers mean forward.
-        motorDriveLeft.setDirection(DcMotor.Direction.FORWARD);
-        motorDriveRight.setDirection(DcMotor.Direction.REVERSE);
+        motorDriveLeftBack.setDirection(DcMotor.Direction.FORWARD);
+        motorDriveLeftFront.setDirection(DcMotor.Direction.FORWARD);
+        motorDriveRightBack.setDirection(DcMotor.Direction.REVERSE);
+        motorDriveRightFront.setDirection(DcMotor.Direction.REVERSE);
+
+        motorSweeper.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -35,27 +48,28 @@ public class Drive_TeleOP extends OpMode {
     @Override public void start() { runtime.reset(); }
 
     @Override public void loop() {
-        // The power multiplier scales down non-linearly as the left trigger is pushed more.
-        // Scaling follows the function (2/3)*(1-x)^2+(1/3) where x is the trigger value.
         if (gamepad1.left_trigger > 0) {
-            powerMultiplier = (2 / 3) * Math.pow(1 - gamepad1.left_trigger, 2) + (1 / 3);
+            motorSweeper.setPower(gamepad1.left_trigger);
+        } else if (gamepad1.left_bumper){
+            motorSweeper.setPower(-1);
         } else {
-            powerMultiplier = 1;
+            motorSweeper.setPower(0);
         }
 
-        double drive = -gamepad1.left_stick_y;
-        double turn  =  gamepad1.right_stick_x;
-        motorDriveLeftPower = Range.clip(drive + turn, -1.0, 1.0) * powerMultiplier;
-        motorDriveRightPower = Range.clip(drive - turn, -1.0, 1.0) * powerMultiplier;
+        double drive = -Math.signum(gamepad1.left_stick_y) * Math.pow(gamepad1.left_stick_y, 2);
+        double turn  =  Math.signum(gamepad1.left_stick_x) * Math.pow(gamepad1.left_stick_x, 2);
+        motorDriveLeftPower = Range.clip(drive + turn, -1.0, 1.0);
+        motorDriveRightPower = Range.clip(drive - turn, -1.0, 1.0);
 
         // Send calculated power to wheels
-        motorDriveLeft.setPower(motorDriveLeftPower);
-        motorDriveRight.setPower(motorDriveRightPower);
+        motorDriveLeftBack.setPower(motorDriveLeftPower);
+        motorDriveLeftFront.setPower(motorDriveLeftPower);
+        motorDriveRightBack.setPower(motorDriveRightPower);
+        motorDriveRightFront.setPower(motorDriveRightPower);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Motors", "Left (%.2f), Right (%.2f)", motorDriveLeftPower, motorDriveRightPower);
-        telemetry.addData("Modifiers", "Power Multiplier (%.2f)", powerMultiplier);
     }
 
     @Override public void stop() {

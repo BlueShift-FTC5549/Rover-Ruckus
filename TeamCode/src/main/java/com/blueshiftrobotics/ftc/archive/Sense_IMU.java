@@ -1,17 +1,9 @@
 package com.blueshiftrobotics.ftc.archive;
 
-import com.blueshiftrobotics.ftc.AutoTwoWheelDrive;
-import com.blueshiftrobotics.ftc.IMU;
-import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.blueshiftrobotics.ftc.AutoFourWheelDrive;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -31,7 +23,7 @@ public class Sense_IMU extends OpMode
 {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    private AutoTwoWheelDrive autoTwoWheelDrive;
+    private AutoFourWheelDrive autoFourWheelDrive;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -40,7 +32,7 @@ public class Sense_IMU extends OpMode
     public void init() {
         telemetry.addData("Status", "Starting Init");
 
-        //autoTwoWheelDrive = new AutoTwoWheelDrive(telemetry, hardwareMap, "left", "right", "imu");
+        //autoFourWheelDrive = new AutoFourWheelDrive(telemetry, hardwareMap, "left", "right", "imu");
 
         telemetry.addData("Status", "Initialized");
     }
@@ -60,7 +52,7 @@ public class Sense_IMU extends OpMode
         runtime.reset();
         telemetry.addData("Status", "Turning...");
         telemetry.update();
-        autoTwoWheelDrive.turn(90);
+        autoFourWheelDrive.turn(90, 10);
         telemetry.addData("Status", "Finished!");
     }
 

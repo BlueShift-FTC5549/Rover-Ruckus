@@ -1,25 +1,21 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.blueshiftrobotics.ftc.AutoTwoWheelDrive;
+import com.blueshiftrobotics.ftc.AutoFourWheelDrive;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 @Autonomous(name="Autobots Rollout", group="Main")
 public class Auto_Linear extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
-    private AutoTwoWheelDrive autoTwoWheelDrive;
+    private AutoFourWheelDrive autoFourWheelDrive;
 
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initializing");
         telemetry.update();
 
-        autoTwoWheelDrive = new AutoTwoWheelDrive(this,"left", "right", "imu");
+        autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu");
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -29,15 +25,15 @@ public class Auto_Linear extends LinearOpMode {
 
         runtime.reset();
         telemetry.addData("Status", "Turning...");
+        autoFourWheelDrive.encoderDrive(32, 15);
+        sleep(3000);
         telemetry.update();
-        autoTwoWheelDrive.turn(90);
+        autoFourWheelDrive.turn(90, 10.0);
         sleep(3000);
-        autoTwoWheelDrive.turn(180);
-        sleep(3000);
-        autoTwoWheelDrive.turn(90);
+        autoFourWheelDrive.turn(-90, 10.0);
         sleep(3000);
 
-        autoTwoWheelDrive.encoderDrive(10, 10);
+        autoFourWheelDrive.encoderDrive(32, 10);
         telemetry.addData("Status", "Finished!");
     }
 }
