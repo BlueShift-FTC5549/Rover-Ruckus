@@ -15,7 +15,7 @@ public class Auto_Linear extends LinearOpMode {
         telemetry.addData("Status", "Initializing");
         telemetry.update();
 
-        autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu");
+        autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu", true);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
