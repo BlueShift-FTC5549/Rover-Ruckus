@@ -97,9 +97,9 @@ public class VuforiaPhoneTesting extends OpMode {
     GoldAlignDetector detector;
 
     @Override
-    public void init() {
+    public void init() {        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+
         // Setup camera and Vuforia parameters
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         // Set Vuforia parameters

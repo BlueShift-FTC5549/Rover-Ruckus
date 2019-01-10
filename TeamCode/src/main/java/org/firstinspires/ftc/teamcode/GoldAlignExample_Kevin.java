@@ -34,6 +34,8 @@ import com.disnodeteam.dogecv.DogeCV;
 import com.disnodeteam.dogecv.detectors.roverrukus.GoldAlignDetector;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.sun.tools.javac.tree.DCTree;
 
 
 @TeleOp(name="GoldAlign Example", group="DogeCV")
@@ -42,7 +44,10 @@ public class GoldAlignExample_Kevin extends OpMode
 {
     // Detector object
     private GoldAlignDetector detector;
-
+    private DcMotor rightmotor;
+    private DcMotor leftmotor;
+    double x_pos;
+    double power;
 
     @Override
     public void init() {
@@ -90,6 +95,32 @@ public class GoldAlignExample_Kevin extends OpMode
      */
     @Override
     public void loop() {
+        x_pos = detector.getXPosition();
+
+        while (!detector.isFound()) {
+            rightmotor.setPower(0.5);
+            leftmotor.setPower(-0.5);
+        }
+
+        if (x_pos >= 300 && x_pos <= 340) {
+            rightmotor.setPower(0.7);
+            leftmotor.setPower(0.7);
+        }
+
+        else if (x_pos < 310) {
+            power = (1/310) * x_pos;
+            if (power < 0.2) power = 0.2;
+            leftmotor.setPower(0);
+            rightmotor.setPower(1.0 - power);
+        }
+
+        else if (x_pos > 330) {
+            power = (1/310) * (640-x_pos);
+            if (power < 0.2) power = 0.2;
+            rightmotor.setPower(0);
+            leftmotor.setPower(1.0 - power);
+        }
+
         telemetry.addData("IsAligned" , detector.getAligned()); // Is the bot aligned with the gold mineral?
         telemetry.addData("X Pos" , detector.getXPosition()); // Gold X position.
     }
