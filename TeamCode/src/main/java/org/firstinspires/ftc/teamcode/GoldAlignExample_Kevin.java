@@ -41,7 +41,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 public class GoldAlignExample_Kevin extends OpMode
 {
     // Detector object
-    private GoldAlignDetector detector;
+    private GoldAlignDetector  detector;
 
 
     @Override

@@ -13,6 +13,10 @@ Blue Shift shares all of our code so that other teams may learn from our program
 
 ## Release History
 
+* 0.8.0
+    * DogeCV Integration
+    * Verbose Autonomous Loops (Telemetry)
+    * Gold-Cube Alignment Function
 * 0.7.0
     * Four wheel drive Update
     * Turning drive timeout function

@@ -67,8 +67,6 @@ public class GoldAlignExample extends OpMode
         detector.ratioScorer.perfectRatio = 1.0; // Ratio adjustment
 
         detector.enable(); // Start the detector!
-
-
     }
 
     /*
@@ -103,5 +101,4 @@ public class GoldAlignExample extends OpMode
         // Disable the detector
         detector.disable();
     }
-
 }
