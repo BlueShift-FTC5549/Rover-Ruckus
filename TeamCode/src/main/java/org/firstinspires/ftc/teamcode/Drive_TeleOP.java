@@ -19,8 +19,9 @@ public class Drive_TeleOP extends OpMode {
     private double motorDriveLeftPower, motorDriveRightPower;
 
     @Override public void init() {
-        telemetry.addData("Status", "Initialization In Progress");
-
+        telemetry.clearAll();
+        telemetry.addData("Status", "TeleOP Initialization In Progress");
+        telemetry.update();
 
         // Retrieve the motor objects from the hardware map. These names come from the configuration in the robot controller.
         motorDriveLeftBack = hardwareMap.get(DcMotor.class,   "motorDriveLeftBack");
@@ -40,7 +41,9 @@ public class Drive_TeleOP extends OpMode {
         motorSweeper.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Tell the driver that initialization is complete.
-        telemetry.addData("Status", "Initialized");
+        telemetry.clearAll();
+        telemetry.addData("Status", "TeleOP Initialized");
+        telemetry.update();
     }
 
     @Override public void init_loop() { }
