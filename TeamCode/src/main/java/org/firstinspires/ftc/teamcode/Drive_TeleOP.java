@@ -14,7 +14,10 @@ public class Drive_TeleOP extends OpMode {
     private DcMotor motorDriveLeftFront;
     private DcMotor motorDriveRightBack;
     private DcMotor motorDriveRightFront;
-    private DcMotor motorSweeper;
+
+    private DcMotor motorArmRight;
+    private DcMotor motorArmLeft;
+    private DcMotor motorWinch;
 
     private double motorDriveLeftPower, motorDriveRightPower;
 
@@ -29,16 +32,20 @@ public class Drive_TeleOP extends OpMode {
         motorDriveRightBack = hardwareMap.get(DcMotor.class,  "motorDriveRightBack");
         motorDriveRightFront = hardwareMap.get(DcMotor.class, "motorDriveRightFront");
 
-        motorSweeper = hardwareMap.get(DcMotor.class, "motorSweeper");
+        motorArmRight = hardwareMap.get(DcMotor.class, "motorArmRight");
+        motorArmLeft = hardwareMap.get(DcMotor.class, "motorArmLeft");
+        motorWinch = hardwareMap.get(DcMotor.class, "motorWinch");
 
 
         // Since one motor is reversed in relation to the other, we must reverse the motor on the right so positive powers mean forward.
-        motorDriveLeftBack.setDirection(DcMotor.Direction.FORWARD);
+        motorDriveLeftBack.setDirection(DcMotor.Direction.REVERSE);
         motorDriveLeftFront.setDirection(DcMotor.Direction.FORWARD);
-        motorDriveRightBack.setDirection(DcMotor.Direction.REVERSE);
+        motorDriveRightBack.setDirection(DcMotor.Direction.FORWARD);
         motorDriveRightFront.setDirection(DcMotor.Direction.REVERSE);
 
-        motorSweeper.setDirection(DcMotorSimple.Direction.FORWARD);
+        motorArmLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorArmRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        motorWinch.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Tell the driver that initialization is complete.
         telemetry.clearAll();
@@ -51,14 +58,6 @@ public class Drive_TeleOP extends OpMode {
     @Override public void start() { runtime.reset(); }
 
     @Override public void loop() {
-        if (gamepad1.left_trigger > 0) {
-            motorSweeper.setPower(gamepad1.left_trigger);
-        } else if (gamepad1.left_bumper){
-            motorSweeper.setPower(-1);
-        } else {
-            motorSweeper.setPower(0);
-        }
-
         double drive = -Math.signum(gamepad1.left_stick_y) * Math.pow(gamepad1.left_stick_y, 2);
         double turn  =  Math.signum(gamepad1.left_stick_x) * Math.pow(gamepad1.left_stick_x, 2);
         motorDriveLeftPower = Range.clip(drive + turn, -1.0, 1.0);
@@ -69,6 +68,15 @@ public class Drive_TeleOP extends OpMode {
         motorDriveLeftFront.setPower(motorDriveLeftPower);
         motorDriveRightBack.setPower(motorDriveRightPower);
         motorDriveRightFront.setPower(motorDriveRightPower);
+
+        double armPower = Math.pow(gamepad1.left_trigger, 2) - Math.pow(gamepad1.right_trigger, 2);
+
+        motorArmLeft.setPower(armPower);
+        motorArmRight.setPower(armPower);
+
+        double winchPower = Math.signum(gamepad1.right_stick_y) * Math.pow(gamepad1.right_stick_y, 2);
+
+        motorWinch.setPower(winchPower);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
