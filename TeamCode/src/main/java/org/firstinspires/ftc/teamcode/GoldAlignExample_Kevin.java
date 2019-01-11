@@ -38,7 +38,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.sun.tools.javac.tree.DCTree;
 
 
-@TeleOp(name="GoldAlign Example", group="DogeCV")
+@TeleOp(name="GoldAlign Example Kevin", group="DogeCV")
 
 public class GoldAlignExample_Kevin extends OpMode
 {
@@ -54,6 +54,8 @@ public class GoldAlignExample_Kevin extends OpMode
     @Override
     public void init() {
         telemetry.addData("Status", "DogeCV 2018.0 - Gold Align Example");
+
+
 
         // Set up detector
         detector = new GoldAlignDetector(); // Create detector
