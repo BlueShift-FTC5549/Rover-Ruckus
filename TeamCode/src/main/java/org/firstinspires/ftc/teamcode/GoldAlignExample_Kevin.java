@@ -99,13 +99,6 @@ public class GoldAlignExample_Kevin extends OpMode
     public void loop() {
         x_pos = detector.getXPosition();
 
-        while (!detector.isFound()) {
-            motorDriveRightBack.setPower(0.5);
-            motorDriveRightFront.setPower(0.5);
-            motorDriveLeftBack.setPower(-0.5);
-            motorDriveLeftFront.setPower(-0.5);
-        }
-
         if (x_pos >= 300 && x_pos <= 340) {
             motorDriveRightBack.setPower(0.7);
             motorDriveRightFront.setPower(0.7);
