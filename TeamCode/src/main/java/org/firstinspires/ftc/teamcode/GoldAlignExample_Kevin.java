@@ -44,8 +44,10 @@ public class GoldAlignExample_Kevin extends OpMode
 {
     // Detector object
     private GoldAlignDetector detector;
-    private DcMotor rightmotor;
-    private DcMotor leftmotor;
+    private DcMotor motorDriveLeftBack;
+    private DcMotor motorDriveLeftFront;
+    private DcMotor motorDriveRightBack;
+    private DcMotor motorDriveRightFront;
     double x_pos;
     double power;
 
@@ -98,27 +100,36 @@ public class GoldAlignExample_Kevin extends OpMode
         x_pos = detector.getXPosition();
 
         while (!detector.isFound()) {
-            rightmotor.setPower(0.5);
-            leftmotor.setPower(-0.5);
+            motorDriveRightBack.setPower(0.5);
+            motorDriveRightFront.setPower(0.5);
+            motorDriveLeftBack.setPower(-0.5);
+            motorDriveLeftFront.setPower(-0.5);
         }
 
         if (x_pos >= 300 && x_pos <= 340) {
-            rightmotor.setPower(0.7);
-            leftmotor.setPower(0.7);
+            motorDriveRightBack.setPower(0.7);
+            motorDriveRightFront.setPower(0.7);
+            motorDriveLeftBack.setPower(0.7);
+            motorDriveLeftFront.setPower(0.7);
         }
 
         else if (x_pos < 310) {
             power = (1/310) * x_pos;
             if (power < 0.2) power = 0.2;
-            leftmotor.setPower(0);
-            rightmotor.setPower(1.0 - power);
+            motorDriveLeftFront.setPower(0);
+            motorDriveLeftBack.setPower(0);
+            motorDriveRightBack.setPower(1.0 - power);
+            motorDriveRightFront.setPower(1.0 - power);
         }
 
         else if (x_pos > 330) {
             power = (1/310) * (640-x_pos);
             if (power < 0.2) power = 0.2;
-            rightmotor.setPower(0);
-            leftmotor.setPower(1.0 - power);
+            motorDriveRightBack.setPower(0);
+            motorDriveRightFront.setPower(0);
+            motorDriveLeftBack.setPower(1.0 - power);
+            motorDriveLeftFront.setPower(1.0 - power);
+
         }
 
         telemetry.addData("IsAligned" , detector.getAligned()); // Is the bot aligned with the gold mineral?
