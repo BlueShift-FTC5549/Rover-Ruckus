@@ -109,7 +109,7 @@ public class GoldAlignExample_Kevin extends OpMode
         }
 
         else if (x_pos < 310) {
-            power = (1/310) * x_pos;
+            power = x_pos/310;
             if (power < 0.2) power = 0.2;
             motorDriveLeftFront.setPower(0);
             motorDriveLeftBack.setPower(0);
@@ -118,7 +118,7 @@ public class GoldAlignExample_Kevin extends OpMode
         }
 
         else if (x_pos > 330) {
-            power = (1/310) * (640-x_pos);
+            power = (640-x_pos)/310;
             if (power < 0.2) power = 0.2;
             motorDriveRightBack.setPower(0);
             motorDriveRightFront.setPower(0);
