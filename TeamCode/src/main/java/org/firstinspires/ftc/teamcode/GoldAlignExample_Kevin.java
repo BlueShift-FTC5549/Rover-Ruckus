@@ -55,7 +55,15 @@ public class GoldAlignExample_Kevin extends OpMode
     public void init() {
         telemetry.addData("Status", "DogeCV 2018.0 - Gold Align Example");
 
+        motorDriveLeftBack = hardwareMap.get(DcMotor.class,   "motorDriveLeftBack");
+        motorDriveLeftFront = hardwareMap.get(DcMotor.class,  "motorDriveLeftFront");
+        motorDriveRightBack = hardwareMap.get(DcMotor.class,  "motorDriveRightBack");
+        motorDriveRightFront = hardwareMap.get(DcMotor.class, "motorDriveRightFront");
 
+        motorDriveLeftBack.setDirection(DcMotor.Direction.REVERSE);
+        motorDriveLeftFront.setDirection(DcMotor.Direction.FORWARD);
+        motorDriveRightBack.setDirection(DcMotor.Direction.FORWARD);
+        motorDriveRightFront.setDirection(DcMotor.Direction.REVERSE);
 
         // Set up detector
         detector = new GoldAlignDetector(); // Create detector

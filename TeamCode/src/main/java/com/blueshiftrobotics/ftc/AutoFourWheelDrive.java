@@ -43,7 +43,7 @@ public class AutoFourWheelDrive {
 
     //Computer Vision Variables
     private GoldAlignDetector goldAlignDetector; //Detector Object
-    private static final float goldAlignTurningConstant = 0.5f;
+    private static final float goldAlignTurningConstant = 1.25f;
 
     //Instance Variables
     private static boolean hasAborted = false;
@@ -84,9 +84,9 @@ public class AutoFourWheelDrive {
 
         this.verboseLoops = verboseLoops;
 
-        motorDriveLeftBack.setDirection(DcMotor.Direction.FORWARD);
+        motorDriveLeftBack.setDirection(DcMotor.Direction.REVERSE);
         motorDriveLeftFront.setDirection(DcMotor.Direction.FORWARD);
-        motorDriveRightBack.setDirection(DcMotor.Direction.REVERSE);
+        motorDriveRightBack.setDirection(DcMotor.Direction.FORWARD);
         motorDriveRightFront.setDirection(DcMotor.Direction.REVERSE);
 
         motorDriveLeftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -274,6 +274,13 @@ public class AutoFourWheelDrive {
         telemetry.update();
     }
 
+    public void setAllPower(double power) {
+        motorDriveLeftBack.setPower(power);
+        motorDriveLeftFront.setPower(power);
+        motorDriveRightBack.setPower(power);
+        motorDriveRightBack.setPower(power);
+    }
+
     /**
      * Stop all motion and reset the 'hasAborted' variable for use in while loops.
      */
@@ -322,11 +329,12 @@ public class AutoFourWheelDrive {
      * @return Whether or not the program was successful.
      */
     public boolean cubePositionCenter() {
-        if (!goldAlignDetector.isFound()) {
+        while (!goldAlignDetector.isFound() && opMode.opModeIsActive()) {
             telemetry.clearAll();
             telemetry.addData("Status", "cubePositionCenter: No Cube Found");
             telemetry.update();
-            return false;
+
+            opMode.sleep(500);
         }
 
         telemetry.clearAll();
@@ -336,6 +344,7 @@ public class AutoFourWheelDrive {
         double FOVWidth = goldAlignDetector.getInitSize().width;
 
         if (!verboseLoops) {
+            //Align the robot with the gold cube
             while (!goldAlignDetector.getAligned() && opMode.opModeIsActive() && !hasAborted) {
                 double relativeCubePosition = goldAlignDetector.getXPosition() - (FOVWidth / 2.0);
                 float alignmentPercentError = (float) (-relativeCubePosition / (FOVWidth / 2.0));
@@ -347,6 +356,9 @@ public class AutoFourWheelDrive {
                 motorDriveRightBack.setPower(-turnPower);
                 motorDriveRightBack.setPower(-turnPower);
             }
+
+            encoderDrive(20, 15);
+            encoderDrive(-20, 15);
         } else {
             while (!goldAlignDetector.getAligned() && opMode.opModeIsActive() && !hasAborted) {
                 double relativeCubePosition = goldAlignDetector.getXPosition() - (FOVWidth / 2.0);
@@ -363,6 +375,9 @@ public class AutoFourWheelDrive {
                 motorDriveRightBack.setPower(-turnPower);
                 motorDriveRightBack.setPower(-turnPower);
             }
+
+            encoderDrive(20, 15);
+            encoderDrive(-20, 15);
         }
 
         goldAlignDetector.disable();

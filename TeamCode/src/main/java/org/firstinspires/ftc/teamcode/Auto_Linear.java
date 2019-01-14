@@ -21,9 +21,13 @@ public class Auto_Linear extends LinearOpMode {
         telemetry.update();
 
         autoFourWheelDrive.initDogeCV();
-        autoFourWheelDrive.cubePositionCenter();
 
         waitForStart();
+
+
+        autoFourWheelDrive.cubePositionCenter();
+
+
         runtime.reset();
 
         runtime.reset();
