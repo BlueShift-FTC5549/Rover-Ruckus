@@ -90,6 +90,7 @@ public class Auto_Kevin extends LinearOpMode {
             telemetry.addData("IsAligned", detector.getAligned()); // Is the bot aligned with the gold mineral?
             telemetry.addData("X Pos", detector.getXPosition()); // Gold X position.
             telemetry.addData("Power ", 1.0 - power);
+            telemetry.update();
         }
     }
 }
