@@ -70,21 +70,21 @@ public class Auto_Kevin extends LinearOpMode {
                 telemetry.addData("Using encoder" ,"");
 
             } else if (x_pos < 310) {
-                power = x_pos / 310;
+                power =(1.0-(x_pos / 310))*0.5;
                 if (power < 0.2) power = 0.2;
                 motorDriveLeftFront.setPower(0);
                 motorDriveLeftBack.setPower(0);
-                motorDriveRightBack.setPower(1.0 - power);
-                motorDriveRightFront.setPower(1.0 - power);
+                motorDriveRightBack.setPower(power);
+                motorDriveRightFront.setPower(power);
                 telemetry.addData("Turing Right Wheels", "");
 
             } else if (x_pos > 330) {
-                power = (640 - x_pos) / 310;
+                power = (1.0-((640 - x_pos) / 310))*0.5;
                 if (power < 0.2) power = 0.2;
                 motorDriveRightBack.setPower(0);
                 motorDriveRightFront.setPower(0);
-                motorDriveLeftBack.setPower(1.0 - power);
-                motorDriveLeftFront.setPower(1.0 - power);
+                motorDriveLeftBack.setPower(power);
+                motorDriveLeftFront.setPower(power);
                 telemetry.addData("Turning Left Wheels", "");
             }
             telemetry.addData("IsAligned", detector.getAligned()); // Is the bot aligned with the gold mineral?
