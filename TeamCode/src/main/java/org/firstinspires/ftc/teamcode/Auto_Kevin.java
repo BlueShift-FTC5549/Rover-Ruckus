@@ -67,7 +67,7 @@ public class Auto_Kevin extends LinearOpMode {
 
             if (x_pos >= 300 && x_pos <= 340) {
                 autoFourWheelDrive.encoderDrive(20, 15);
-                telemetry.addData("Using encoder" ,"");
+                telemetry.addData("Using encoder" ,"True");
 
             } else if (x_pos < 310) {
                 power =(1.0-(x_pos / 310))*0.5;
@@ -76,7 +76,7 @@ public class Auto_Kevin extends LinearOpMode {
                 motorDriveLeftBack.setPower(0);
                 motorDriveRightBack.setPower(power);
                 motorDriveRightFront.setPower(power);
-                telemetry.addData("Turing Right Wheels", "");
+                telemetry.addData("Turing Right Wheels", "True");
 
             } else if (x_pos > 330) {
                 power = (1.0-((640 - x_pos) / 310))*0.5;
@@ -85,11 +85,14 @@ public class Auto_Kevin extends LinearOpMode {
                 motorDriveRightFront.setPower(0);
                 motorDriveLeftBack.setPower(power);
                 motorDriveLeftFront.setPower(power);
-                telemetry.addData("Turning Left Wheels", "");
+                telemetry.addData("Turning Left Wheels", "True");
             }
             telemetry.addData("IsAligned", detector.getAligned()); // Is the bot aligned with the gold mineral?
             telemetry.addData("X Pos", detector.getXPosition()); // Gold X position.
             telemetry.addData("Power ", 1.0 - power);
+            telemetry.addData("Using encoder","False");
+            telemetry.addData("Turning Right Wheels","False");
+            telemetry.addData("Turning Left Wheels","False");
             telemetry.update();
         }
     }
