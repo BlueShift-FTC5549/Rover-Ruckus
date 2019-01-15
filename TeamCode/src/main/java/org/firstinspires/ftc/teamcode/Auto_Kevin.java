@@ -71,7 +71,7 @@ public class Auto_Kevin extends LinearOpMode {
 
             } else if (x_pos < 310) {
                 power =(1.0-(x_pos / 310))*0.5;
-                if (power < 0.2) power = 0.2;
+                if (power < 0.3) power = 0.2;
                 motorDriveLeftFront.setPower(0);
                 motorDriveLeftBack.setPower(0);
                 motorDriveRightBack.setPower(power);
@@ -80,7 +80,7 @@ public class Auto_Kevin extends LinearOpMode {
 
             } else if (x_pos > 330) {
                 power = (1.0-((640 - x_pos) / 310))*0.5;
-                if (power < 0.2) power = 0.2;
+                if (power < 0.3) power = 0.2;
                 motorDriveRightBack.setPower(0);
                 motorDriveRightFront.setPower(0);
                 motorDriveLeftBack.setPower(power);
