@@ -47,6 +47,16 @@ public class Drive_TeleOP extends OpMode {
         motorArmRight.setDirection(DcMotorSimple.Direction.FORWARD);
         motorWinch.setDirection(DcMotorSimple.Direction.FORWARD);
 
+        motorDriveLeftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorDriveLeftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorDriveRightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorDriveRightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        motorDriveLeftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorDriveLeftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorDriveRightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorDriveRightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         // Tell the driver that initialization is complete.
         telemetry.clearAll();
         telemetry.addData("Status", "TeleOP Initialized");
@@ -55,11 +65,14 @@ public class Drive_TeleOP extends OpMode {
 
     @Override public void init_loop() { }
 
-    @Override public void start() { runtime.reset(); }
+    @Override public void start() {
+        runtime.reset();
+        telemetry.clearAll();
+    }
 
     @Override public void loop() {
-        double drive = -Math.signum(gamepad1.left_stick_y) * Math.pow(gamepad1.left_stick_y, 2);
-        double turn  =  Math.signum(gamepad1.left_stick_x) * Math.pow(gamepad1.left_stick_x, 2);
+        double drive = -gamepad1.left_stick_y;
+        double turn  =  gamepad1.left_stick_x;
         motorDriveLeftPower = Range.clip(drive + turn, -1.0, 1.0);
         motorDriveRightPower = Range.clip(drive - turn, -1.0, 1.0);
 
@@ -69,21 +82,18 @@ public class Drive_TeleOP extends OpMode {
         motorDriveRightBack.setPower(motorDriveRightPower);
         motorDriveRightFront.setPower(motorDriveRightPower);
 
-        double armPower = Math.pow(gamepad1.left_trigger, 2) - Math.pow(gamepad1.right_trigger, 2);
+        double armPower = gamepad1.left_trigger - gamepad1.right_trigger;
 
         motorArmLeft.setPower(armPower);
         motorArmRight.setPower(armPower);
 
-        double winchPower = Math.signum(gamepad1.right_stick_y) * Math.pow(gamepad1.right_stick_y, 2);
-
-        motorWinch.setPower(winchPower);
-
-        // Show the elapsed game time and wheel power.
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Motors", "Left (%.2f), Right (%.2f)", motorDriveLeftPower, motorDriveRightPower);
+        motorWinch.setPower(gamepad1.right_stick_y);
     }
 
     @Override public void stop() {
-
+        motorDriveLeftBack.setPower(0);
+        motorDriveLeftFront.setPower(0);
+        motorDriveRightBack.setPower(0);
+        motorDriveRightFront.setPower(0);
     }
 }

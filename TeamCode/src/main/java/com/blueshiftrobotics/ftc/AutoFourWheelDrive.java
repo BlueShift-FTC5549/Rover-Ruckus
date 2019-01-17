@@ -64,14 +64,13 @@ public class AutoFourWheelDrive {
     private static final float GAUSSIAN_REDUCTION = (float)(-4 * Math.log(TURN_POWER_THRESHOLD));
 
     //Encoder Constants
-    private static final double     COUNTS_PER_MOTOR_REV    = 1120 ;    // eg: TETRIX Motor Encoder
-    private static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // This is < 1.0 if geared UP
-    private static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
+    private static final double     COUNTS_PER_MOTOR_REV    = 1120;    // Andymark Neverest 20
+    private static final double     DRIVE_GEAR_REDUCTION    = 1.0;     // This is < 1.0 if geared UP
+    private static final double     WHEEL_DIAMETER_INCHES   = 4.0;     // For figuring circumference
     private static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
-    private static final float      ENCODER_DRIVE_Kp        = (float)0.8; //TODO: Tune this constant.
-    private static final int        ENCODER_DRIVE_ERROR_ALLOWANCE = 15; //TODO: Tune this constant.
-    private static final float      ENCODER_DRIVE_POWER_THRESHOLD = (float)0.25; //TODO: Tune this constant.
-    private static final float      ENCODER_DRIVE_IMU_ERROR_ALLOWANCE = (float)2; //TODO: Tune this constant
+    private static final float      ENCODER_DRIVE_Kp        = 0.7f;
+    private static final int        ENCODER_DRIVE_ERROR_ALLOWANCE = 10;
+    private static final float      ENCODER_DRIVE_POWER_THRESHOLD = (float)0.20;
 
     /**
      * Create a new instance of a four wheel drive library using the current hardware map and names
@@ -108,6 +107,11 @@ public class AutoFourWheelDrive {
         motorDriveLeftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorDriveRightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorDriveRightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        motorDriveLeftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorDriveLeftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorDriveRightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorDriveRightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     /**
@@ -202,10 +206,7 @@ public class AutoFourWheelDrive {
         hasAborted = false;
 
         //Reset encoder values to zero
-        motorDriveLeftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorDriveLeftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorDriveRightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorDriveRightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        resetEncoders();
 
         //Find desired encoder value
         int encoderTarget = (int)(targetDistance * COUNTS_PER_INCH);
@@ -227,17 +228,14 @@ public class AutoFourWheelDrive {
                     && opMode.opModeIsActive()
                     && !hasAborted) {
 
-                //Find the percent error of each encoder
-                int motorDriveLeftEncoderError = Math.abs(encoderTarget - motorDriveLeftBack.getCurrentPosition());
-                int motorDriveRightEncoderError = Math.abs(encoderTarget - motorDriveRightBack.getCurrentPosition());
-                double motorDriveLeftPercentEncoderError = Math.abs((double)motorDriveLeftEncoderError / (double)encoderTarget);
-                double motorDriveRightPercentEncoderError = Math.abs((double)motorDriveRightEncoderError / (double)encoderTarget);
+                int motorDriveLeftEncoderError = encoderTarget - motorDriveLeftBack.getCurrentPosition();
+                int motorDriveRightEncoderError = encoderTarget - motorDriveRightBack.getCurrentPosition();
+                double motorDriveLeftPercentEncoderError = (double)(motorDriveLeftEncoderError) / (double)encoderTarget;
+                double motorDriveRightPercentEncoderError = (double)(motorDriveRightEncoderError) / (double)encoderTarget;
 
-                //Set the motor power proportional to x(1-x) where x is the percent error.
-                double motorDriveLeftPower = Math.signum(targetDistance) * (ENCODER_DRIVE_Kp * motorDriveLeftPercentEncoderError * (1 - motorDriveLeftPercentEncoderError) + ENCODER_DRIVE_POWER_THRESHOLD);
-                double motorDriveRightPower = Math.signum(targetDistance) * (ENCODER_DRIVE_Kp * motorDriveRightPercentEncoderError * (1 - motorDriveRightPercentEncoderError) + ENCODER_DRIVE_POWER_THRESHOLD);
+                double motorDriveLeftPower = Math.signum(motorDriveLeftEncoderError) * (ENCODER_DRIVE_Kp * Math.abs(motorDriveLeftPercentEncoderError) * (1 - Math.abs(motorDriveLeftPercentEncoderError)) + ENCODER_DRIVE_POWER_THRESHOLD);
+                double motorDriveRightPower = Math.signum(motorDriveRightEncoderError) * (ENCODER_DRIVE_Kp * Math.abs(motorDriveRightPercentEncoderError) * (1 - Math.abs(motorDriveRightPercentEncoderError)) + ENCODER_DRIVE_POWER_THRESHOLD);
 
-                //Set motor powers
                 motorDriveLeftBack.setPower(motorDriveLeftPower);
                 motorDriveLeftFront.setPower(motorDriveLeftPower);
                 motorDriveRightBack.setPower(motorDriveRightPower);
@@ -250,13 +248,13 @@ public class AutoFourWheelDrive {
                     && opMode.opModeIsActive()
                     && !hasAborted) {
 
-                int motorDriveLeftEncoderError = Math.abs(encoderTarget - motorDriveLeftBack.getCurrentPosition());
-                int motorDriveRightEncoderError = Math.abs(encoderTarget - motorDriveRightBack.getCurrentPosition());
-                double motorDriveLeftPercentEncoderError = Math.abs((double)motorDriveLeftEncoderError / (double)encoderTarget);
-                double motorDriveRightPercentEncoderError = Math.abs((double)motorDriveRightEncoderError / (double)encoderTarget);
+                int motorDriveLeftEncoderError = encoderTarget - motorDriveLeftBack.getCurrentPosition();
+                int motorDriveRightEncoderError = encoderTarget - motorDriveRightBack.getCurrentPosition();
+                double motorDriveLeftPercentEncoderError = (double)(motorDriveLeftEncoderError) / (double)encoderTarget;
+                double motorDriveRightPercentEncoderError = (double)(motorDriveRightEncoderError) / (double)encoderTarget;
 
-                double motorDriveLeftPower = Math.signum(targetDistance) * (ENCODER_DRIVE_Kp * motorDriveLeftPercentEncoderError * (1 - motorDriveLeftPercentEncoderError) + ENCODER_DRIVE_POWER_THRESHOLD);
-                double motorDriveRightPower = Math.signum(targetDistance) * (ENCODER_DRIVE_Kp * motorDriveRightPercentEncoderError * (1 - motorDriveRightPercentEncoderError) + ENCODER_DRIVE_POWER_THRESHOLD);
+                double motorDriveLeftPower = Math.signum(motorDriveLeftEncoderError) * (ENCODER_DRIVE_Kp * Math.abs(motorDriveLeftPercentEncoderError) * (1 - Math.abs(motorDriveLeftPercentEncoderError)) + ENCODER_DRIVE_POWER_THRESHOLD);
+                double motorDriveRightPower = Math.signum(motorDriveRightEncoderError) * (ENCODER_DRIVE_Kp * Math.abs(motorDriveRightPercentEncoderError) * (1 - Math.abs(motorDriveRightPercentEncoderError)) + ENCODER_DRIVE_POWER_THRESHOLD);
 
                 motorDriveLeftBack.setPower(motorDriveLeftPower);
                 motorDriveLeftFront.setPower(motorDriveLeftPower);
@@ -264,8 +262,13 @@ public class AutoFourWheelDrive {
                 motorDriveRightFront.setPower(motorDriveRightPower);
 
                 telemetry.clearAll();
-                telemetry.addData("Front Encoders", "(%.2f):(%.2f)", motorDriveLeftFront.getCurrentPosition(), motorDriveLeftFront.getCurrentPosition());
-                telemetry.addData("Back Encoders", "(%.2f):(%.2f)", motorDriveLeftBack.getCurrentPosition(), motorDriveLeftBack.getCurrentPosition());
+                telemetry.addData("Boolean checks", (Math.abs(motorDriveLeftBack.getCurrentPosition() - encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE
+                        || Math.abs(motorDriveRightBack.getCurrentPosition() - encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE));
+                telemetry.addData("Front Encoders", "(%7d):(%7d)", motorDriveLeftFront.getCurrentPosition(), motorDriveRightFront.getCurrentPosition());
+                telemetry.addData("Back Encoders", "(%7d):(%7d)", motorDriveLeftBack.getCurrentPosition(), motorDriveRightBack.getCurrentPosition());
+                telemetry.addData("Encoder Target", encoderTarget);
+                telemetry.addData("Encoder Errors", "(%7d):(%7d)", motorDriveLeftEncoderError, motorDriveRightEncoderError);
+                telemetry.addData("Percent Errors", "(%.2f):(%.2f)", motorDriveLeftPercentEncoderError, motorDriveRightPercentEncoderError);
                 telemetry.addData("Power", "Left (%.2f), Right (%.2f)", motorDriveLeftPower, motorDriveRightPower);
                 telemetry.addData("Timing", "(%.2f) of (%.2f)", elapsedTime.seconds(), secondsTimeout);
                 telemetry.update();
@@ -301,10 +304,22 @@ public class AutoFourWheelDrive {
         motorDriveLeftBack.setPower(0);
         motorDriveLeftFront.setPower(0);
         motorDriveRightBack.setPower(0);
-        motorDriveRightBack.setPower(0);
+        motorDriveRightFront.setPower(0);
 
         telemetry.addData("Status", "Motion Aborted");
         telemetry.update();
+    }
+
+    public void resetEncoders() {
+        motorDriveLeftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorDriveLeftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorDriveRightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorDriveRightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        motorDriveLeftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorDriveLeftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorDriveRightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorDriveRightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     /**
@@ -397,12 +412,14 @@ public class AutoFourWheelDrive {
             }
         }
 
+        abortMotion();
+
         encoderDrive(20, 15);
         opMode.sleep(1000);
         encoderDrive(-20, 15);
 
         goldAlignDetector.disable();
-        abortMotion();
+        goldAlignDetector.disable();
 
         telemetry.clearAll();
         telemetry.addData("Status", "Centering Complete");

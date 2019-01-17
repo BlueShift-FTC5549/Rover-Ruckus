@@ -23,8 +23,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  *      REV IMU Response
  *
  */
-@Autonomous(name="Diagnostics", group="Diagnostics")
-public class Auto_Diagnostics extends LinearOpMode {
+@Autonomous(name="Calibration", group="Diagnostics")
+public class Auto_Calibration extends LinearOpMode {
     //Robot Motors
     private DcMotor motorDriveLeftBack;
     private DcMotor motorDriveLeftFront;
@@ -39,15 +39,12 @@ public class Auto_Diagnostics extends LinearOpMode {
     private ElapsedTime elapsedTime = new ElapsedTime();
 
     //Test Constants
-    private static final long PRE_TEST_PAUSE = 1000;
+    private static final long PAUSE_INTERVAL = 1000;
+    private static final double MOTOR_POWER_STEP = 0.01;
+    private static final int ENCODER_MOVEMENT_THRESHOLD = 10;
 
-    //Robot-Tuned constants
-    private static final double NO_MOVEMENT_POWER = 0.08; //What power will the robot not move at while on the ground, but will off the ground
-    private static final double ENCODER_RESPONSE_POWER = 0.3;
-    private static final int ENCODER_NO_MOVEMENT_TOLERANCE = 100; //Max encoder ticks considered no movement
-
-    //Test Results
-    private static boolean encoderResponse = false;
+    //Constants to Find
+    private static double minimumMovementPower;
 
     private void initialize() {
         setStatus("Initializing");
@@ -76,92 +73,46 @@ public class Auto_Diagnostics extends LinearOpMode {
     @Override
     public void runOpMode() {
         initialize();
-
         waitForStart();
 
-        //   _________       _____       __
-        //  /   _____/____ _/ ____\_____/  |_ ___.__.
-        //  \_____  \\__  \\   __\/ __ \   __<   |  |
-        //  /        \/ __ \|  | \  ___/|  |  \___  |
-        // /_______  (____  /__|  \___  >__|  / ____|
-        //         \/     \/          \/      \/
-        //
-
-        //Test if the robot is off the ground with a very low motor power
-        setStatus("Robot Pre-Check", "No Floor Contact");
-        boolean onGround = true;
-
-        while (onGround && opModeIsActive()) {
-            resetEncoders();
-            setPowerAll(NO_MOVEMENT_POWER);
-
-            sleep(1000);
-
-            stopMotion();
-            int finalBackEncoderAverage = (int) (((double)motorDriveLeftBack.getCurrentPosition() + (double)motorDriveRightBack.getCurrentPosition()) / 2.0);
-
-            if (Math.abs(finalBackEncoderAverage) > ENCODER_NO_MOVEMENT_TOLERANCE) {
-                onGround = false;
-            } else {
-                playBadTone();
-                setStatus("Safety Tests", "No Floor Contact", "FAILING");
-            }
-        }
-
-        playGoodTone();
-        setStatus("Safety Tests", "No Floor Contact", "PASSED");
+        playStatusTone();
+        setStatus("Starting", "Prepare for Movement in " + PAUSE_INTERVAL + "ms");
+        sleep(PAUSE_INTERVAL);
 
 
-        sleep(PRE_TEST_PAUSE);
-
-
-        //   ________                                  .__
-        //  /  _____/  ____   ____   ________________  |  |
-        // /   \  ____/ __ \ /    \_/ __ \_  __ \__  \ |  |
-        // \    \_\  \  ___/|   |  \  ___/|  | \// __ \|  |__
-        //  \______  /\___  >___|  /\___  >__|  (____  /____/
-        //         \/     \/     \/     \/           \/
-
-        //Test encoder response
-        encoderResponse = testEncoderResponse();
-
-
-        sleep(PRE_TEST_PAUSE);
+        minimumMovementPower = findMinimumMovementPower();
+        sleep(10000);
     }
 
-    private boolean testEncoderResponse() {
-        setStatus("General", "Encoder Response");
+    private double findMinimumMovementPower() {
+        playStatusTone();
+        setStatus("Running Test", "Minimum Movement Power");
 
         resetEncoders();
 
-        setPowerAll(ENCODER_RESPONSE_POWER);
-        sleep(600);
-        stop();
+        boolean robotHasMoved = false;
+        double motorPower = 0.0;
 
-        int[] finalEncoderValues = new int[] {
-                motorDriveLeftBack.getCurrentPosition(),
-                motorDriveLeftFront.getCurrentPosition(),
-                motorDriveRightBack.getCurrentPosition(),
-                motorDriveRightFront.getCurrentPosition()
-        };
+        while (!robotHasMoved && opModeIsActive() && motorPower < 1.0) {
+            motorPower += MOTOR_POWER_STEP;
+            setPower(motorPower);
 
-        boolean hasFailedEncoderResponse = false;
+            int[] encoderValues = new int[] {
+                    motorDriveLeftBack.getCurrentPosition(),
+                    motorDriveLeftFront.getCurrentPosition(),
+                    motorDriveRightBack.getCurrentPosition(),
+                    motorDriveRightFront.getCurrentPosition()
+            };
 
-        for (int i = 0; i < 4; i++) {
-            if (Math.abs(finalEncoderValues[i]) < ENCODER_NO_MOVEMENT_TOLERANCE) {
-                hasFailedEncoderResponse = true;
-            }
+            robotHasMoved = (encoderValues[0] > ENCODER_MOVEMENT_THRESHOLD
+                    && encoderValues[1] > ENCODER_MOVEMENT_THRESHOLD
+                    && encoderValues[2] > ENCODER_MOVEMENT_THRESHOLD
+                    && encoderValues[3] > ENCODER_MOVEMENT_THRESHOLD);
         }
 
-        if (hasFailedEncoderResponse) {
-            playBadTone();
-            setStatus("General", "Encoder Response", "FAILED");
-            return false;
-        } else {
-            playGoodTone();
-            setStatus("General", "Encoder Response", "PASSED");
-            return true;
-        }
+        playPositiveTone();
+        setStatus("Test Complete", "Minimum Movement Power", "Value: " + motorPower);
+        return motorPower;
     }
 
     private void setStatus(String status) {
@@ -199,25 +150,14 @@ public class Auto_Diagnostics extends LinearOpMode {
         motorDriveRightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    private void setPowerAll(double power) {
+    private void setPower(double power) {
         motorDriveLeftBack.setPower(power);
         motorDriveLeftFront.setPower(power);
         motorDriveRightBack.setPower(power);
         motorDriveRightFront.setPower(power);
     }
 
-    private void stopMotion() {
-        motorDriveLeftBack.setPower(0);
-        motorDriveLeftFront.setPower(0);
-        motorDriveRightBack.setPower(0);
-        motorDriveRightFront.setPower(0);
-    }
+    private void playPositiveTone() { toneGenerator.startTone(ToneGenerator.TONE_CDMA_KEYPAD_VOLUME_KEY_LITE); }
 
-    private void playGoodTone() {
-        toneGenerator.startTone(ToneGenerator.TONE_CDMA_KEYPAD_VOLUME_KEY_LITE);
-    }
-
-    private void playBadTone() {
-        toneGenerator.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT);
-    }
+    private void playStatusTone() { toneGenerator.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT); }
 }

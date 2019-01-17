@@ -27,27 +27,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package com.blueshiftrobotics.ftc.archive;
 
 import com.disnodeteam.dogecv.CameraViewDisplay;
 import com.disnodeteam.dogecv.DogeCV;
 import com.disnodeteam.dogecv.detectors.roverrukus.GoldAlignDetector;
-import com.disnodeteam.dogecv.detectors.roverrukus.SamplingOrderDetector;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.sun.tools.javac.tree.DCTree;
 
 
-@TeleOp(name="GoldAlign Example", group="DogeCV")
+@Disabled
+@TeleOp(name="GoldAlign Example Kevin", group="DogeCV")
 
-public class GoldAlignExample extends OpMode
+public class GoldAlignExample_Kevin extends OpMode
 {
     // Detector object
     private GoldAlignDetector detector;
-
+    private DcMotor motorDriveLeftBack;
+    private DcMotor motorDriveLeftFront;
+    private DcMotor motorDriveRightBack;
+    private DcMotor motorDriveRightFront;
+    double x_pos;
+    double power;
 
     @Override
     public void init() {
         telemetry.addData("Status", "DogeCV 2018.0 - Gold Align Example");
+
+        motorDriveLeftBack = hardwareMap.get(DcMotor.class,   "motorDriveLeftBack");
+        motorDriveLeftFront = hardwareMap.get(DcMotor.class,  "motorDriveLeftFront");
+        motorDriveRightBack = hardwareMap.get(DcMotor.class,  "motorDriveRightBack");
+        motorDriveRightFront = hardwareMap.get(DcMotor.class, "motorDriveRightFront");
+
+        motorDriveLeftBack.setDirection(DcMotor.Direction.REVERSE);
+        motorDriveLeftFront.setDirection(DcMotor.Direction.FORWARD);
+        motorDriveRightBack.setDirection(DcMotor.Direction.FORWARD);
+        motorDriveRightFront.setDirection(DcMotor.Direction.REVERSE);
 
         // Set up detector
         detector = new GoldAlignDetector(); // Create detector
@@ -67,6 +85,8 @@ public class GoldAlignExample extends OpMode
         detector.ratioScorer.perfectRatio = 1.0; // Ratio adjustment
 
         detector.enable(); // Start the detector!
+
+
     }
 
     /*
@@ -89,8 +109,36 @@ public class GoldAlignExample extends OpMode
      */
     @Override
     public void loop() {
+        x_pos = detector.getXPosition();
+
+        if (x_pos >= 300 && x_pos <= 340) {
+            motorDriveRightBack.setPower(0.7);
+            motorDriveRightFront.setPower(0.7);
+            motorDriveLeftBack.setPower(0.7);
+            motorDriveLeftFront.setPower(0.7);
+        }
+
+        else if (x_pos < 310) {
+            power = x_pos/310;
+            if (power < 0.2) power = 0.2;
+            motorDriveLeftFront.setPower(0);
+            motorDriveLeftBack.setPower(0);
+            motorDriveRightBack.setPower(1.0 - power);
+            motorDriveRightFront.setPower(1.0 - power);
+        }
+
+        else if (x_pos > 330) {
+            power = (640-x_pos)/310;
+            if (power < 0.2) power = 0.2;
+            motorDriveRightBack.setPower(0);
+            motorDriveRightFront.setPower(0);
+            motorDriveLeftBack.setPower(1.0 - power);
+            motorDriveLeftFront.setPower(1.0 - power);
+        }
+
         telemetry.addData("IsAligned" , detector.getAligned()); // Is the bot aligned with the gold mineral?
         telemetry.addData("X Pos" , detector.getXPosition()); // Gold X position.
+        telemetry.addData("Power ",1.0 - power);
     }
 
     /*
@@ -101,4 +149,5 @@ public class GoldAlignExample extends OpMode
         // Disable the detector
         detector.disable();
     }
+
 }

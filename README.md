@@ -13,6 +13,10 @@ Blue Shift shares all of our code so that other teams may learn from our program
 
 ## Release History
 
+* 0.9.0
+    * Auto-Diagnostics Fix
+    * Auto-Calibration Creation
+    * Encoder Drive Fix 
 * 0.8.0
     * DogeCV Integration
     * Verbose Autonomous Loops (Telemetry)

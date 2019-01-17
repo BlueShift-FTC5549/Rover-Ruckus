@@ -25,7 +25,7 @@ public class Auto_Linear extends LinearOpMode {
         waitForStart();
 
 
-        autoFourWheelDrive.cubePositionCenter();
+        autoFourWheelDrive.cubePositionCenter(15);
 
         sleep(1000);
 

@@ -2,6 +2,7 @@ package com.blueshiftrobotics.ftc.archive;
 
 import com.blueshiftrobotics.ftc.IMU;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -25,6 +26,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
+
+@Disabled
 @TeleOp(name="Kevin IMU", group="Sense")
 public class Sense_IMU_Kevin extends OpMode
 {

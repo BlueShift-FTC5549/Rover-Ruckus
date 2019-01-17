@@ -1,12 +1,13 @@
 package com.blueshiftrobotics.ftc.archive;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-
+@Disabled
 @TeleOp(name="Drive_TeleOP_Joon", group="Drive")
 public class Drive_TeleOP_Joon extends OpMode{
     private ElapsedTime runtime = new ElapsedTime();

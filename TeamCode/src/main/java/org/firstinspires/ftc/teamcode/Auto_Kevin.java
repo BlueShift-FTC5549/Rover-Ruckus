@@ -26,6 +26,9 @@ public class Auto_Kevin extends LinearOpMode {
     public void runOpMode() {
         //Init
 
+        autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu", true);
+
+
         telemetry.addData("Status", "DogeCV 2018.0 - Gold Align Example");
 
         motorDriveLeftBack = hardwareMap.get(DcMotor.class,   "motorDriveLeftBack");
