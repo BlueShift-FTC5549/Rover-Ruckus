@@ -77,10 +77,12 @@ public class Auto_Kevin extends LinearOpMode {
                 stopMotion();
                 int finalBackEncoderAverage = (int) ((motorDriveLeftBack.getCurrentPosition() + motorDriveRightBack.getCurrentPosition()) / 2.0);
                 if (Math.abs(finalBackEncoderAverage - initBackEncoderAverage) <= ENCODER_NO_MOVEMENT_TOLERANCE) {
-                    telemetry.addData("Chains on",NO_MOVEMENT_POWER);
+                    telemetry.addData("Chains Status:","ON",NO_MOVEMENT_POWER);
+                    telemetry.update();
                     chainON = false;
                 } else {
-                    telemetry.addData("Chains Off","");
+                    telemetry.addData("Chains Status:","OFF");
+                    telemetry.update();
                     NO_MOVEMENT_POWER += 0.01;
                     sleep(50);
                 }
