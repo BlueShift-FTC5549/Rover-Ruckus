@@ -21,9 +21,14 @@ public class Auto_Kevin extends LinearOpMode {
     private DcMotor motorDriveRightFront;
     double x_pos;
     double power;
+    double chain_power;
+
+    private static  double NO_MOVEMENT_POWER = 0.01; //What power will the robot not move at while on the ground, but will off the ground
+    private static final int ENCODER_NO_MOVEMENT_TOLERANCE = 5; //Max encoder ticks is considered no movement
+    private boolean chainON = true;
 
     @Override
-    public void runOpMode() {
+        public void runOpMode() {
         //Init
 
         autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu", true);
@@ -31,9 +36,9 @@ public class Auto_Kevin extends LinearOpMode {
 
         telemetry.addData("Status", "DogeCV 2018.0 - Gold Align Example");
 
-        motorDriveLeftBack = hardwareMap.get(DcMotor.class,   "motorDriveLeftBack");
-        motorDriveLeftFront = hardwareMap.get(DcMotor.class,  "motorDriveLeftFront");
-        motorDriveRightBack = hardwareMap.get(DcMotor.class,  "motorDriveRightBack");
+        motorDriveLeftBack = hardwareMap.get(DcMotor.class, "motorDriveLeftBack");
+        motorDriveLeftFront = hardwareMap.get(DcMotor.class, "motorDriveLeftFront");
+        motorDriveRightBack = hardwareMap.get(DcMotor.class, "motorDriveRightBack");
         motorDriveRightFront = hardwareMap.get(DcMotor.class, "motorDriveRightFront");
 
         motorDriveLeftBack.setDirection(DcMotor.Direction.REVERSE);
@@ -63,10 +68,24 @@ public class Auto_Kevin extends LinearOpMode {
 
         waitForStart();
 
-
         //Loop
         while (true) {
-            x_pos = detector.getXPosition();
+            while (chainON && opModeIsActive()) {
+                int initBackEncoderAverage = (int) ((motorDriveLeftBack.getCurrentPosition() + motorDriveRightBack.getCurrentPosition()) / 2.0);
+                setPowerAll(NO_MOVEMENT_POWER);
+                sleep(500);
+                stopMotion();
+                int finalBackEncoderAverage = (int) ((motorDriveLeftBack.getCurrentPosition() + motorDriveRightBack.getCurrentPosition()) / 2.0);
+                if (Math.abs(finalBackEncoderAverage - initBackEncoderAverage) <= ENCODER_NO_MOVEMENT_TOLERANCE) {
+                    telemetry.addData("Chains on",NO_MOVEMENT_POWER);
+                    chainON = false;
+                } else {
+                    telemetry.addData("Chains Off","");
+                    NO_MOVEMENT_POWER += 0.01;
+                    sleep(50);
+                }
+            }
+            /* x_pos = detector.getXPosition();
 
             if (x_pos >= 300 && x_pos <= 340) {
                 autoFourWheelDrive.encoderDrive(20, 15);
@@ -97,6 +116,23 @@ public class Auto_Kevin extends LinearOpMode {
             telemetry.addData("Turning Right Wheels","False");
             telemetry.addData("Turning Left Wheels","False");
             telemetry.update();
+            */
         }
     }
+
+    private void setPowerAll(double chain_power) {
+        motorDriveLeftBack.setPower(power);
+        motorDriveLeftFront.setPower(power);
+        motorDriveRightBack.setPower(power);
+        motorDriveRightFront.setPower(power);
+    }
+
+    private void stopMotion() {
+        motorDriveLeftBack.setPower(0);
+        motorDriveLeftFront.setPower(0);
+        motorDriveRightBack.setPower(0);
+        motorDriveRightFront.setPower(0);
+    }
+
+
 }
