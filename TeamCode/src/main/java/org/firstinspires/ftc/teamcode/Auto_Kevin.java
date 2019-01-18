@@ -21,9 +21,9 @@ public class Auto_Kevin extends LinearOpMode {
     private DcMotor motorDriveRightFront;
     double x_pos;
     double power;
-    double chain_power;
 
-    private static  double NO_MOVEMENT_POWER = 0.01; //What power will the robot not move at while on the ground, but will off the ground
+    private static  double RIGHT_MOVEMENT_POWER = 0.01; //What power will the robot not move at while on the ground, but will off the ground
+    private static  double LEFT_MOVEMENT_POWER = 0.01; //What power will the robot not move at while on the ground, but will off the ground
     private static final int ENCODER_NO_MOVEMENT_TOLERANCE = 5; //Max encoder ticks is considered no movement
     private boolean chainON = true;
 
@@ -69,25 +69,14 @@ public class Auto_Kevin extends LinearOpMode {
         waitForStart();
 
         //Loop
-        while (true) {
-            while (chainON && opModeIsActive()) {
-                int initBackEncoderAverage = (int) ((motorDriveLeftBack.getCurrentPosition() + motorDriveRightBack.getCurrentPosition()) / 2.0);
-                setPowerAll(NO_MOVEMENT_POWER);
-                sleep(500);
-                stopMotion();
-                int finalBackEncoderAverage = (int) ((motorDriveLeftBack.getCurrentPosition() + motorDriveRightBack.getCurrentPosition()) / 2.0);
-                if (Math.abs(finalBackEncoderAverage - initBackEncoderAverage) <= ENCODER_NO_MOVEMENT_TOLERANCE) {
-                    telemetry.addData("Chains Status:","ON",NO_MOVEMENT_POWER);
-                    telemetry.update();
-                    chainON = false;
-                } else {
-                    telemetry.addData("Chains Status:","OFF");
-                    telemetry.update();
-                    NO_MOVEMENT_POWER += 0.01;
-                    sleep(50);
-                }
-            }
-            /* x_pos = detector.getXPosition();
+        while (chainON && opModeIsActive()) {
+            check_chains(motorDriveLeftBack, LEFT_MOVEMENT_POWER);
+            check_chains(motorDriveRightBack, RIGHT_MOVEMENT_POWER);
+            chainON = false;
+        }
+
+         /*while (true) {
+            x_pos = detector.getXPosition();
 
             if (x_pos >= 300 && x_pos <= 340) {
                 autoFourWheelDrive.encoderDrive(20, 15);
@@ -120,13 +109,21 @@ public class Auto_Kevin extends LinearOpMode {
             telemetry.update();
             */
         }
-    }
-
-    private void setPowerAll(double chain_power) {
-        motorDriveLeftBack.setPower(chain_power);
-        motorDriveLeftFront.setPower(chain_power);
-        motorDriveRightBack.setPower(chain_power);
-        motorDriveRightFront.setPower(chain_power);
+    private void check_chains(DcMotor motor, double chain_power){
+        int initBackEncoder = motor.getCurrentPosition();
+        motor.setPower(chain_power);
+        sleep(500);
+        stopMotion();
+        int finalBackEncoder = motor.getCurrentPosition();
+        if ((initBackEncoder - finalBackEncoder) <= ENCODER_NO_MOVEMENT_TOLERANCE) {
+            telemetry.addData("Chains Status:","ON",chain_power);
+            telemetry.update();
+        }else{
+            telemetry.addData("Chains Status:","OFF");
+            telemetry.update();
+            chain_power += 0.01;
+            sleep(50);
+        }
     }
 
     private void stopMotion() {
