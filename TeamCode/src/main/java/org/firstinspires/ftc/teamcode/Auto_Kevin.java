@@ -22,8 +22,8 @@ public class Auto_Kevin extends LinearOpMode {
     double x_pos;
     double power;
 
-    private static  double RIGHT_MOVEMENT_POWER = 0.01; //What power will the robot not move at while on the ground, but will off the ground
-    private static  double LEFT_MOVEMENT_POWER = 0.01; //What power will the robot not move at while on the ground, but will off the ground
+    private static  double RIGHT_MOVEMENT_POWER = 0.01; //What power will the robot not move at when chain is on
+    private static  double LEFT_MOVEMENT_POWER = 0.01; //What power will the robot not move at when chain is on
     private static final int ENCODER_NO_MOVEMENT_TOLERANCE = 5; //Max encoder ticks is considered no movement
     private boolean chainON = true;
 
@@ -70,8 +70,8 @@ public class Auto_Kevin extends LinearOpMode {
 
         //Loop
         while (chainON && opModeIsActive()) {
-            check_chains(motorDriveLeftBack, LEFT_MOVEMENT_POWER);
-            check_chains(motorDriveRightBack, RIGHT_MOVEMENT_POWER);
+            check_chains(motorDriveLeftBack, LEFT_MOVEMENT_POWER);  // checks if left chain is on
+            check_chains(motorDriveRightBack, RIGHT_MOVEMENT_POWER);    // checks if right chain is on
             chainON = false;
         }
 
@@ -109,19 +109,19 @@ public class Auto_Kevin extends LinearOpMode {
             telemetry.update();
             */
         }
-    private void check_chains(DcMotor motor, double chain_power){
-        int initBackEncoder = motor.getCurrentPosition();
+    private void check_chains(DcMotor motor, double chain_power){   // function sets power to given motor; if chain is on wheels will move slightly, if not there will be no change in encoder
+        int initBackEncoder = motor.getCurrentPosition();   // gets initial encoder value
         motor.setPower(chain_power);
         sleep(500);
         stopMotion();
-        int finalBackEncoder = motor.getCurrentPosition();
-        if ((initBackEncoder - finalBackEncoder) <= ENCODER_NO_MOVEMENT_TOLERANCE) {
+        int finalBackEncoder = motor.getCurrentPosition();  // gets final encoder value
+        if ((initBackEncoder - finalBackEncoder) >= ENCODER_NO_MOVEMENT_TOLERANCE) {    // checks if wheel has moved
             telemetry.addData("Chains Status:","ON",chain_power);
             telemetry.update();
         }else{
             telemetry.addData("Chains Status:","OFF");
             telemetry.update();
-            chain_power += 0.01;
+            chain_power += 0.01;    // if wheels have not moved it adds more power (this is just to get the right value and will be taken out)
             sleep(50);
         }
     }
