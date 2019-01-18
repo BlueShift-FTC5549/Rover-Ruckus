@@ -123,10 +123,10 @@ public class Auto_Kevin extends LinearOpMode {
     }
 
     private void setPowerAll(double chain_power) {
-        motorDriveLeftBack.setPower(power);
-        motorDriveLeftFront.setPower(power);
-        motorDriveRightBack.setPower(power);
-        motorDriveRightFront.setPower(power);
+        motorDriveLeftBack.setPower(chain_power);
+        motorDriveLeftFront.setPower(chain_power);
+        motorDriveRightBack.setPower(chain_power);
+        motorDriveRightFront.setPower(chain_power);
     }
 
     private void stopMotion() {
