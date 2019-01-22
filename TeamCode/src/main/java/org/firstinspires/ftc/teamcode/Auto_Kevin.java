@@ -30,7 +30,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Sky Net", group="Main")
+@Autonomous(name="Operation Check Chain", group="Main")
 public class Auto_Kevin extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private AutoFourWheelDrive autoFourWheelDrive;
@@ -131,19 +131,23 @@ public class Auto_Kevin extends LinearOpMode {
             */
         }
     private void check_chains(DcMotor motor, double chain_power){   // function sets power to given motor; if chain is on wheels will move slightly, if not there will be no change in encoder
-        int initBackEncoder = motor.getCurrentPosition();   // gets initial encoder value
-        motor.setPower(chain_power);
-        sleep(500);
-        stopMotion();
-        int finalBackEncoder = motor.getCurrentPosition();  // gets final encoder value
-        if ((initBackEncoder - finalBackEncoder) >= ENCODER_NO_MOVEMENT_TOLERANCE) {    // checks if wheel has moved
-            telemetry.addData("Chains Status:","ON",chain_power);
-            telemetry.update();
-        }else{
-            telemetry.addData("Chains Status:","OFF");
-            telemetry.update();
-            chain_power += 0.01;    // if wheels have not moved it adds more power (this is just to get the right value and will be taken out)
-            sleep(50);
+        while (true) {
+            int initBackEncoder = motor.getCurrentPosition();   // gets initial encoder value
+            motor.setPower(chain_power);
+            sleep(500);
+            stopMotion();
+            int finalBackEncoder = motor.getCurrentPosition();  // gets final encoder value
+            if ((initBackEncoder - finalBackEncoder) <= ENCODER_NO_MOVEMENT_TOLERANCE) {    // checks if motor has not moved
+                telemetry.addData("Chains Status:", "ON", chain_power);
+                telemetry.update();
+                sleep(3000);
+                return;
+            } else {
+                telemetry.addData("Chains Status:", "OFF");
+                telemetry.update();
+                chain_power += 0.01;    // if wheels have not moved it adds more power (this is just to get the right power and will be taken out)
+                sleep(50);
+            }
         }
     }
 
@@ -153,6 +157,4 @@ public class Auto_Kevin extends LinearOpMode {
         motorDriveRightBack.setPower(0);
         motorDriveRightFront.setPower(0);
     }
-
-
 }
