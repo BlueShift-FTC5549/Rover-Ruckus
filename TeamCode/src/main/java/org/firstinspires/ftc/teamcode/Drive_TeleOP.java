@@ -1,9 +1,33 @@
+/* Copyright (c) 2018 Blue Shift Robotics
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package org.firstinspires.ftc.teamcode;
 
+import com.blueshiftrobotics.ftc.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -19,7 +43,20 @@ public class Drive_TeleOP extends OpMode {
     private DcMotor motorArmLeft;
     private DcMotor motorWinch;
 
+    private CRServo servoSweeperLeft;
+    private CRServo servoSweeperRight;
+
+    private IMU armIMU;
+
     private double motorDriveLeftPower, motorDriveRightPower;
+    private float servoSweeperLeftPower, servoSweeperRightPower;
+
+    private static final float SERVO_MAX_POWER = 0.8f;
+
+    //Arm Constants
+    private static final float ARM_BALANCING_ERROR_TOLERANCE = 3; //In Degrees
+    private static final float[] ARM_BALANCING_DEGREE_LIMITS = new float[] { 0f, 180f };
+    private static final float ARM_BALANCING_Kp = 0.8f;
 
     @Override public void init() {
         telemetry.clearAll();
@@ -35,6 +72,11 @@ public class Drive_TeleOP extends OpMode {
         motorArmRight = hardwareMap.get(DcMotor.class, "motorArmRight");
         motorArmLeft = hardwareMap.get(DcMotor.class, "motorArmLeft");
         motorWinch = hardwareMap.get(DcMotor.class, "motorWinch");
+
+        servoSweeperLeft = hardwareMap.get(CRServo.class, "servoSweeperLeft");
+        servoSweeperRight = hardwareMap.get(CRServo.class, "servoSweeperRight");
+
+        armIMU = new IMU(telemetry, hardwareMap, "armIMU");
 
 
         // Since one motor is reversed in relation to the other, we must reverse the motor on the right so positive powers mean forward.
@@ -57,6 +99,10 @@ public class Drive_TeleOP extends OpMode {
         motorDriveRightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorDriveRightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        servoSweeperLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        servoSweeperRight.setDirection(DcMotorSimple.Direction.FORWARD);
+
+
         // Tell the driver that initialization is complete.
         telemetry.clearAll();
         telemetry.addData("Status", "TeleOP Initialized");
@@ -71,6 +117,9 @@ public class Drive_TeleOP extends OpMode {
     }
 
     @Override public void loop() {
+        //
+        //Driving Code
+        //
         double drive = -gamepad1.left_stick_y;
         double turn  =  gamepad1.left_stick_x;
         motorDriveLeftPower = Range.clip(drive + turn, -1.0, 1.0);
@@ -82,12 +131,35 @@ public class Drive_TeleOP extends OpMode {
         motorDriveRightBack.setPower(motorDriveRightPower);
         motorDriveRightFront.setPower(motorDriveRightPower);
 
-        double armPower = gamepad1.left_trigger - gamepad1.right_trigger;
 
-        motorArmLeft.setPower(armPower);
-        motorArmRight.setPower(armPower);
+        if (gamepad1.left_trigger > 0) {
+            servoSweeperLeftPower = SERVO_MAX_POWER;
+        } else if (gamepad1.left_bumper) {
+            servoSweeperLeftPower = -SERVO_MAX_POWER;
+        } else {
+            servoSweeperLeftPower = 0;
+        }
 
-        motorWinch.setPower(gamepad1.right_stick_y);
+        if (gamepad1.right_trigger > 0) {
+            servoSweeperRightPower = SERVO_MAX_POWER;
+        } else if (gamepad1.right_bumper) {
+            servoSweeperRightPower = -SERVO_MAX_POWER;
+        } else {
+            servoSweeperRightPower = 0;
+        }
+
+        if (servoSweeperLeftPower != servoSweeperLeft.getPower()) {
+            servoSweeperLeft.setPower(servoSweeperLeftPower);
+        }
+
+        if (servoSweeperRightPower != servoSweeperRight.getPower()) {
+            servoSweeperRight.setPower(servoSweeperRightPower);
+        }
+
+
+
+        telemetry.addData("Left:Right Power", servoSweeperLeft.getPower() + ":" + servoSweeperRight.getPower());
+        telemetry.addData("Angles", "Y: " + armIMU.getOrientation().secondAngle, "X: " + armIMU.getOrientation().thirdAngle);
     }
 
     @Override public void stop() {

@@ -103,7 +103,7 @@ public class VuforiaPhoneTesting extends OpMode {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         // Set Vuforia parameters
-        parameters.vuforiaLicenseKey = " -- LICENSE KEY GOES HERE -- ";
+        parameters.vuforiaLicenseKey = "AUASKPL/////AAABmWoaLmoplUT0vmf9S0ViBQhzZEfKFhU8NrpNXJHpX307CIf0fU6Ctk4BqmhUO8LMpDZr2KUgeyw47mxBtxEgHITUVxXqdWITSxTP3kF61feQxSTnNyToi+BiHyMD6GnvytILz+KkZFkz8/DH5B5xffnv04hTPkTV8DM5JW1LYVcw3yVeZY9M7NAixjMMdI23ZthEz6+FNumnkpJDWSX/zQXTvOMF0/sqIKOAz9WNfVjgpwrzzxSQumOinWZ+CIeIgBVmuMdGA+LJdTrh9Jw6+Ze6cJx2+IVbfdjSn7WFe7AOM54t6b5KThWqL+I/OaSDv3UMxv1tumHcgbiZK5LQy8c1xubZVrdGw5XE6lnOltcr";
         parameters.fillCameraMonitorViewParent = true;
 
         // Init Dogeforia

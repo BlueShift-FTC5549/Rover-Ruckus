@@ -1,3 +1,24 @@
+/* Copyright (c) 2018 Blue Shift Robotics
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package org.firstinspires.ftc.teamcode;
 
 import android.media.AudioManager;
@@ -10,6 +31,16 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
+ * The Blue Shift Autonomous Diagnostics program (BSAD) is designed to test robot and sensor
+ * functionality using a series of tests and trials with visual, audio, and in some cases tactile
+ * feedback for the user.
+ *
+ * First, a series of safety tests will be performed that make sure the robot is in the correct
+ * state for the general tests to run. Once all checks have succeeded and a human user has given
+ * the 'OK' by pressing the start button, the general tests will be performed and audible beeps
+ * will sound the beginning and status of each test.
+ *
+ *
  * Test Catalog
  *
  *  Safety
