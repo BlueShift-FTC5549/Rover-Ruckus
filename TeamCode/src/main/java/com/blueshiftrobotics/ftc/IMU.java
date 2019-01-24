@@ -25,6 +25,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -107,5 +108,9 @@ public class IMU {
     public float getHeading() {
         //TODO: If the axes of the orientation of the REV hub changes, we must change the Axes Order to get the correct angle.
         return revIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
+    }
+
+    public Acceleration getAcceleration() {
+        return revIMU.getAcceleration();
     }
 }

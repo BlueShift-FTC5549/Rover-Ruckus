@@ -33,18 +33,9 @@ public class Auto_Linear extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        telemetry.addData("Status", "Initializing");
-        telemetry.update();
-
-        autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu", true);
-
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
-
-        autoFourWheelDrive.initDogeCV();
+        initialize();
 
         waitForStart();
-
 
         autoFourWheelDrive.cubePositionCenter(15);
 
@@ -62,5 +53,17 @@ public class Auto_Linear extends LinearOpMode {
 
         autoFourWheelDrive.encoderDrive(32, 10);
         telemetry.addData("Status", "Finished!");
+    }
+
+    private void initialize() {
+        telemetry.addData("Status", "Initializing");
+        telemetry.update();
+
+        autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu", true);
+
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
+
+        autoFourWheelDrive.initDogeCV();
     }
 }

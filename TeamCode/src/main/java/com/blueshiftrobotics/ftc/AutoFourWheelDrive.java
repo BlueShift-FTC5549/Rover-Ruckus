@@ -402,9 +402,9 @@ public class AutoFourWheelDrive {
                     && !hasAborted) {
 
                 double relativeCubePosition = goldAlignDetector.getXPosition() - (FOVWidth / 2.0);
-                double alignmentPercentError = (float) (relativeCubePosition / (FOVWidth / 2.0));
+                double alignmentPercentError = Range.clip(Math.abs((float) (relativeCubePosition / (FOVWidth / 2.0))), -1, 1);
 
-                double turnPower = Math.signum(relativeCubePosition) * goldAlignTurningConstant * Math.abs(alignmentPercentError);
+                double turnPower = Math.signum(relativeCubePosition) * goldAlignTurningConstant * Math.abs(alignmentPercentError) * (1 - Math.abs(alignmentPercentError));
 
                 motorDriveLeftBack.setPower(turnPower);
                 motorDriveLeftFront.setPower(turnPower);
@@ -420,7 +420,7 @@ public class AutoFourWheelDrive {
                 double relativeCubePosition = goldAlignDetector.getXPosition() - (FOVWidth / 2.0);
                 double alignmentPercentError = (float) (relativeCubePosition / (FOVWidth / 2.0));
 
-                double turnPower = Math.signum(relativeCubePosition) * goldAlignTurningConstant * Math.abs(alignmentPercentError);
+                double turnPower = Math.signum(relativeCubePosition) * goldAlignTurningConstant * Math.abs(alignmentPercentError) * (1 - Math.abs(alignmentPercentError));
 
                 motorDriveLeftBack.setPower(turnPower);
                 motorDriveLeftFront.setPower(turnPower);
@@ -439,7 +439,6 @@ public class AutoFourWheelDrive {
         opMode.sleep(1000);
         encoderDrive(-20, 15);
 
-        goldAlignDetector.disable();
         goldAlignDetector.disable();
 
         telemetry.clearAll();

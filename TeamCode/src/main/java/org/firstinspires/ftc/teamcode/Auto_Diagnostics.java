@@ -30,6 +30,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+
 /**
  * The Blue Shift Autonomous Diagnostics program (BSAD) is designed to test robot and sensor
  * functionality using a series of tests and trials with visual, audio, and in some cases tactile
@@ -48,8 +51,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  *
  *  General
  *      Encoder Response
- *      Arm IMU Response
- *      Arm Not Locked
  *      Proper Chain-Motor resistance
  *      REV IMU Response
  *
@@ -71,6 +72,7 @@ public class Auto_Diagnostics extends LinearOpMode {
 
     //Test Constants
     private static final long PRE_TEST_PAUSE = 1000;
+    private static final long TEST_TIME_INTERVAL = 500;
 
     //Robot-Tuned constants
     private static final double NO_MOVEMENT_POWER = 0.08; //What power will the robot not move at while on the ground, but will off the ground
@@ -78,7 +80,8 @@ public class Auto_Diagnostics extends LinearOpMode {
     private static final int ENCODER_NO_MOVEMENT_TOLERANCE = 100; //Max encoder ticks considered no movement
 
     //Test Results
-    private static boolean encoderResponse = false;
+    private static boolean encoderResponse;
+    private static boolean revIMUResponse;
 
     private void initialize() {
         setStatus("Initializing");
@@ -119,6 +122,25 @@ public class Auto_Diagnostics extends LinearOpMode {
         //
 
         //Test if the robot is off the ground with a very low motor power
+        testFloorContact();
+
+
+        //   ________                                  .__
+        //  /  _____/  ____   ____   ________________  |  |
+        // /   \  ____/ __ \ /    \_/ __ \_  __ \__  \ |  |
+        // \    \_\  \  ___/|   |  \  ___/|  | \// __ \|  |__
+        //  \______  /\___  >___|  /\___  >__|  (____  /____/
+        //         \/     \/     \/     \/           \/
+
+        //Test encoder and IMU response
+        encoderResponse = testEncoderResponse();
+        revIMUResponse = testRevIMUResponse();
+
+
+        sleep(PRE_TEST_PAUSE);
+    }
+
+    private boolean testFloorContact() {
         setStatus("Robot Pre-Check", "No Floor Contact");
         boolean onGround = true;
 
@@ -142,22 +164,7 @@ public class Auto_Diagnostics extends LinearOpMode {
         playGoodTone();
         setStatus("Safety Tests", "No Floor Contact", "PASSED");
 
-
-        sleep(PRE_TEST_PAUSE);
-
-
-        //   ________                                  .__
-        //  /  _____/  ____   ____   ________________  |  |
-        // /   \  ____/ __ \ /    \_/ __ \_  __ \__  \ |  |
-        // \    \_\  \  ___/|   |  \  ___/|  | \// __ \|  |__
-        //  \______  /\___  >___|  /\___  >__|  (____  /____/
-        //         \/     \/     \/     \/           \/
-
-        //Test encoder response
-        encoderResponse = testEncoderResponse();
-
-
-        sleep(PRE_TEST_PAUSE);
+        return onGround;
     }
 
     private boolean testEncoderResponse() {
@@ -166,7 +173,7 @@ public class Auto_Diagnostics extends LinearOpMode {
         resetEncoders();
 
         setPowerAll(ENCODER_RESPONSE_POWER);
-        sleep(600);
+        sleep(TEST_TIME_INTERVAL);
         stop();
 
         int[] finalEncoderValues = new int[] {
@@ -187,12 +194,74 @@ public class Auto_Diagnostics extends LinearOpMode {
         if (hasFailedEncoderResponse) {
             playBadTone();
             setStatus("General", "Encoder Response", "FAILED");
-            return false;
         } else {
             playGoodTone();
             setStatus("General", "Encoder Response", "PASSED");
-            return true;
         }
+
+        return !hasFailedEncoderResponse;
+    }
+
+    private boolean testRevIMUResponse() {
+        setStatus("General", "IMU Response");
+
+        boolean hasFailedIMUResponseOrientation = false;
+        boolean hasFailedIMUResponseAcceleration = false;
+        boolean hasFailedIMUResponse = false;
+
+        Orientation initialOrientation = imu.getOrientation();
+
+        double[] initialHeadings = new double[] {
+                initialOrientation.firstAngle,
+                initialOrientation.secondAngle,
+                initialOrientation.thirdAngle
+        };
+
+        setTurnPowerAll(ENCODER_RESPONSE_POWER);
+
+        sleep(TEST_TIME_INTERVAL);
+
+        Acceleration acceleration = imu.getAcceleration();
+
+        double[] accelerations = new double[] {
+                acceleration.xAccel,
+                acceleration.yAccel,
+                acceleration.zAccel
+        };
+
+        stopMotion();
+
+        Orientation finalOrientation = imu.getOrientation();
+
+        double[] headings = new double[] {
+                finalOrientation.firstAngle,
+                finalOrientation.secondAngle,
+                finalOrientation.thirdAngle
+        };
+
+        if (initialHeadings[0] == headings[0]
+                && initialHeadings[1] == headings[1]
+                && initialHeadings[2] == initialHeadings[2]) {
+            hasFailedIMUResponseOrientation = true;
+        }
+
+        if (accelerations[0] == 0.0
+                && accelerations[1] == 0.0
+                && accelerations[2] == 0.0) {
+            hasFailedIMUResponseAcceleration = true;
+        }
+
+        hasFailedIMUResponse = !(hasFailedIMUResponseAcceleration && hasFailedIMUResponseOrientation);
+
+        if (hasFailedIMUResponse) {
+            playBadTone();
+            setStatus("General", "IMU Response", "FAILED");
+        } else {
+            playGoodTone();
+            setStatus("General", "IMU Response", "PASSED");
+        }
+
+        return !hasFailedIMUResponse;
     }
 
     private void setStatus(String status) {
@@ -200,7 +269,6 @@ public class Auto_Diagnostics extends LinearOpMode {
         telemetry.addData("Status", status);
         telemetry.update();
     }
-
     private void setStatus(String status, String subStatus) {
         telemetry.clearAll();
         telemetry.addLine()
@@ -208,7 +276,6 @@ public class Auto_Diagnostics extends LinearOpMode {
                 .addData(">", subStatus);
         telemetry.update();
     }
-
     private void setStatus(String status, String subStatus, String semiStatus) {
         telemetry.clearAll();
         telemetry.addLine()
@@ -236,7 +303,12 @@ public class Auto_Diagnostics extends LinearOpMode {
         motorDriveRightBack.setPower(power);
         motorDriveRightFront.setPower(power);
     }
-
+    private void setTurnPowerAll(double power) {
+        motorDriveLeftBack.setPower(power);
+        motorDriveLeftFront.setPower(power);
+        motorDriveRightBack.setPower(-power);
+        motorDriveRightFront.setPower(-power);
+    }
     private void stopMotion() {
         motorDriveLeftBack.setPower(0);
         motorDriveLeftFront.setPower(0);
@@ -244,11 +316,6 @@ public class Auto_Diagnostics extends LinearOpMode {
         motorDriveRightFront.setPower(0);
     }
 
-    private void playGoodTone() {
-        toneGenerator.startTone(ToneGenerator.TONE_CDMA_KEYPAD_VOLUME_KEY_LITE);
-    }
-
-    private void playBadTone() {
-        toneGenerator.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT);
-    }
+    private void playGoodTone() { toneGenerator.startTone(ToneGenerator.TONE_CDMA_KEYPAD_VOLUME_KEY_LITE); }
+    private void playBadTone() { toneGenerator.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT); }
 }
