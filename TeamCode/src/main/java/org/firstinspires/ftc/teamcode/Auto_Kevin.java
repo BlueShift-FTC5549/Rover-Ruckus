@@ -97,27 +97,27 @@ public class Auto_Kevin extends LinearOpMode {
         }
 
          /*while (true) {
-            x_pos = detector.getXPosition();
+            x_pos = detector.getXPosition();    // Gets position of block in pixels with zero being on the very left
 
-            if (x_pos >= 300 && x_pos <= 340) {
-                autoFourWheelDrive.encoderDrive(20, 15);
+            if (x_pos >= 300 && x_pos <= 340) {     // Checks if the robot is alligned with the block
+                autoFourWheelDrive.encoderDrive(20, 15);    // If robot alligned with the block it uses encoder to drive 20 inches
                 telemetry.addData("Using encoder" ,"True");
 
-            } else if (x_pos < 310) {
-                power =(1.0-(x_pos / 310))*0.5;
+            } else if (x_pos < 310) {       // Checks if the robot is too far to the right of the block
+                power =(1.0-(x_pos / 310))*0.5;     // Determines the power applied to the motors, the further away it is the faster it turns
                 if (power < 0.3) power = 0.2;
-                motorDriveLeftFront.setPower(0);
+                motorDriveLeftFront.setPower(0);    // Sets all other motors to zero
                 motorDriveLeftBack.setPower(0);
-                motorDriveRightBack.setPower(power);
+                motorDriveRightBack.setPower(power);    // Sets both right motors to the power
                 motorDriveRightFront.setPower(power);
                 telemetry.addData("Turing Right Wheels", "True");
 
-            } else if (x_pos > 330) {
-                power = (1.0-((640 - x_pos) / 310))*0.5;
+            } else if (x_pos > 330) {       // Checks if the robot is too far to the left of the block
+                power = (1.0-((640 - x_pos) / 310))*0.5;    // Determines the power applied to the motors, the further away it is the faster it turns
                 if (power < 0.3) power = 0.2;
-                motorDriveRightBack.setPower(0);
+                motorDriveRightBack.setPower(0);    // Sets all motor powers to zero
                 motorDriveRightFront.setPower(0);
-                motorDriveLeftBack.setPower(power);
+                motorDriveLeftBack.setPower(power);     // Sets both left motors to power
                 motorDriveLeftFront.setPower(power);
                 telemetry.addData("Turning Left Wheels", "True");
             }
@@ -127,8 +127,8 @@ public class Auto_Kevin extends LinearOpMode {
             telemetry.addData("Using encoder","False");
             telemetry.addData("Turning Right Wheels","False");
             telemetry.addData("Turning Left Wheels","False");
-            telemetry.update();
-            */
+            telemetry.update();*/
+
         }
     private void check_chains(DcMotor motor, double chain_power){   // function sets power to given motor; if chain is on wheels will move slightly, if not there will be no change in encoder
         while (true) {

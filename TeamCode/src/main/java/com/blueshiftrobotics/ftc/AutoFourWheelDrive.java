@@ -363,7 +363,7 @@ public class AutoFourWheelDrive {
         //goldAlignDetector.perfectAreaScorer.perfectArea = 10000; // if using PERFECT_AREA scoring
         goldAlignDetector.maxAreaScorer.weight = 0.005; //
 
-        goldAlignDetector.ratioScorer.weight = 5; //
+        goldAlignDetector.ratioScorer.weight = 5; // Determines the power applied to the motors, the further away it is the faster it turnorer.weight = 5; //
         goldAlignDetector.ratioScorer.perfectRatio = 1.0; // Ratio adjustment
 
         goldAlignDetector.enable(); // Start the goldAlignDetector!
