@@ -27,7 +27,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -39,16 +38,16 @@ public class Drive_TeleOP extends OpMode {
     private DcMotor motorDriveRightBack;
     private DcMotor motorDriveRightFront;
 
-    private DcMotor motorArmRight;
-    private DcMotor motorArmLeft;
-    private DcMotor motorWinch;
+    private DcMotor motorBucket;
+    private DcMotor motorFlipper;
+    private DcMotor motorLift;
+    private DcMotor motorSlider;
 
-    private CRServo servoSweeperLeft;
-    private CRServo servoSweeperRight;
+    private CRServo servoSweeper;
 
     private IMU armIMU;
 
-    private double motorDriveLeftPower, motorDriveRightPower;
+    private float motorDriveLeftPower, motorDriveRightPower;
     private float servoSweeperLeftPower, servoSweeperRightPower;
 
     private static final float SERVO_MAX_POWER = 0.8f;
@@ -69,14 +68,11 @@ public class Drive_TeleOP extends OpMode {
         motorDriveRightBack = hardwareMap.get(DcMotor.class,  "motorDriveRightBack");
         motorDriveRightFront = hardwareMap.get(DcMotor.class, "motorDriveRightFront");
 
-        motorArmRight = hardwareMap.get(DcMotor.class, "motorArmRight");
-        motorArmLeft = hardwareMap.get(DcMotor.class, "motorArmLeft");
-        motorWinch = hardwareMap.get(DcMotor.class, "motorWinch");
+        motorBucket = hardwareMap.get(DcMotor.class, "motorBucket");
+        motorFlipper = hardwareMap.get(DcMotor.class, "motorFlipper");
+        motorLift = hardwareMap.get(DcMotor.class, "motorLift");
+        motorSlider = hardwareMap.get(DcMotor.class, "motorSlider");
 
-        servoSweeperLeft = hardwareMap.get(CRServo.class, "servoSweeperLeft");
-        servoSweeperRight = hardwareMap.get(CRServo.class, "servoSweeperRight");
-
-        armIMU = new IMU(telemetry, hardwareMap, "armIMU");
 
 
         // Since one motor is reversed in relation to the other, we must reverse the motor on the right so positive powers mean forward.
@@ -84,10 +80,6 @@ public class Drive_TeleOP extends OpMode {
         motorDriveLeftFront.setDirection(DcMotor.Direction.FORWARD);
         motorDriveRightBack.setDirection(DcMotor.Direction.FORWARD);
         motorDriveRightFront.setDirection(DcMotor.Direction.REVERSE);
-
-        motorArmLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorArmRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        motorWinch.setDirection(DcMotorSimple.Direction.FORWARD);
 
         motorDriveLeftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorDriveLeftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -98,9 +90,6 @@ public class Drive_TeleOP extends OpMode {
         motorDriveLeftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorDriveRightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorDriveRightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        servoSweeperLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        servoSweeperRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
 
         // Tell the driver that initialization is complete.
@@ -122,8 +111,8 @@ public class Drive_TeleOP extends OpMode {
         //
         double drive = -gamepad1.left_stick_y;
         double turn  =  gamepad1.left_stick_x;
-        motorDriveLeftPower = Range.clip(drive + turn, -1.0, 1.0);
-        motorDriveRightPower = Range.clip(drive - turn, -1.0, 1.0);
+        motorDriveLeftPower = (float)Range.clip(drive + turn, -1.0, 1.0);
+        motorDriveRightPower = (float)Range.clip(drive - turn, -1.0, 1.0);
 
         // Send calculated power to wheels
         motorDriveLeftBack.setPower(motorDriveLeftPower);
@@ -131,35 +120,34 @@ public class Drive_TeleOP extends OpMode {
         motorDriveRightBack.setPower(motorDriveRightPower);
         motorDriveRightFront.setPower(motorDriveRightPower);
 
+        if (gamepad1.left_bumper) {
+            motorSlider.setPower(1.0);
+        } else if (gamepad1.right_bumper) {
+            motorSlider.setPower(-1.0);
+        } else {
+            motorSlider.setPower(0);
+        }
+
 
         if (gamepad1.left_trigger > 0) {
-            servoSweeperLeftPower = SERVO_MAX_POWER;
-        } else if (gamepad1.left_bumper) {
-            servoSweeperLeftPower = -SERVO_MAX_POWER;
+            motorFlipper.setPower(gamepad1.left_trigger);
+        } else if (gamepad1.right_trigger > 0) {
+            motorFlipper.setPower(-gamepad1.right_trigger);
         } else {
-            servoSweeperLeftPower = 0;
+            motorFlipper.setPower(0);
         }
 
-        if (gamepad1.right_trigger > 0) {
-            servoSweeperRightPower = SERVO_MAX_POWER;
-        } else if (gamepad1.right_bumper) {
-            servoSweeperRightPower = -SERVO_MAX_POWER;
+        if (gamepad1.dpad_up) {
+            motorBucket.setPower(1.0);
+        } else if (gamepad1.dpad_down) {
+            motorBucket.setPower(-1.0);
         } else {
-            servoSweeperRightPower = 0;
+            motorBucket.setPower(0);
         }
 
-        if (servoSweeperLeftPower != servoSweeperLeft.getPower()) {
-            servoSweeperLeft.setPower(servoSweeperLeftPower);
-        }
+        motorLift.setPower(gamepad1.right_stick_y);
 
-        if (servoSweeperRightPower != servoSweeperRight.getPower()) {
-            servoSweeperRight.setPower(servoSweeperRightPower);
-        }
-
-
-
-        telemetry.addData("Left:Right Power", servoSweeperLeft.getPower() + ":" + servoSweeperRight.getPower());
-        telemetry.addData("Angles", "Y: " + armIMU.getOrientation().secondAngle, "X: " + armIMU.getOrientation().thirdAngle);
+        telemetry.addData("Power", "Left:" + motorDriveLeftPower + " Right:" + motorDriveRightPower);
     }
 
     @Override public void stop() {
@@ -167,5 +155,10 @@ public class Drive_TeleOP extends OpMode {
         motorDriveLeftFront.setPower(0);
         motorDriveRightBack.setPower(0);
         motorDriveRightFront.setPower(0);
+
+        motorBucket.setPower(0);
+        motorFlipper.setPower(0);
+        motorLift.setPower(0);
+        motorSlider.setPower(0);
     }
 }

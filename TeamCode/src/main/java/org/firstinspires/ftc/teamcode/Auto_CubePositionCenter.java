@@ -26,8 +26,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Autobots Rollout", group="Main")
-public class Auto_Linear extends LinearOpMode {
+@Autonomous(name="Cube Position Center", group="Main")
+public class Auto_CubePositionCenter extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private AutoFourWheelDrive autoFourWheelDrive;
 
@@ -37,9 +37,21 @@ public class Auto_Linear extends LinearOpMode {
 
         waitForStart();
 
-        autoFourWheelDrive.encoderDrive(15, 15);
+        autoFourWheelDrive.cubePositionCenter(15);
 
-        autoFourWheelDrive.encoderDrive(-15, 15);
+        sleep(1000);
+
+        runtime.reset();
+        telemetry.addData("Status", "Turning...");
+        autoFourWheelDrive.encoderDrive(10, 15);
+        sleep(3000);
+        telemetry.update();
+        autoFourWheelDrive.turn(90, 10.0);
+        sleep(3000);
+        autoFourWheelDrive.turn(-90, 10.0);
+        sleep(3000);
+
+        autoFourWheelDrive.encoderDrive(32, 10);
         telemetry.addData("Status", "Finished!");
     }
 
@@ -51,5 +63,7 @@ public class Auto_Linear extends LinearOpMode {
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+
+        autoFourWheelDrive.initDogeCV();
     }
 }
