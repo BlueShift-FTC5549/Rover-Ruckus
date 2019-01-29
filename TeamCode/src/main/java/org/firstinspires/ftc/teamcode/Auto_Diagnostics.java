@@ -73,10 +73,11 @@ public class Auto_Diagnostics extends LinearOpMode {
     //Test Constants
     private static final long PRE_TEST_PAUSE = 1000;
     private static final long TEST_TIME_INTERVAL = 500;
+    private static final long FLOOR_CONTACT_TIMEOUT = 10000;
 
     //Robot-Tuned constants
     private static final double NO_MOVEMENT_POWER = 0.08; //What power will the robot not move at while on the ground, but will off the ground
-    private static final double ENCODER_RESPONSE_POWER = 0.3;
+    private static final double ENCODER_RESPONSE_POWER = 0.4;
     private static final int ENCODER_NO_MOVEMENT_TOLERANCE = 100; //Max encoder ticks considered no movement
 
     //Test Results
@@ -124,6 +125,8 @@ public class Auto_Diagnostics extends LinearOpMode {
         //Test if the robot is off the ground with a very low motor power
         testFloorContact();
 
+        sleep(PRE_TEST_PAUSE);
+
 
         //   ________                                  .__
         //  /  _____/  ____   ____   ________________  |  |
@@ -144,25 +147,53 @@ public class Auto_Diagnostics extends LinearOpMode {
         setStatus("Robot Pre-Check", "No Floor Contact");
         boolean onGround = true;
 
-        while (onGround && opModeIsActive()) {
+        boolean[] motorStatuses = new boolean[] {false, false, false, false}; //True = passed
+
+        elapsedTime.reset();
+
+        while (onGround
+                && opModeIsActive()
+                && elapsedTime.seconds() < FLOOR_CONTACT_TIMEOUT) {
+
             resetEncoders();
             setPowerAll(NO_MOVEMENT_POWER);
 
             sleep(1000);
 
-            stopMotion();
-            int finalBackEncoderAverage = (int) (((double)motorDriveLeftBack.getCurrentPosition() + (double)motorDriveRightBack.getCurrentPosition()) / 2.0);
+            int[] currentEncoders = new int[] {
+                    motorDriveLeftBack.getCurrentPosition(),
+                    motorDriveLeftFront.getCurrentPosition(),
+                    motorDriveRightBack.getCurrentPosition(),
+                    motorDriveRightFront.getCurrentPosition()
+            };
 
-            if (Math.abs(finalBackEncoderAverage) > ENCODER_NO_MOVEMENT_TOLERANCE) {
+            for (int i = 0; i < 4; i++) {
+                if (!motorStatuses[i] && Math.abs(currentEncoders[0]) > ENCODER_NO_MOVEMENT_TOLERANCE) {
+                    motorStatuses[i] = true;
+                }
+            }
+
+            if (motorStatuses[0]
+                    && motorStatuses[1]
+                    && motorStatuses[2]
+                    && motorStatuses[3]) {
+
                 onGround = false;
+
+                playGoodTone();
+                setStatus("Safety Tests", "No Floor Contact", "PASSED");
             } else {
                 playBadTone();
                 setStatus("Safety Tests", "No Floor Contact", "FAILING");
+
+                telemetry.addData("Motor Encoder Statuses", "Left Back: "+ motorStatuses[0]
+                        + "\nLeft Front: " + motorStatuses[1]
+                        + "\nRight Back: " + motorStatuses[2]
+                        + "\nRight Front: " + motorStatuses[3]);
             }
         }
 
-        playGoodTone();
-        setStatus("Safety Tests", "No Floor Contact", "PASSED");
+        stopMotion();
 
         return onGround;
     }
@@ -265,19 +296,16 @@ public class Auto_Diagnostics extends LinearOpMode {
     }
 
     private void setStatus(String status) {
-        telemetry.clearAll();
         telemetry.addData("Status", status);
         telemetry.update();
     }
     private void setStatus(String status, String subStatus) {
-        telemetry.clearAll();
         telemetry.addLine()
                 .addData("Status", status)
                 .addData(">", subStatus);
         telemetry.update();
     }
     private void setStatus(String status, String subStatus, String semiStatus) {
-        telemetry.clearAll();
         telemetry.addLine()
                 .addData("Status", status)
                 .addData(">", subStatus)
