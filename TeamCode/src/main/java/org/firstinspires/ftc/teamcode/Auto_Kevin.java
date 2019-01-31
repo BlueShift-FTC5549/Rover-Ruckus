@@ -140,7 +140,7 @@ public class Auto_Kevin extends LinearOpMode {
             sleep(500);
             stopMotion();
             int finalBackEncoder = motor.getCurrentPosition();  // gets final encoder value
-            if ((initBackEncoder - finalBackEncoder) <= ENCODER_NO_MOVEMENT_TOLERANCE) {    // checks if motor has not moved
+            if (Math.abs(initBackEncoder - finalBackEncoder) >= ENCODER_NO_MOVEMENT_TOLERANCE) {    // checks if motor has not moved
                 telemetry.addData("Chains Status:", "Power Found", chain_power);
                 telemetry.update();
                 sleep(10000);
