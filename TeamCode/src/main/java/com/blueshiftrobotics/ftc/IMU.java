@@ -22,6 +22,7 @@
 package com.blueshiftrobotics.ftc;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -31,6 +32,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 /**
  * A customized IMU object class that is somewhat an extension of BNO055IMU class. To simplify code
@@ -57,7 +60,7 @@ public class IMU {
 
             parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
             parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-            parameters.calibrationDataFile = IMUName + "BNO055IMUCalibration.json";
+            parameters.calibrationDataFile = IMUName + "AdafruitIMUCalibration.json";
             parameters.loggingEnabled = true;
             parameters.loggingTag = IMUName;
 
@@ -73,7 +76,7 @@ public class IMU {
      *
      * @param telemetry The driver station telemetry for status communication.
      * @param hardwareMap The robot controller's hardware map.
-     * @param IMUName The name of the BNO055IMU in the robot controller.
+     * @param IMUName The name of the BNO055IMU in the robot controller
      */
     public IMU(Telemetry telemetry, HardwareMap hardwareMap, String IMUName) {
         try {
@@ -83,7 +86,7 @@ public class IMU {
 
             parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
             parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-            parameters.calibrationDataFile = IMUName + "BNO055IMUCalibration.json";
+            parameters.calibrationDataFile = "AdafruitIMUCalibration.json";
             parameters.loggingEnabled = true;
             parameters.loggingTag = IMUName;
 
@@ -110,7 +113,17 @@ public class IMU {
         return revIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
     }
 
+    public void initAccelerationLogging() {
+        revIMU.startAccelerationIntegration(new Position(), new Velocity(), 250);
+    }
+
     public Acceleration getAcceleration() {
         return revIMU.getAcceleration();
+    }
+
+    public Velocity getVelocity() { return revIMU.getVelocity(); }
+
+    public boolean isAccelerometerCalibrated() {
+        return revIMU.isAccelerometerCalibrated();
     }
 }

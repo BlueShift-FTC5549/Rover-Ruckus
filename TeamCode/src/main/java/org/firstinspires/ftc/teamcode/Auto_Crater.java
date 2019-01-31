@@ -22,30 +22,27 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.blueshiftrobotics.ftc.AutoFourWheelDrive;
+import com.blueshiftrobotics.ftc.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Turn", group="Main")
-public class Auto_TeleOP extends LinearOpMode {
+/**
+ * An autonomous OpMode that starts hanging from the crater side of the lander. It incorporates the
+ * autonomous library {@link AutoFourWheelDrive} to perform many of the following functions:
+ *
+ *  1. Drop from the lander
+ *  2. Turn 180 degrees
+ *  3. Reverse to get the gold cube and both silver spheres in frame of the phone camera
+ *  4. Center the gold cube in front of the robot and drive forward to knock it away
+ *  5.
+ */
+@Autonomous(name="Crater Drop", group="Main")
+public class Auto_Crater extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private AutoFourWheelDrive autoFourWheelDrive;
 
-    @Override
-    public void runOpMode() {
-        initialize();
-
-        waitForStart();
-
-        autoFourWheelDrive.turn(90, 15);
-
-        sleep(3000);
-
-        autoFourWheelDrive.turn(-90, 15);
-
-
-        telemetry.addData("Status", "Finished!");
-    }
+    private IMU imu;
 
     private void initialize() {
         telemetry.addData("Status", "Initializing");
@@ -53,7 +50,36 @@ public class Auto_TeleOP extends LinearOpMode {
 
         autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu", true);
 
+        imu = new IMU(telemetry, hardwareMap, "imu");
+
+        autoFourWheelDrive.initDogeCV();
+
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+
+        waitForStart();
+    }
+
+    @Override
+    public void runOpMode() {
+        initialize();
+
+        //Lower the robot from the lander
+        boolean onGround = false;
+
+        while (!onGround
+                && opModeIsActive()
+                && !isStopRequested()) {
+
+            onGround = true;
+
+            double verticalAcceleration = imu.getAcceleration().zAccel;
+        }
+
+        autoFourWheelDrive.turn(180, 15);
+
+        autoFourWheelDrive.encoderDrive(-10, 15);
+
+        autoFourWheelDrive.cubePositionCenter(15);
     }
 }
