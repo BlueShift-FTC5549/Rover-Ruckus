@@ -143,7 +143,7 @@ public class Auto_Kevin extends LinearOpMode {
             if ((initBackEncoder - finalBackEncoder) <= ENCODER_NO_MOVEMENT_TOLERANCE) {    // checks if motor has not moved
                 telemetry.addData("Chains Status:", "ON", chain_power);
                 telemetry.update();
-                sleep(3000);
+                sleep(10000);
                 return;
             } else {
                 telemetry.addData("Chains Status:", "OFF");
