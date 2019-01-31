@@ -30,6 +30,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+
 @TeleOp(name="TeleOP", group="Drive")
 public class Drive_TeleOP extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
@@ -45,17 +48,13 @@ public class Drive_TeleOP extends OpMode {
 
     private CRServo servoSweeper;
 
-    private IMU armIMU;
+    private IMU imu;
 
     private float motorDriveLeftPower, motorDriveRightPower;
-    private float servoSweeperLeftPower, servoSweeperRightPower;
+    private float servoSweeperPower;
 
     private static final float SERVO_MAX_POWER = 0.8f;
 
-    //Arm Constants
-    private static final float ARM_BALANCING_ERROR_TOLERANCE = 3; //In Degrees
-    private static final float[] ARM_BALANCING_DEGREE_LIMITS = new float[] { 0f, 180f };
-    private static final float ARM_BALANCING_Kp = 0.8f;
 
     @Override public void init() {
         telemetry.clearAll();
@@ -73,7 +72,9 @@ public class Drive_TeleOP extends OpMode {
         motorLift = hardwareMap.get(DcMotor.class, "motorLift");
         motorSlider = hardwareMap.get(DcMotor.class, "motorSlider");
 
+        servoSweeper = hardwareMap.get(CRServo.class, "servoSweeper");
 
+        imu = new IMU(telemetry, hardwareMap, "imu");
 
         // Since one motor is reversed in relation to the other, we must reverse the motor on the right so positive powers mean forward.
         motorDriveLeftBack.setDirection(DcMotor.Direction.REVERSE);
@@ -92,6 +93,13 @@ public class Drive_TeleOP extends OpMode {
         motorDriveRightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
+        //Set auxiliary motors to brake
+        motorBucket.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorFlipper.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorSlider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
         // Tell the driver that initialization is complete.
         telemetry.clearAll();
         telemetry.addData("Status", "TeleOP Initialized");
@@ -103,6 +111,8 @@ public class Drive_TeleOP extends OpMode {
     @Override public void start() {
         runtime.reset();
         telemetry.clearAll();
+
+        imu.initAccelerationLogging();
     }
 
     @Override public void loop() {
@@ -145,9 +155,30 @@ public class Drive_TeleOP extends OpMode {
             motorBucket.setPower(0);
         }
 
+        if (gamepad1.a) {
+            servoSweeperPower = SERVO_MAX_POWER;
+        } else if (gamepad1.b) {
+            servoSweeperPower = -SERVO_MAX_POWER;
+        } else {
+            servoSweeperPower = 0;
+        }
+
+        if (servoSweeperPower != servoSweeper.getPower()) {
+            servoSweeper.setPower(servoSweeperPower);
+        }
+
         motorLift.setPower(gamepad1.right_stick_y);
 
-        telemetry.addData("Power", "Left:" + motorDriveLeftPower + " Right:" + motorDriveRightPower);
+        Acceleration accel = imu.getAcceleration();
+        Velocity velocity = imu.getVelocity();
+
+        telemetry.addData("Acceleration y:z",
+                "\n:" + Math.round(accel.yAccel*100.0)/100.0
+                + "\n:" + Math.round(accel.zAccel*100.0)/100.0);
+
+        telemetry.addData("Velocity y:z",
+                "\n:" + Math.round(velocity.yVeloc*100.0)/100.0
+                + "\n:" + Math.round(velocity.zVeloc*100.0)/100.0);
     }
 
     @Override public void stop() {
