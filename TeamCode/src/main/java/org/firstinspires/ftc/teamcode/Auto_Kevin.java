@@ -48,6 +48,9 @@ public class Auto_Kevin extends LinearOpMode {
     private static final int ENCODER_NO_MOVEMENT_TOLERANCE = 5; //Max encoder ticks is considered no movement
     private boolean chainON = true;
 
+    private boolean at_silver = false;
+    private boolean at_gold = false;
+
     @Override
         public void runOpMode() {
         //Init
