@@ -43,8 +43,7 @@ public class Auto_Kevin extends LinearOpMode {
     double x_pos;
     double power;
 
-    private static  double RIGHT_MOVEMENT_POWER = 0.30; //What power will the robot not move at when chain is on
-    private static  double LEFT_MOVEMENT_POWER = 0.30; //What power will the robot not move at when chain is on
+    private static  double POWER = 0.30; //What power will the robot not move at when chain is on
     private static final int ENCODER_NO_MOVEMENT_TOLERANCE = 5; //Max encoder ticks is considered no movement
     private boolean chainON = true;
 
@@ -93,11 +92,8 @@ public class Auto_Kevin extends LinearOpMode {
         waitForStart();
 
         //Loop
-        while (chainON && opModeIsActive()) {
-            check_chains(motorDriveLeftBack, LEFT_MOVEMENT_POWER);  // checks if left chain is on
-            check_chains(motorDriveRightBack, RIGHT_MOVEMENT_POWER);    // checks if right chain is on
-            chainON = false;
-        }
+        check_chains(motorDriveLeftBack, POWER);  // checks if left chain is on
+        check_chains(motorDriveRightBack, POWER);    // checks if right chain is on
 
          /*while (true) {
             x_pos = detector.getXPosition();    // Gets position of block in pixels with zero being on the very left
