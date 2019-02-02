@@ -30,7 +30,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Operation Check Chain", group="Diagnostics")
+@Autonomous(name="Operation Check Chain", group="Main")
 public class Auto_Kevin extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private AutoFourWheelDrive autoFourWheelDrive;
@@ -43,8 +43,7 @@ public class Auto_Kevin extends LinearOpMode {
     double x_pos;
     double power;
 
-    private static  double RIGHT_MOVEMENT_POWER = 0.01; //What power will the robot not move at when chain is on
-    private static  double LEFT_MOVEMENT_POWER = 0.01; //What power will the robot not move at when chain is on
+    private static  double POWER = 0.30; //What power will the robot not move at when chain is on
     private static final int ENCODER_NO_MOVEMENT_TOLERANCE = 5; //Max encoder ticks is considered no movement
     private boolean chainON = true;
 
@@ -93,11 +92,8 @@ public class Auto_Kevin extends LinearOpMode {
         waitForStart();
 
         //Loop
-        while (chainON && opModeIsActive()) {
-            check_chains(motorDriveLeftBack, LEFT_MOVEMENT_POWER);  // checks if left chain is on
-            check_chains(motorDriveRightBack, RIGHT_MOVEMENT_POWER);    // checks if right chain is on
-            chainON = false;
-        }
+        check_chains(motorDriveLeftBack, POWER);  // checks if left chain is on
+        check_chains(motorDriveRightBack, POWER);    // checks if right chain is on
 
          /*while (true) {
             x_pos = detector.getXPosition();    // Gets position of block in pixels with zero being on the very left
@@ -140,16 +136,15 @@ public class Auto_Kevin extends LinearOpMode {
             sleep(500);
             stopMotion();
             int finalBackEncoder = motor.getCurrentPosition();  // gets final encoder value
-            if (Math.abs(initBackEncoder - finalBackEncoder) >= ENCODER_NO_MOVEMENT_TOLERANCE) {    // checks if motor has not moved
-                telemetry.addData("Chains Status:", "Power Found" + chain_power);
+            if (Math.abs(initBackEncoder - finalBackEncoder) <= ENCODER_NO_MOVEMENT_TOLERANCE) {    // checks if motor has not moved
+                telemetry.addData("Chains Is On", motor);
                 telemetry.update();
-                sleep(10000);
+                sleep(1000);
                 return;
             } else {
-                telemetry.addData("Chains Status:", "Adding Power");
+                telemetry.addData("Chains Is Off:",motor);
                 telemetry.update();
-                chain_power += 0.01;    // if wheels have not moved it adds more power (this is just to get the right power and will be taken out)
-                sleep(50);
+                sleep(1000);
             }
         }
     }
