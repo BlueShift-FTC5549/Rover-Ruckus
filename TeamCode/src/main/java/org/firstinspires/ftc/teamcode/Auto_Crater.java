@@ -76,10 +76,13 @@ public class Auto_Crater extends LinearOpMode {
             double verticalAcceleration = imu.getAcceleration().zAccel;
         }
 
-        autoFourWheelDrive.turn(180, 15);
+        autoFourWheelDrive.turn(180, 10);
 
-        autoFourWheelDrive.encoderDrive(-10, 15);
+        autoFourWheelDrive.encoderDrive(-7, 10);
 
-        autoFourWheelDrive.cubePositionCenter(15);
+        autoFourWheelDrive.cubePositionCenter(20);
+
+        autoFourWheelDrive.encoderDrive(17, 10);
+        autoFourWheelDrive.encoderDrive(-14, 10);
     }
 }

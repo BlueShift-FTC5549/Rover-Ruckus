@@ -27,6 +27,12 @@ package com.blueshiftrobotics.ftc;
  * @author Gabriel Wong
  */
 public class BlueShiftUtil {
+
+    /**
+     * @param theta_1 The first angle
+     * @param theta_2 The second angle
+     * @return the difference between to angles in the range [-180, 180].
+     */
     public static double getDegreeDifference(double theta_1, double theta_2) {
         double rawDifference = theta_2 - theta_1;
 
@@ -37,9 +43,5 @@ public class BlueShiftUtil {
         } else {
             return rawDifference;
         }
-    }
-
-    public static double getAbsDegreeDifference(double theta_1, double theta_2) {
-        return Math.abs( getDegreeDifference(theta_1, theta_2) );
     }
 }

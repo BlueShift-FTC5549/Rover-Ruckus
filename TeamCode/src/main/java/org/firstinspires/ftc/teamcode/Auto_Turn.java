@@ -26,7 +26,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Turn", group="Main")
+@Autonomous(name="Turn", group="Diagnostics")
 public class Auto_Turn extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private AutoFourWheelDrive autoFourWheelDrive;

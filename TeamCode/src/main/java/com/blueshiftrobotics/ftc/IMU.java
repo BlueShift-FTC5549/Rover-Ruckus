@@ -22,7 +22,6 @@
 package com.blueshiftrobotics.ftc;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -30,7 +29,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
@@ -40,7 +38,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
  * and make it more readable in the Autonomous libraries, the BNO055IMU is initialized here and the
  * heading retrieval method is collapsed to a simple `getHeading()` method.
  *
- * @Author Gabriel Wong
+ * @version 1.0
+ * @author Gabriel Wong
  */
 public class IMU {
     private BNO055IMU revIMU;
@@ -98,6 +97,9 @@ public class IMU {
         }
     }
 
+    /**
+     * @return the current orientation from the BNO055IMU.
+     */
     public Orientation getOrientation() {
         return revIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
     }
@@ -109,7 +111,6 @@ public class IMU {
      * @return the current magnetic heading
      */
     public float getHeading() {
-        //TODO: If the axes of the orientation of the REV hub changes, we must change the Axes Order to get the correct angle.
         return revIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
     }
 
@@ -120,10 +121,5 @@ public class IMU {
     public Acceleration getAcceleration() {
         return revIMU.getAcceleration();
     }
-
     public Velocity getVelocity() { return revIMU.getVelocity(); }
-
-    public boolean isAccelerometerCalibrated() {
-        return revIMU.isAccelerometerCalibrated();
-    }
 }

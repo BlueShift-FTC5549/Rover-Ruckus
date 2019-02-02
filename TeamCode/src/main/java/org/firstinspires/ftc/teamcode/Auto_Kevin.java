@@ -30,7 +30,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Operation Check Chain", group="Main")
+@Autonomous(name="Operation Check Chain", group="Diagnostics")
 public class Auto_Kevin extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private AutoFourWheelDrive autoFourWheelDrive;
@@ -141,7 +141,7 @@ public class Auto_Kevin extends LinearOpMode {
             stopMotion();
             int finalBackEncoder = motor.getCurrentPosition();  // gets final encoder value
             if (Math.abs(initBackEncoder - finalBackEncoder) >= ENCODER_NO_MOVEMENT_TOLERANCE) {    // checks if motor has not moved
-                telemetry.addData("Chains Status:", "Power Found", chain_power);
+                telemetry.addData("Chains Status:", "Power Found" + chain_power);
                 telemetry.update();
                 sleep(10000);
                 return;
