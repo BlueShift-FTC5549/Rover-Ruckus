@@ -13,6 +13,9 @@ Blue Shift shares all of our code so that other teams may learn from our program
 
 ## Release History
 
+* 0.11.0
+    * Added the auxiliary autonomous library
+    * Includes liftDrop functionality
 * 0.10.0
     * Autonomous Library Reorganization
     * Cube Finder Update with Scanning

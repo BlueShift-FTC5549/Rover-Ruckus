@@ -160,24 +160,15 @@ public class Auto_Diagnostics extends LinearOpMode {
 
             sleep(1000);
 
-            int[] currentEncoders = new int[] {
-                    motorDriveLeftBack.getCurrentPosition(),
-                    motorDriveLeftFront.getCurrentPosition(),
-                    motorDriveRightBack.getCurrentPosition(),
-                    motorDriveRightFront.getCurrentPosition()
-            };
+            int[] currentEncoders = getEncoderValues();
 
             for (int i = 0; i < 4; i++) {
-                if (!motorStatuses[i] && Math.abs(currentEncoders[0]) > ENCODER_NO_MOVEMENT_TOLERANCE) {
+                if (Math.abs(currentEncoders[i]) > ENCODER_NO_MOVEMENT_TOLERANCE) {
                     motorStatuses[i] = true;
                 }
             }
 
-            if (motorStatuses[0]
-                    && motorStatuses[1]
-                    && motorStatuses[2]
-                    && motorStatuses[3]) {
-
+            if (motorStatuses[0] && motorStatuses[1] && motorStatuses[2] && motorStatuses[3]) {
                 onGround = false;
 
                 playGoodTone();
@@ -313,6 +304,14 @@ public class Auto_Diagnostics extends LinearOpMode {
         telemetry.update();
     }
 
+    private int[] getEncoderValues() {
+        return new int[] {
+                motorDriveLeftBack.getCurrentPosition(),
+                motorDriveLeftFront.getCurrentPosition(),
+                motorDriveRightBack.getCurrentPosition(),
+                motorDriveRightFront.getCurrentPosition()
+        };
+    }
     private void resetEncoders() {
         motorDriveLeftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorDriveLeftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

@@ -547,7 +547,7 @@ public class AutoFourWheelDrive {
 
         setAllPower(0);
 
-        telemetry.addData("Status", "Motion Aborted");
+        telemetry.addData("Status", "Drive Motion Aborted");
         telemetry.update();
     }
 
