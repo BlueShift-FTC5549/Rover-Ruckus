@@ -21,6 +21,8 @@
 
 package com.blueshiftrobotics.ftc;
 
+import android.support.annotation.NonNull;
+
 import com.disnodeteam.dogecv.CameraViewDisplay;
 import com.disnodeteam.dogecv.DogeCV;
 import com.disnodeteam.dogecv.detectors.roverrukus.GoldAlignDetector;
@@ -30,6 +32,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Name Breakdown
@@ -52,7 +61,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  * Tech Challenge competition. Created by the programming team of Blue Shift, a function catalog is
  * included above.
  *
- * @version 1.2
+ * @version 1.3
  * @author Gabriel Wong
  */
 public class AutoFourWheelDrive {
@@ -74,18 +83,19 @@ public class AutoFourWheelDrive {
     //Instance Variables
     private boolean hasAborted;
     private boolean verboseLoops;
+    private List<Float> headingStorage;
 
     //Turning Constants
-    private static final float TURN_Kp = 0.6f;
-    private static final float TURN_ERROR_ALLOWANCE = (float)4.0; //In Degrees
-    private static final float TURN_POWER_OFFSET_STEP = (float)0.005;
+    private static final float TURN_Kp = 0.78f;
+    private static final float TURN_ERROR_ALLOWANCE = (float)3.2; //In Degrees
+    private static final float TURN_POWER_OFFSET_STEP = (float)0.012;
 
     //Encoder Constants
     private static final double COUNTS_PER_MOTOR_REV    = 1120;    // Andymark Neverest 20
     private static final double WHEEL_DIAMETER_INCHES   = 4.0;     // For figuring circumference
     private static final double COUNTS_PER_INCH         = COUNTS_PER_MOTOR_REV / (WHEEL_DIAMETER_INCHES * 3.1415);
     private static final float  ENCODER_DRIVE_Kp        = 0.72f;
-    private static final int    ENCODER_DRIVE_ERROR_ALLOWANCE = 20;
+    private static final int    ENCODER_DRIVE_ERROR_ALLOWANCE = 18;
     private static final float  ENCODER_DRIVE_POWER_OFFSET_STEP = (float)0.01;
     private static final int    ENCODER_NO_MOVEMENT_THRESHOLD = 15;
 
@@ -112,6 +122,7 @@ public class AutoFourWheelDrive {
 
         this.hasAborted = false;
         this.verboseLoops = verboseLoops;
+        this.headingStorage = new ArrayList<>();
 
 
         //Motor Calibration (Direction and Zero Power Behavior)
@@ -174,7 +185,7 @@ public class AutoFourWheelDrive {
 
                 setTurnPower(turnPower);
 
-                if (hasAllEncodersMoved(previousEncoders, currentEncoders)) {
+                if (!hasAllEncodersMoved(previousEncoders, currentEncoders)) {
                     turningPowerOffset += thetaPercentError * TURN_POWER_OFFSET_STEP; //TODO: Decide whether or not to make offset proportional
                 }
 
@@ -198,7 +209,7 @@ public class AutoFourWheelDrive {
 
                 setTurnPower(turnPower);
 
-                if (hasAllEncodersMoved(previousEncoders, currentEncoders)) {
+                if (!hasAllEncodersMoved(previousEncoders, currentEncoders)) {
                     turningPowerOffset += thetaPercentError * TURN_POWER_OFFSET_STEP;
                 }
 
@@ -265,8 +276,8 @@ public class AutoFourWheelDrive {
 
                 setSplitPower(motorDriveLeftPower, motorDriveRightPower);
 
-                if (hasAllEncodersMoved(previousEncoders, currentEncoders)) {
-                    ENCODER_DRIVE_POWER_OFFSET += ENCODER_DRIVE_POWER_OFFSET_STEP;
+                if (!hasAllEncodersMoved(previousEncoders, currentEncoders)) {
+                    ENCODER_DRIVE_POWER_OFFSET += (motorDriveLeftPercentEncoderError + motorDriveRightPercentEncoderError)/2.0 * ENCODER_DRIVE_POWER_OFFSET_STEP;
                 }
 
                 previousEncoders = currentEncoders;
@@ -291,8 +302,8 @@ public class AutoFourWheelDrive {
 
                 setSplitPower(motorDriveLeftPower, motorDriveRightPower);
 
-                if (hasAllEncodersMoved(previousEncoders, currentEncoders)) {
-                    ENCODER_DRIVE_POWER_OFFSET += ENCODER_DRIVE_POWER_OFFSET_STEP;
+                if (!hasAllEncodersMoved(previousEncoders, currentEncoders)) {
+                    ENCODER_DRIVE_POWER_OFFSET += (motorDriveLeftPercentEncoderError + motorDriveRightPercentEncoderError)/2.0 * ENCODER_DRIVE_POWER_OFFSET_STEP;
                 }
 
                 previousEncoders = currentEncoders;
@@ -329,8 +340,8 @@ public class AutoFourWheelDrive {
         goldAlignDetector.useDefaults(); // Set goldAlignDetector to use default settings
 
         // Optional tuning
-        goldAlignDetector.alignSize = 70; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
-        goldAlignDetector.alignPosOffset = 215; // How far from center frame to offset this alignment zone.
+        goldAlignDetector.alignSize = 75; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
+        goldAlignDetector.alignPosOffset = 225; // How far from center frame to offset this alignment zone.
         goldAlignDetector.downscale = 0.4; // How much to downscale the input frames
 
         goldAlignDetector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
@@ -342,6 +353,29 @@ public class AutoFourWheelDrive {
         goldAlignDetector.enable();
 
         telemetry.addData("DogeCV", "Initialization Complete");
+    }
+
+    public boolean cubePositionScan(double secondsTimeout) {
+        while (!goldAlignDetector.isFound()
+                && opMode.opModeIsActive()
+                && elapsedTime.seconds() < secondsTimeout
+                && !opMode.isStopRequested()
+                && !hasAborted) {
+
+            telemetry.addData("Cube Centering", "No Cube Found, Scanning. Time: " + elapsedTime.seconds() + "s");
+            telemetry.update();
+
+            double turnPower;
+
+            if (elapsedTime.seconds() < 1.2) { turnPower = 0.25;
+            } else if (elapsedTime.seconds() < 2.0) { turnPower = 0.0;
+            } else if (elapsedTime.seconds() < 4.4) { turnPower = -0.25;
+            } else { turnPower = 0.0; }
+
+            setTurnPower(turnPower);
+        }
+
+        return goldAlignDetector.isFound();
     }
 
     /**
@@ -356,24 +390,7 @@ public class AutoFourWheelDrive {
 
         elapsedTime.reset();
 
-        while (!goldAlignDetector.isFound()
-                && opMode.opModeIsActive()
-                && elapsedTime.seconds() < secondsTimeout
-                && !opMode.isStopRequested()
-                && !hasAborted) {
-
-            telemetry.addData("Cube Centering", "No Cube Found, Scanning. Time: " + elapsedTime.seconds() + "s");
-            telemetry.update();
-
-            double turnPower;
-
-            if (elapsedTime.seconds() < 1.5) { turnPower = 0.25;
-            } else if (elapsedTime.seconds() < 2.5) { turnPower = 0.0;
-            } else if (elapsedTime.seconds() < 5.7) { turnPower = -0.25;
-            } else { turnPower = 0.0; }
-
-            setTurnPower(turnPower);
-        }
+        cubePositionScan(secondsTimeout);
 
         if (elapsedTime.seconds() >= secondsTimeout
                 || opMode.isStopRequested()) {
@@ -386,7 +403,7 @@ public class AutoFourWheelDrive {
         int[] previousEncoders = new int[4];
         double FOVWidth = goldAlignDetector.getInitSize().width;
         double CUBE_CENTERING_POWER_OFFSET = 0.0;
-        double initAlignmentError = ((FOVWidth/2.0) + goldAlignDetector.alignPosOffset) - goldAlignDetector.getXPosition();
+        double initAlignmentError = (FOVWidth/2.0);
 
         telemetry.addData("Cube Centering", "Centering the Gold Cube. Time: " + elapsedTime.seconds() + "s");
         telemetry.update();
@@ -396,24 +413,22 @@ public class AutoFourWheelDrive {
         if (!verboseLoops) {
             //Align the robot with the gold cube
             while (!goldAlignDetector.getAligned()
+                    && goldAlignDetector.isFound()
                     && opMode.opModeIsActive()
+                    && !opMode.isStopRequested()
                     && elapsedTime.seconds() < secondsTimeout
-                    && !hasAborted
-                    && !opMode.isStopRequested()) {
+                    && !hasAborted) {
 
                 int[] currentEncoders = getEncoderValues();
 
                 double alignmentError = ((FOVWidth/2.0) + goldAlignDetector.alignPosOffset) - goldAlignDetector.getXPosition();
                 double alignmentPercentError = Range.clip(Math.abs(alignmentError/initAlignmentError), 0, 1);
 
-                double turnPower = Math.signum(alignmentError) * (TURN_Kp * alignmentPercentError * (1 - alignmentPercentError) + CUBE_CENTERING_POWER_OFFSET);
+                double turnPower = -Math.signum(alignmentError) * alignmentPercentError * CUBE_CENTERING_POWER_OFFSET ;
 
                 setTurnPower(turnPower);
 
-                if (Math.abs(currentEncoders[0] - previousEncoders[0]) < ENCODER_NO_MOVEMENT_THRESHOLD
-                        || Math.abs(currentEncoders[1] - previousEncoders[1]) < ENCODER_NO_MOVEMENT_THRESHOLD
-                        || Math.abs(currentEncoders[2] - previousEncoders[2]) < ENCODER_NO_MOVEMENT_THRESHOLD
-                        || Math.abs(currentEncoders[3] - previousEncoders[3]) < ENCODER_NO_MOVEMENT_THRESHOLD) {
+                if (!hasAllEncodersMoved(previousEncoders, currentEncoders)) {
                     CUBE_CENTERING_POWER_OFFSET += TURN_POWER_OFFSET_STEP;
                 }
 
@@ -421,24 +436,22 @@ public class AutoFourWheelDrive {
             }
         } else {
             while (!goldAlignDetector.getAligned()
+                    && goldAlignDetector.isFound()
                     && opMode.opModeIsActive()
+                    && !opMode.isStopRequested()
                     && elapsedTime.seconds() < secondsTimeout
-                    && !hasAborted
-                    && !opMode.isStopRequested()) {
+                    && !hasAborted) {
 
                 int[] currentEncoders = getEncoderValues();
 
                 double alignmentError = ((FOVWidth/2.0) + goldAlignDetector.alignPosOffset) - goldAlignDetector.getXPosition();
                 double alignmentPercentError = Range.clip(Math.abs(alignmentError/initAlignmentError), 0, 1);
 
-                double turnPower = Math.signum(alignmentError) * (TURN_Kp * alignmentPercentError * (1 - alignmentPercentError) + CUBE_CENTERING_POWER_OFFSET);
+                double turnPower = -Math.signum(alignmentError) * alignmentPercentError * CUBE_CENTERING_POWER_OFFSET ;
 
                 setTurnPower(turnPower);
 
-                if (Math.abs(currentEncoders[0] - previousEncoders[0]) < ENCODER_NO_MOVEMENT_THRESHOLD
-                        || Math.abs(currentEncoders[1] - previousEncoders[1]) < ENCODER_NO_MOVEMENT_THRESHOLD
-                        || Math.abs(currentEncoders[2] - previousEncoders[2]) < ENCODER_NO_MOVEMENT_THRESHOLD
-                        || Math.abs(currentEncoders[3] - previousEncoders[3]) < ENCODER_NO_MOVEMENT_THRESHOLD) {
+                if (!hasAllEncodersMoved(previousEncoders, currentEncoders)) {
                     CUBE_CENTERING_POWER_OFFSET += TURN_POWER_OFFSET_STEP;
                 }
 
@@ -447,7 +460,9 @@ public class AutoFourWheelDrive {
                 telemetry.addData("Cube Is Aligned", goldAlignDetector.getAligned());
                 telemetry.addData("Cube Position", goldAlignDetector.getXPosition());
                 telemetry.addData("Alignment Error", alignmentError);
+                telemetry.addData("Initial Alignment Error", initAlignmentError);
                 telemetry.addData("Alignment Percent Error", alignmentPercentError);
+                telemetry.addData("Cube Center Power Offset", CUBE_CENTERING_POWER_OFFSET);
                 telemetry.update();
             }
         }
@@ -466,6 +481,61 @@ public class AutoFourWheelDrive {
 
 
     //Utility Functions
+
+    /**
+     * Turn to a certain recorded heading.
+     *
+     * @param headingIndex The index of the stored heading
+     * @param secondsTimeout The maximum time to run the `turn` loops for
+     */
+    public void turnToRecordedHeading(int headingIndex, double secondsTimeout) {
+        float dTheta = readHeading(headingIndex) - imu.getHeading();
+
+        turn(dTheta, secondsTimeout);
+    }
+
+    /**
+     * Turn to a certain recorded heading with an offset.
+     *
+     * @param headingIndex The index of the stored heading
+     * @param headingOffset How much to offset theta by
+     * @param secondsTimeout The maximum time to run the `turn` loops for
+     */
+    public void turnToRecordedHeading(int headingIndex, float headingOffset, double secondsTimeout) {
+        float dTheta = readHeading(headingIndex) - imu.getHeading() + headingOffset;
+
+        turn(dTheta, secondsTimeout);
+    }
+
+    /**
+     * Store the current IMU heading.
+     *
+     * @return The index of the stored heading
+     */
+    public int recordHeading() {
+        if (headingStorage.isEmpty()) {
+            headingStorage = Arrays.asList(imu.getHeading());
+            return 0;
+        }
+
+        headingStorage.add(imu.getHeading());
+        return headingStorage.size() - 1;
+    }
+
+    /**
+     * Read an IMU heading written by the `recordHeading` method.
+     *
+     * @param index The index of the stored heading
+     * @return The stored heading
+     */
+    public float readHeading(int index) {
+        if (headingStorage.isEmpty()
+                || index >= headingStorage.size()) {
+            return 0;
+        }
+
+        return headingStorage.get(index);
+    }
 
     /**
      * Compile all encoder values of all four motors into one array and return that array.

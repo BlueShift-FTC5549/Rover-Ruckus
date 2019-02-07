@@ -21,16 +21,12 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.blueshiftrobotics.ftc.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 @TeleOp(name="TeleOP", group="Main")
 public class Drive_TeleOP extends OpMode {
@@ -47,12 +43,20 @@ public class Drive_TeleOP extends OpMode {
 
     private CRServo servoSweeper;
 
-    private IMU imu;
-
     private float motorDriveLeftPower, motorDriveRightPower;
     private float servoSweeperPower;
 
+    //Driving constants and variables
+    private float drivePowerMultiplier = 1.0f;
+    private boolean ifDisableFrontMotors = false;
+    private static final float DRIVE_POWER_MULTIPLIER_SLOW = 0.6f;
     private static final float SERVO_MAX_POWER = 0.8f;
+
+    //Flipper Neutralization Constants
+    private int motorFlipperNeutralEncoderValue;
+    private int motorFlipperInitialEncoderError;
+    private static final float MOTOR_FLIPPER_Kp = 0.8f;
+    private boolean isNeutralizingFlipper = false;
 
 
     @Override public void init() {
@@ -73,8 +77,6 @@ public class Drive_TeleOP extends OpMode {
 
         servoSweeper = hardwareMap.get(CRServo.class, "servoSweeper");
 
-        imu = new IMU(telemetry, hardwareMap, "imu");
-
         // Since one motor is reversed in relation to the other, we must reverse the motor on the right so positive powers mean forward.
         motorDriveLeftBack.setDirection(DcMotor.Direction.REVERSE);
         motorDriveLeftFront.setDirection(DcMotor.Direction.FORWARD);
@@ -92,7 +94,22 @@ public class Drive_TeleOP extends OpMode {
         motorDriveRightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-        //Set auxiliary motors to brake
+        //Set auxiliary motors parameters
+        motorBucket.setDirection(DcMotor.Direction.FORWARD);
+        motorFlipper.setDirection(DcMotor.Direction.REVERSE);
+        motorLift.setDirection(DcMotor.Direction.FORWARD);
+        motorSlider.setDirection(DcMotor.Direction.FORWARD);
+
+        motorBucket.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorFlipper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorSlider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        motorBucket.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorFlipper.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorSlider.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         motorBucket.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorFlipper.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -100,8 +117,7 @@ public class Drive_TeleOP extends OpMode {
 
 
         // Tell the driver that initialization is complete.
-        telemetry.clearAll();
-        telemetry.addData("Status", "TeleOP Initialized");
+        telemetry.addData("Status", "Initialized");
         telemetry.update();
     }
 
@@ -111,73 +127,86 @@ public class Drive_TeleOP extends OpMode {
         runtime.reset();
         telemetry.clearAll();
 
-        imu.initAccelerationLogging();
+        motorFlipperNeutralEncoderValue = motorFlipper.getCurrentPosition();
+
+        telemetry.addData("Status", "Started");
     }
 
     @Override public void loop() {
-        //
         //Driving Code
-        //
-        double drive = -gamepad1.left_stick_y;
-        double turn  =  gamepad1.left_stick_x;
-        motorDriveLeftPower = (float)Range.clip(drive + turn, -1.0, 1.0);
-        motorDriveRightPower = (float)Range.clip(drive - turn, -1.0, 1.0);
-
-        // Send calculated power to wheels
-        motorDriveLeftBack.setPower(motorDriveLeftPower);
-        motorDriveLeftFront.setPower(motorDriveLeftPower);
-        motorDriveRightBack.setPower(motorDriveRightPower);
-        motorDriveRightFront.setPower(motorDriveRightPower);
-
-        if (gamepad1.left_bumper) {
-            motorSlider.setPower(1.0);
-        } else if (gamepad1.right_bumper) {
-            motorSlider.setPower(-1.0);
-        } else {
-            motorSlider.setPower(0);
-        }
+        float drive = -gamepad1.left_stick_y;
+        float turn  =  gamepad1.left_stick_x;
+        motorDriveLeftPower = drivePowerMultiplier * (float)Range.clip(drive + turn, -1.0, 1.0);
+        motorDriveRightPower = drivePowerMultiplier * (float)Range.clip(drive - turn, -1.0, 1.0);
+        setSplitPower(motorDriveLeftPower, motorDriveRightPower);
 
 
-        if (gamepad1.left_trigger > 0) {
-            motorFlipper.setPower(gamepad1.left_trigger);
-        } else if (gamepad1.right_trigger > 0) {
-            motorFlipper.setPower(-gamepad1.right_trigger);
-        } else {
-            motorFlipper.setPower(0);
-        }
+        //Box Slider and Bucket Code
+        float motorSliderPower = -gamepad1.right_stick_y;
+        float motorBucketPower = gamepad1.right_stick_x;
+        motorSlider.setPower(motorSliderPower);
+        motorBucket.setPower(motorBucketPower);
 
+
+        //Lift Code
         if (gamepad1.dpad_up) {
-            motorBucket.setPower(1.0);
+            motorLift.setPower(1.0);
         } else if (gamepad1.dpad_down) {
-            motorBucket.setPower(-1.0);
+            motorLift.setPower(-1.0);
         } else {
-            motorBucket.setPower(0);
+            motorLift.setPower(0);
         }
 
-        if (gamepad1.a) {
-            servoSweeperPower = SERVO_MAX_POWER;
-        } else if (gamepad1.b) {
+
+        //Sweeper Code
+        if (gamepad1.right_trigger > 0) {
+            servoSweeperPower = Range.clip(gamepad1.right_trigger, 0, SERVO_MAX_POWER);
+        } else if (gamepad1.right_bumper) {
             servoSweeperPower = -SERVO_MAX_POWER;
         } else {
             servoSweeperPower = 0;
         }
 
-        if (servoSweeperPower != servoSweeper.getPower()) {
-            servoSweeper.setPower(servoSweeperPower);
+        servoSweeper.setPower(servoSweeperPower);
+
+
+        //Flipper Code
+        if (gamepad1.left_trigger > 0) { //TODO: Check directon of flipper motor
+            isNeutralizingFlipper = false;
+            motorFlipper.setPower(gamepad1.left_trigger);
+        } else if (gamepad1.left_bumper) {
+            startFlipperNeutralization();
+        } else {
+            if (!isNeutralizingFlipper) {
+                motorFlipper.setPower(0);
+            }
         }
 
-        motorLift.setPower(gamepad1.right_stick_y);
+        if (isNeutralizingFlipper) {
+            iterateFlipperNeutralization();
+        }
 
-        Acceleration accel = imu.getAcceleration();
-        Velocity velocity = imu.getVelocity();
 
-        telemetry.addData("Acceleration y:z",
-                "\n:" + Math.round(accel.yAccel*100.0)/100.0
-                + "\n:" + Math.round(accel.zAccel*100.0)/100.0);
+        //Modifier Buttons. B = Slow Mode, Y = Disable top two motors
+        if (gamepad1.b) {
+            if (drivePowerMultiplier == 1.0) {
+                drivePowerMultiplier = DRIVE_POWER_MULTIPLIER_SLOW;
+            }  else {
+                drivePowerMultiplier = 1.0f;
+            }
 
-        telemetry.addData("Velocity y:z",
-                "\n:" + Math.round(velocity.yVeloc*100.0)/100.0
-                + "\n:" + Math.round(velocity.zVeloc*100.0)/100.0);
+            telemetry.addData("Drive Power Multiplier", drivePowerMultiplier);
+        }
+
+        if (gamepad1.y) {
+            if (!ifDisableFrontMotors) {
+                disableFrontMotors();
+            } else {
+                enableFrontMotors();
+            }
+
+            telemetry.addData("Front Motors Disabled?", ifDisableFrontMotors);
+        }
     }
 
     @Override public void stop() {
@@ -190,5 +219,78 @@ public class Drive_TeleOP extends OpMode {
         motorFlipper.setPower(0);
         motorLift.setPower(0);
         motorSlider.setPower(0);
+    }
+
+
+
+    //Miscellaneous
+    /**
+     * Disable front motor movement
+     */
+    private void disableFrontMotors() {
+        ifDisableFrontMotors = true;
+
+        motorDriveLeftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorDriveRightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    /**
+     * Enable front motor movement
+     */
+    private void enableFrontMotors() {
+        ifDisableFrontMotors = false;
+
+        motorDriveLeftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorDriveRightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    /**
+     * Initiate the process of bringing the flipper to a neutral position
+     */
+    private void startFlipperNeutralization() {
+        isNeutralizingFlipper = true;
+
+        motorFlipperInitialEncoderError = motorFlipperNeutralEncoderValue - motorFlipper.getCurrentPosition();
+    }
+
+    /**
+     * Bring the flipper motor back to the neutral position where balls/cubes can be dropped in
+     */
+    private void iterateFlipperNeutralization() {
+        float motorFlipperEncoderError = motorFlipperNeutralEncoderValue - motorFlipper.getCurrentPosition();
+        float motorFlipperEncoderPercentError = Range.clip(Math.abs(motorFlipperEncoderError/(float)motorFlipperInitialEncoderError), 0, 1);
+
+        float motorFlipperPower = Math.signum(motorFlipperEncoderError) * (MOTOR_FLIPPER_Kp * motorFlipperEncoderPercentError * (1 - motorFlipperEncoderPercentError));
+
+        motorFlipper.setPower(motorFlipperPower);
+
+        if (Math.abs(motorFlipperEncoderError) < 20) {
+            isNeutralizingFlipper = false;
+        }
+    }
+
+    /**
+     * Set the power of every motor to one power.
+     *
+     * @param power Desired motor power
+     */
+    private void setAllPower(double power) {
+        motorDriveLeftBack.setPower(power);
+        motorDriveLeftFront.setPower(power);
+        motorDriveRightBack.setPower(power);
+        motorDriveRightFront.setPower(power);
+    }
+
+    /**
+     * Set the left side to one power and the right side to another
+     *
+     * @param leftPower The power for the left motors
+     * @param rightPower The power for the right motors
+     */
+    private void setSplitPower(double leftPower, double rightPower) {
+        motorDriveLeftBack.setPower(leftPower);
+        motorDriveLeftFront.setPower(leftPower);
+        motorDriveRightBack.setPower(rightPower);
+        motorDriveRightFront.setPower(rightPower);
     }
 }

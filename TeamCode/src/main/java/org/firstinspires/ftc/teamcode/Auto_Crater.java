@@ -21,6 +21,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.blueshiftrobotics.ftc.AutoAuxiliary;
 import com.blueshiftrobotics.ftc.AutoFourWheelDrive;
 import com.blueshiftrobotics.ftc.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -40,49 +41,62 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous(name="Crater Drop", group="Main")
 public class Auto_Crater extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
+
     private AutoFourWheelDrive autoFourWheelDrive;
+    private AutoAuxiliary autoAuxiliary;
 
     private IMU imu;
 
     private void initialize() {
-        telemetry.addData("Status", "Initializing");
-        telemetry.update();
+        setTelemetryStatus("Initializing");
 
         autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu", true);
+        autoAuxiliary = new AutoAuxiliary(this, "motorLift", true);
 
         imu = new IMU(telemetry, hardwareMap, "imu");
 
         autoFourWheelDrive.initDogeCV();
 
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
-
-        waitForStart();
+        setTelemetryStatus("Initialized");
     }
 
     @Override
     public void runOpMode() {
         initialize();
 
+        waitForStart();
+
+        telemetry.clearAll();
+
         //Lower the robot from the lander
-        boolean onGround = false;
+        autoAuxiliary.liftDrop(8);
 
-        while (!onGround
-                && opModeIsActive()
-                && !isStopRequested()) {
+        //Free the lift hook from the lander
+        autoFourWheelDrive.turn(10, 2);
+        autoFourWheelDrive.encoderDrive(-4, 4);
 
-            onGround = true;
+        //Turn the rest of the angle to be facing away from the lander
+        autoFourWheelDrive.turn(170, 10);
 
-            double verticalAcceleration = imu.getAcceleration().zAccel;
-        }
-
-        autoFourWheelDrive.turn(180, 10);
-
+        //Reverse so the phone camera can scan the block
         autoFourWheelDrive.encoderDrive(-7, 10);
 
+        //Find the gold block
         autoFourWheelDrive.cubePositionCenter(20);
 
+        //Move the gold block and back up
         autoFourWheelDrive.encoderDrive(17, 10);
         autoFourWheelDrive.encoderDrive(-14, 10);
+
+        //Turn to the left
+        autoFourWheelDrive.turn(-90, 15);
+
+        //Drive towards the depot area
+        autoFourWheelDrive.encoderDrive(20, 10);
+    }
+
+    public void setTelemetryStatus(String status) {
+        telemetry.addData("Status", status);
+        telemetry.update();
     }
 }

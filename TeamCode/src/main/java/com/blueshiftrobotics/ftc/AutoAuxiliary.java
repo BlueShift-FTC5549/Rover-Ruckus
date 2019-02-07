@@ -43,7 +43,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  *
  * A compilation of functions used during autonomous related to all non-drive motors.
  *
- * @version 0.1
+ * @version 0.8
  * @author Gabriel Wong
  */
 public class AutoAuxiliary {
