@@ -341,7 +341,7 @@ public class AutoFourWheelDrive {
 
         // Optional tuning
         goldAlignDetector.alignSize = 75; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
-        goldAlignDetector.alignPosOffset = 225; // How far from center frame to offset this alignment zone.
+        goldAlignDetector.alignPosOffset = 227; // How far from center frame to offset this alignment zone.
         goldAlignDetector.downscale = 0.4; // How much to downscale the input frames
 
         goldAlignDetector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
@@ -502,7 +502,7 @@ public class AutoFourWheelDrive {
      * @param secondsTimeout The maximum time to run the `turn` loops for
      */
     public void turnToRecordedHeading(int headingIndex, float headingOffset, double secondsTimeout) {
-        float dTheta = readHeading(headingIndex) - imu.getHeading() + headingOffset;
+        float dTheta = (readHeading(headingIndex) - imu.getHeading() + headingOffset) % 360;
 
         turn(dTheta, secondsTimeout);
     }

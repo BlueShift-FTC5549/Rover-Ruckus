@@ -73,9 +73,9 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Vuforia Phone Testing", group="DogeCV")
+@TeleOp(name="Vuforia Phone Testing", group="Diagnostics")
 
-public class VuforiaPhoneTesting extends OpMode {
+public class Diag_VuforiaPhoneTesting extends OpMode {
     //Elapsed time and measurement constants
     private ElapsedTime runtime = new ElapsedTime();
     private static final float mmPerInch        = 25.4f;

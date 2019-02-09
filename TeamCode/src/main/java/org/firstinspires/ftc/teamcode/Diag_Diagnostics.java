@@ -56,7 +56,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
  *
  */
 @Autonomous(name="Diagnostics", group="Diagnostics")
-public class Auto_Diagnostics extends LinearOpMode {
+public class Diag_Diagnostics extends LinearOpMode {
     //Robot Motors
     private DcMotor motorDriveLeftBack;
     private DcMotor motorDriveLeftFront;
@@ -76,9 +76,9 @@ public class Auto_Diagnostics extends LinearOpMode {
     private static final long FLOOR_CONTACT_TIMEOUT = 10000;
 
     //Robot-Tuned constants
-    private static final double NO_MOVEMENT_POWER = 0.08; //What power will the robot not move at while on the ground, but will off the ground
+    private static final double NO_MOVEMENT_POWER = 0.15; //What power will the robot not move at while on the ground, but will off the ground
     private static final double ENCODER_RESPONSE_POWER = 0.4;
-    private static final int ENCODER_NO_MOVEMENT_TOLERANCE = 100; //Max encoder ticks considered no movement
+    private static final int ENCODER_NO_MOVEMENT_TOLERANCE = 80; //Max encoder ticks considered no movement
 
     //Test Results
     private static boolean encoderResponse;

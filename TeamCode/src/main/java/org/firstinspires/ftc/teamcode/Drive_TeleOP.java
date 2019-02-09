@@ -25,6 +25,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -52,12 +53,6 @@ public class Drive_TeleOP extends OpMode {
     private static final float DRIVE_POWER_MULTIPLIER_SLOW = 0.6f;
     private static final float SERVO_MAX_POWER = 0.8f;
 
-    //Flipper Neutralization Constants
-    private int motorFlipperNeutralEncoderValue;
-    private int motorFlipperInitialEncoderError;
-    private static final float MOTOR_FLIPPER_Kp = 0.8f;
-    private boolean isNeutralizingFlipper = false;
-
 
     @Override public void init() {
         telemetry.clearAll();
@@ -78,10 +73,10 @@ public class Drive_TeleOP extends OpMode {
         servoSweeper = hardwareMap.get(CRServo.class, "servoSweeper");
 
         // Since one motor is reversed in relation to the other, we must reverse the motor on the right so positive powers mean forward.
-        motorDriveLeftBack.setDirection(DcMotor.Direction.REVERSE);
-        motorDriveLeftFront.setDirection(DcMotor.Direction.FORWARD);
-        motorDriveRightBack.setDirection(DcMotor.Direction.FORWARD);
-        motorDriveRightFront.setDirection(DcMotor.Direction.REVERSE);
+        motorDriveLeftBack.setDirection(DcMotor.Direction.FORWARD);
+        motorDriveLeftFront.setDirection(DcMotor.Direction.REVERSE);
+        motorDriveRightBack.setDirection(DcMotor.Direction.REVERSE);
+        motorDriveRightFront.setDirection(DcMotor.Direction.FORWARD);
 
         motorDriveLeftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorDriveLeftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -127,8 +122,6 @@ public class Drive_TeleOP extends OpMode {
         runtime.reset();
         telemetry.clearAll();
 
-        motorFlipperNeutralEncoderValue = motorFlipper.getCurrentPosition();
-
         telemetry.addData("Status", "Started");
     }
 
@@ -136,17 +129,30 @@ public class Drive_TeleOP extends OpMode {
         //Driving Code
         float drive = -gamepad1.left_stick_y;
         float turn  =  gamepad1.left_stick_x;
-        motorDriveLeftPower = drivePowerMultiplier * (float)Range.clip(drive + turn, -1.0, 1.0);
-        motorDriveRightPower = drivePowerMultiplier * (float)Range.clip(drive - turn, -1.0, 1.0);
+
+        motorDriveLeftPower = drivePowerMultiplier
+                * (float)Range.clip(drive - turn, -1.0, 1.0);
+        motorDriveRightPower = drivePowerMultiplier
+                * (float)Range.clip(drive + turn, -1.0, 1.0);
+
         setSplitPower(motorDriveLeftPower, motorDriveRightPower);
 
 
         //Box Slider and Bucket Code
         float motorSliderPower = -gamepad1.right_stick_y;
-        float motorBucketPower = gamepad1.right_stick_x;
-        motorSlider.setPower(motorSliderPower);
-        motorBucket.setPower(motorBucketPower);
 
+        motorSlider.setPower(motorSliderPower);
+        float motorBucketPower;
+
+        if (Math.abs(gamepad1.right_stick_x) > 0.05) {
+            motorBucketPower = gamepad1.right_stick_x ;
+        } else {
+            motorBucketPower = 0;
+        }
+
+        if (!gamepad2.a) {
+            motorBucket.setPower(motorBucketPower);
+        }
 
         //Lift Code
         if (gamepad1.dpad_up) {
@@ -167,45 +173,28 @@ public class Drive_TeleOP extends OpMode {
             servoSweeperPower = 0;
         }
 
-        servoSweeper.setPower(servoSweeperPower);
+        if (!gamepad2.b) {
+            servoSweeper.setPower(servoSweeperPower);
+        }
 
 
         //Flipper Code
-        if (gamepad1.left_trigger > 0) { //TODO: Check directon of flipper motor
-            isNeutralizingFlipper = false;
+        if (gamepad1.left_bumper) {
+            motorFlipper.setPower(-0.7);
+        } else if (gamepad1.left_trigger > 0) {
             motorFlipper.setPower(gamepad1.left_trigger);
-        } else if (gamepad1.left_bumper) {
-            startFlipperNeutralization();
         } else {
-            if (!isNeutralizingFlipper) {
-                motorFlipper.setPower(0);
-            }
-        }
-
-        if (isNeutralizingFlipper) {
-            iterateFlipperNeutralization();
+            motorFlipper.setPower(0);
         }
 
 
         //Modifier Buttons. B = Slow Mode, Y = Disable top two motors
-        if (gamepad1.b) {
-            if (drivePowerMultiplier == 1.0) {
-                drivePowerMultiplier = DRIVE_POWER_MULTIPLIER_SLOW;
-            }  else {
-                drivePowerMultiplier = 1.0f;
-            }
+        if (gamepad2.left_bumper) {
+            drivePowerMultiplier = DRIVE_POWER_MULTIPLIER_SLOW;
 
             telemetry.addData("Drive Power Multiplier", drivePowerMultiplier);
-        }
-
-        if (gamepad1.y) {
-            if (!ifDisableFrontMotors) {
-                disableFrontMotors();
-            } else {
-                enableFrontMotors();
-            }
-
-            telemetry.addData("Front Motors Disabled?", ifDisableFrontMotors);
+        } else {
+            drivePowerMultiplier = 1.0f;
         }
     }
 
@@ -242,31 +231,6 @@ public class Drive_TeleOP extends OpMode {
 
         motorDriveLeftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorDriveRightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
-
-    /**
-     * Initiate the process of bringing the flipper to a neutral position
-     */
-    private void startFlipperNeutralization() {
-        isNeutralizingFlipper = true;
-
-        motorFlipperInitialEncoderError = motorFlipperNeutralEncoderValue - motorFlipper.getCurrentPosition();
-    }
-
-    /**
-     * Bring the flipper motor back to the neutral position where balls/cubes can be dropped in
-     */
-    private void iterateFlipperNeutralization() {
-        float motorFlipperEncoderError = motorFlipperNeutralEncoderValue - motorFlipper.getCurrentPosition();
-        float motorFlipperEncoderPercentError = Range.clip(Math.abs(motorFlipperEncoderError/(float)motorFlipperInitialEncoderError), 0, 1);
-
-        float motorFlipperPower = Math.signum(motorFlipperEncoderError) * (MOTOR_FLIPPER_Kp * motorFlipperEncoderPercentError * (1 - motorFlipperEncoderPercentError));
-
-        motorFlipper.setPower(motorFlipperPower);
-
-        if (Math.abs(motorFlipperEncoderError) < 20) {
-            isNeutralizingFlipper = false;
-        }
     }
 
     /**

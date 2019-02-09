@@ -21,15 +21,28 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.blueshiftrobotics.ftc.AutoAuxiliary;
 import com.blueshiftrobotics.ftc.AutoFourWheelDrive;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Cube Position Center", group="Diagnostics")
-public class Auto_CubePositionCenter extends LinearOpMode {
+@Autonomous(name="Depot Cube ONLY", group="Depot")
+public class Auto_Depot_CubeOnly extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
+
     private AutoFourWheelDrive autoFourWheelDrive;
+    private AutoAuxiliary autoAuxiliary;
+
+    private void initialize() {
+        setTelemetryStatus("Initializing");
+
+        autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu", false);
+        autoAuxiliary = new AutoAuxiliary(this, "motorLift", false);
+        autoFourWheelDrive.initDogeCV();
+
+        setTelemetryStatus("Initialized");
+    }
 
     @Override
     public void runOpMode() {
@@ -37,26 +50,30 @@ public class Auto_CubePositionCenter extends LinearOpMode {
 
         waitForStart();
 
-        autoFourWheelDrive.cubePositionCenter(15);
+        telemetry.clearAll();
 
-        sleep(1000);
+        //Free the lift hook from the lander
+        autoFourWheelDrive.turn(-10, 2.5);
+        autoFourWheelDrive.encoderDrive(-1, 3);
 
-        runtime.reset();
-        telemetry.addData("Status", "Turning...");
-        autoFourWheelDrive.encoderDrive(10, 15);
+        //Turn the rest of the angle to be facing away from the lander
+        autoFourWheelDrive.turn(-170, 6);
 
-        telemetry.addData("Status", "Finished!");
+        int centeredHeadingIndex = autoFourWheelDrive.recordHeading();
+
+        //Reverse so the phone camera can scan the block
+        autoFourWheelDrive.encoderDrive(-3.7, 6);
+
+        //Find the gold block
+        autoFourWheelDrive.cubePositionCenter(14);
+
+        //Move the gold block and back up
+        autoFourWheelDrive.encoderDrive(14, 10);
+        autoFourWheelDrive.encoderDrive(-9.75, 10);
     }
 
-    private void initialize() {
-        telemetry.addData("Status", "Initializing");
+    public void setTelemetryStatus(String status) {
+        telemetry.addData("Status", status);
         telemetry.update();
-
-        autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu", true);
-
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
-
-        autoFourWheelDrive.initDogeCV();
     }
 }
