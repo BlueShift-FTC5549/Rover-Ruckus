@@ -256,5 +256,10 @@ public class Drive_TeleOP extends OpMode {
         motorDriveLeftFront.setPower(leftPower);
         motorDriveRightBack.setPower(rightPower);
         motorDriveRightFront.setPower(rightPower);
+
+        if (gamepad2.right_bumper) {
+            motorDriveRightFront.setPower(0);
+            motorDriveLeftFront.setPower(0);
+        }
     }
 }

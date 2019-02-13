@@ -63,7 +63,7 @@ public class AutoAuxiliary {
     private static final double COUNTS_PER_LIFT_MOTOR_REV = 1680;
     private static final double SHAFT_DIAMETER_INCHES     = 0.23622; //6mm in inches
     private static final double COUNTS_PER_INCH           = COUNTS_PER_LIFT_MOTOR_REV / (SHAFT_DIAMETER_INCHES * 3.1415);
-    private static final double DROP_DISTANCE             = 5.0; //Distance needed to drop to ground
+    private static final double DROP_DISTANCE             = 4.69; //Distance needed to drop to ground
     private static final double COUNTS_TO_DROP            = DROP_DISTANCE * COUNTS_PER_INCH;
     private static final float  DROP_POWER                = 1.0f;
 
