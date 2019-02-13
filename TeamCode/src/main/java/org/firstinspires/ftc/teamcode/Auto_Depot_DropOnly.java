@@ -39,7 +39,6 @@ public class Auto_Depot_DropOnly extends LinearOpMode {
 
         autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu", false);
         autoAuxiliary = new AutoAuxiliary(this, "motorLift", false);
-        autoFourWheelDrive.initDogeCV();
 
         setTelemetryStatus("Initialized");
     }

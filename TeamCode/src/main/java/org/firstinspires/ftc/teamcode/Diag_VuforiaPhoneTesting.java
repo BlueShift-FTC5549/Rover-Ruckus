@@ -36,6 +36,7 @@ import com.disnodeteam.dogecv.detectors.roverrukus.GoldAlignDetector;
 import com.disnodeteam.dogecv.filters.LeviColorFilter;
 import com.disnodeteam.dogecv.scoring.MaxAreaScorer;
 import com.disnodeteam.dogecv.scoring.RatioScorer;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -73,6 +74,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
+@Disabled
 @TeleOp(name="Vuforia Phone Testing", group="Diagnostics")
 
 public class Diag_VuforiaPhoneTesting extends OpMode {

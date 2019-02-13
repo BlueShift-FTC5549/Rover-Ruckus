@@ -39,7 +39,6 @@ public class Auto_Depot_CubeOnly extends LinearOpMode {
 
         autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu", false);
         autoAuxiliary = new AutoAuxiliary(this, "motorLift", false);
-        autoFourWheelDrive.initDogeCV();
 
         setTelemetryStatus("Initialized");
     }
@@ -52,9 +51,11 @@ public class Auto_Depot_CubeOnly extends LinearOpMode {
 
         telemetry.clearAll();
 
+        autoFourWheelDrive.initDogeCV();
+
         //Free the lift hook from the lander
         autoFourWheelDrive.turn(-10, 2.5);
-        autoFourWheelDrive.encoderDrive(-1, 3);
+        autoFourWheelDrive.encoderDrive(-0.5, 3);
 
         //Turn the rest of the angle to be facing away from the lander
         autoFourWheelDrive.turn(-170, 6);
@@ -62,14 +63,15 @@ public class Auto_Depot_CubeOnly extends LinearOpMode {
         int centeredHeadingIndex = autoFourWheelDrive.recordHeading();
 
         //Reverse so the phone camera can scan the block
-        autoFourWheelDrive.encoderDrive(-3.7, 6);
+        autoFourWheelDrive.encoderDrive(-5.5, 6);
 
         //Find the gold block
-        autoFourWheelDrive.cubePositionCenter(14);
+        autoFourWheelDrive.cubePositionCenter(10);
+
+        autoFourWheelDrive.stopDogeCV();
 
         //Move the gold block and back up
-        autoFourWheelDrive.encoderDrive(14, 10);
-        autoFourWheelDrive.encoderDrive(-9.75, 10);
+        autoFourWheelDrive.encoderDrive(9.5, 10);
     }
 
     public void setTelemetryStatus(String status) {
