@@ -453,7 +453,10 @@ public class AutoFourWheelDrive {
     }
 
     public boolean cubePositionScan(double secondsTimeout) {
-        if (!goldAlignDetector.isFound()) encoderMoveDrive(10,10);
+        if (!goldAlignDetector.isFound()) {
+            encoderMoveDrive(10,10);
+            atLeftBlock = -1;
+        }
         if (!goldAlignDetector.isFound()) {
             encoderMoveDrive(-20, 10);
             atLeftBlock = 1;
