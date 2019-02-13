@@ -29,6 +29,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 @Autonomous(name="Operation Check Chain", group="Main")
 public class Auto_Kevin extends LinearOpMode {
@@ -40,15 +41,10 @@ public class Auto_Kevin extends LinearOpMode {
     private DcMotor motorDriveLeftFront;
     private DcMotor motorDriveRightBack;
     private DcMotor motorDriveRightFront;
-    double x_pos;
-    double power;
 
     private static  double POWER = 0.30; //What power will the robot not move at when chain is on
     private static final int ENCODER_NO_MOVEMENT_TOLERANCE = 5; //Max encoder ticks is considered no movement
-    private boolean chainON = true;
 
-    private boolean at_silver = false;
-    private boolean at_gold = false;
 
     @Override
         public void runOpMode() {
@@ -95,39 +91,6 @@ public class Auto_Kevin extends LinearOpMode {
         check_chains(motorDriveLeftBack, POWER);  // checks if left chain is on
         check_chains(motorDriveRightBack, POWER);    // checks if right chain is on
 
-         /*while (true) {
-            x_pos = detector.getXPosition();    // Gets position of block in pixels with zero being on the very left
-
-            if (x_pos >= 300 && x_pos <= 340) {     // Checks if the robot is alligned with the block
-                autoFourWheelDrive.encoderDrive(20, 15);    // If robot alligned with the block it uses encoder to drive 20 inches
-                telemetry.addData("Using encoder" ,"True");
-
-            } else if (x_pos < 310) {       // Checks if the robot is too far to the right of the block
-                power =(1.0-(x_pos / 310))*0.5;     // Determines the power applied to the motors, the further away it is the faster it turns
-                if (power < 0.3) power = 0.2;
-                motorDriveLeftFront.setPower(0);    // Sets all other motors to zero
-                motorDriveLeftBack.setPower(0);
-                motorDriveRightBack.setPower(power);    // Sets both right motors to the power
-                motorDriveRightFront.setPower(power);
-                telemetry.addData("Turing Right Wheels", "True");
-
-            } else if (x_pos > 330) {       // Checks if the robot is too far to the left of the block
-                power = (1.0-((640 - x_pos) / 310))*0.5;    // Determines the power applied to the motors, the further away it is the faster it turns
-                if (power < 0.3) power = 0.2;
-                motorDriveRightBack.setPower(0);    // Sets all motor powers to zero
-                motorDriveRightFront.setPower(0);
-                motorDriveLeftBack.setPower(power);     // Sets both left motors to power
-                motorDriveLeftFront.setPower(power);
-                telemetry.addData("Turning Left Wheels", "True");
-            }
-            telemetry.addData("IsAligned", detector.getAligned()); // Is the bot aligned with the gold mineral?
-            telemetry.addData("X Pos", detector.getXPosition()); // Gold X position.
-            telemetry.addData("Power ", 1.0 - power);
-            telemetry.addData("Using encoder","False");
-            telemetry.addData("Turning Right Wheels","False");
-            telemetry.addData("Turning Left Wheels","False");
-            telemetry.update();*/
-
         }
     private void check_chains(DcMotor motor, double chain_power){   // function sets power to given motor; if chain is on wheels will move slightly, if not there will be no change in encoder
         while (true) {
@@ -149,10 +112,57 @@ public class Auto_Kevin extends LinearOpMode {
         }
     }
 
+    /*
+    Get off hanger
+    Turn 180 degrees
+    move back a little bit
+    while (doesnt see cube)
+        strafe right
+        strafe left
+
+    encoder drive to cube
+     */
     private void stopMotion() {
         motorDriveLeftBack.setPower(0);
         motorDriveLeftFront.setPower(0);
         motorDriveRightBack.setPower(0);
         motorDriveRightFront.setPower(0);
+    }
+
+    public void forward(float power){
+        motorDriveLeftFront.setPower(power);
+        motorDriveRightFront.setPower(power);
+        motorDriveLeftBack.setPower(power);
+        motorDriveRightBack.setPower(power);
+    }
+    public void backward(float power){
+        motorDriveLeftFront.setPower(-power);
+        motorDriveRightFront.setPower(-power);
+        motorDriveLeftBack.setPower(-power);
+        motorDriveRightBack.setPower(-power);
+    }
+    public void turnleft(float power){
+        motorDriveLeftFront.setPower(-power);
+        motorDriveRightFront.setPower(power);
+        motorDriveLeftBack.setPower(-power);
+        motorDriveRightBack.setPower(power);
+    }
+    public void turnright(float power){
+        motorDriveLeftFront.setPower(power);
+        motorDriveRightFront.setPower(-power);
+        motorDriveLeftBack.setPower(power);
+        motorDriveRightBack.setPower(-power);
+    }
+    public void strafeleft(float power){
+        motorDriveLeftFront.setPower(-power);
+        motorDriveRightFront.setPower(power);
+        motorDriveLeftBack.setPower(power);
+        motorDriveRightBack.setPower(-power);
+    }
+    public void straferight(float power){
+        motorDriveLeftFront.setPower(power);
+        motorDriveRightFront.setPower(-power);
+        motorDriveLeftBack.setPower(-power);
+        motorDriveRightBack.setPower(power);
     }
 }

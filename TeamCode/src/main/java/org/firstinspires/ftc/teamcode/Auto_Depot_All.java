@@ -64,15 +64,17 @@ public class Auto_Depot_All extends LinearOpMode {
 
         int centeredHeadingIndex = autoFourWheelDrive.recordHeading();
 
-        //Reverse so the phone camera can scan the block
-        autoFourWheelDrive.encoderDrive(-3.7, 6);
-
         //Find the gold block
         autoFourWheelDrive.cubePositionCenter(10);
 
         //Move the gold block and back up
         autoFourWheelDrive.encoderDrive(19, 10);
         autoFourWheelDrive.encoderDrive(-10, 10);
+
+        //Move the robot against the wall
+        autoFourWheelDrive.encoderMoveDrive(-30,10);
+
+        //Move robot forward and drop off marker
 
     }
 
