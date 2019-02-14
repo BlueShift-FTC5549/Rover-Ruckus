@@ -28,7 +28,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Depot All", group="Depot")
+@Autonomous(name="Crater All", group="Crater")
 public class Auto_Crater_All extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
