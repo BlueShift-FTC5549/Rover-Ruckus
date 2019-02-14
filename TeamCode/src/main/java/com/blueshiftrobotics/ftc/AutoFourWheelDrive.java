@@ -453,10 +453,8 @@ public class AutoFourWheelDrive {
     }
 
     public boolean cubePositionScan(double secondsTimeout) {
-        if (!goldAlignDetector.isFound()) {
-            encoderMoveDrive(10,10);
-            atLeftBlock = -1;
-        }
+        encoderMoveDrive(10,10);
+        atLeftBlock = -1;
         if (!goldAlignDetector.isFound()) {
             encoderMoveDrive(-20, 10);
             atLeftBlock = 1;
@@ -491,7 +489,7 @@ public class AutoFourWheelDrive {
 
         elapsedTime.reset();
 
-        cubePositionScan(secondsTimeout);
+        if (!goldAlignDetector.isFound()) cubePositionScan(secondsTimeout);
 
         if (elapsedTime.seconds() >= secondsTimeout
                 || opMode.isStopRequested()) {
@@ -535,10 +533,8 @@ public class AutoFourWheelDrive {
                     CUBE_CENTERING_POWER_OFFSET += TURN_POWER_OFFSET_STEP;
                 }
 
-                //Move robot back to the center block
-                if (atLeftBlock == 1) encoderMoveDrive(10,10);
-                else if (atLeftBlock == -1) encoderMoveDrive(-10,10);
                 previousEncoders = currentEncoders;
+
             }
         } else {
             while (!goldAlignDetector.getAligned()
@@ -618,6 +614,12 @@ public class AutoFourWheelDrive {
      *
      * @return The index of the stored heading
      */
+
+    public void centerRobot(){
+        //Move robot back to the center block
+        if (atLeftBlock == 1) encoderMoveDrive(10,10);
+        else if (atLeftBlock == -1) encoderMoveDrive(-10,10);
+    }
     public int recordHeading() {
         if (headingStorage.isEmpty()) {
             headingStorage = Arrays.asList(imu.getHeading());

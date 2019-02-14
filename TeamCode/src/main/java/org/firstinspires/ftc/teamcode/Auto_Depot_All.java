@@ -71,6 +71,9 @@ public class Auto_Depot_All extends LinearOpMode {
         autoFourWheelDrive.encoderDrive(19, 10);
         autoFourWheelDrive.encoderDrive(-10, 10);
 
+        //Center the robot with middle block
+        autoFourWheelDrive.centerRobot();
+
         //Move the robot against the wall
         autoFourWheelDrive.encoderMoveDrive(-30,10);
 
