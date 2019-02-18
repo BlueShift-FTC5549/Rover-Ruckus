@@ -277,11 +277,9 @@ public class AutoFourWheelDrive {
                 double motorDriveLeftPower = Math.signum(motorDriveLeftEncoderError) * (ENCODER_DRIVE_Kp * Math.abs(motorDriveLeftPercentEncoderError) * (1 - Math.abs(motorDriveLeftPercentEncoderError)) + ENCODER_DRIVE_POWER_OFFSET);
                 double motorDriveRightPower = Math.signum(motorDriveRightEncoderError) * (ENCODER_DRIVE_Kp * Math.abs(motorDriveRightPercentEncoderError) * (1 - Math.abs(motorDriveRightPercentEncoderError)) + ENCODER_DRIVE_POWER_OFFSET);
 
-                if (Math.signum(targetDistance) == -1) {
-                    moveleft(motorDriveRightPower, motorDriveLeftPower);
-                }else if (Math.signum(targetDistance) == 1) {
-                    moveright(motorDriveRightPower, motorDriveLeftPower);
-                }
+                if (Math.signum(targetDistance) == -1) moveleft(motorDriveRightPower, motorDriveLeftPower);
+                else if (Math.signum(targetDistance) == 1) moveright(motorDriveRightPower, motorDriveLeftPower);
+
                 if (!hasAllEncodersMoved(previousEncoders, currentEncoders)) {
                     ENCODER_DRIVE_POWER_OFFSET += (motorDriveLeftPercentEncoderError + motorDriveRightPercentEncoderError)/2.0 * ENCODER_DRIVE_POWER_OFFSET_STEP;
                 }
