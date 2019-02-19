@@ -28,7 +28,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Crater All", group="Crater")
+@Autonomous(name="Crater All", group="Crater All")
 public class Auto_Crater_All extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -60,7 +60,7 @@ public class Auto_Crater_All extends LinearOpMode {
         autoFourWheelDrive.encoderDrive(-1, 3);
 
         //Turn the rest of the angle to be facing away from the lander
-        autoFourWheelDrive.turn(-170, 6);
+        autoFourWheelDrive.turn(-80, 6);
 
         int centeredHeadingIndex = autoFourWheelDrive.recordHeading();
 
@@ -68,10 +68,10 @@ public class Auto_Crater_All extends LinearOpMode {
         autoFourWheelDrive.cubePositionCenter(10);
 
         //Move the gold block and back up
-        autoFourWheelDrive.encoderDrive(19, 10);
-        autoFourWheelDrive.encoderDrive(-10, 10);
+        autoFourWheelDrive.encoderMoveDrive(10, 10);
+        autoFourWheelDrive.encoderMoveDrive(-10, 10);
 
-        //Move robot back to middle block
+        //Center the robot with middle block
         autoFourWheelDrive.centerRobot();
 
         //Move the robot against the wall
