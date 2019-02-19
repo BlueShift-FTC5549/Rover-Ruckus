@@ -450,44 +450,8 @@ public class AutoFourWheelDrive {
         telemetry.addData("DogeCV", "Initialization Complete");
     }
 
-    public boolean cubePositionScan(double secondsTimeout) {
-        encoderMoveDrive(10,10);
-        atLeftBlock = -1;
-        if (!goldAlignDetector.isFound()) {
-            encoderMoveDrive(-20, 10);
-            atLeftBlock = 1;
-        }
-
-        /*
-        while (!goldAlignDetector.isFound()
-                && opMode.opModeIsActive()
-                && elapsedTime.seconds() < secondsTimeout
-                && !opMode.isStopRequested()
-                && !hasAborted) {
-
-            telemetry.addData("Cube Centering", "No Cube Found, Scanning. Time: " + elapsedTime.seconds() + "s");
-            telemetry.update();
-
-            encoderMoveDrive(10,1,10);
-
-        }
-        */
-        return goldAlignDetector.isFound();
-    }
-
-    /**
-     * Center the cube so that the robot is facing it. The driving algorithm is the same as the
-     * IMU turning algorithm, but the variables are adjusted to fit the situation (centering the
-     * gold cube based on camera feedback).
-     *
-     * @return Whether or not the program was successful.
-     */
     public boolean cubePositionCenter(double secondsTimeout) {
-        hasAborted = false;
-
         elapsedTime.reset();
-
-        if (!goldAlignDetector.isFound()) cubePositionScan(secondsTimeout);
 
         if (elapsedTime.seconds() >= secondsTimeout
                 || opMode.isStopRequested()) {
@@ -495,79 +459,19 @@ public class AutoFourWheelDrive {
             return false;
         }
 
-        setAllPower(0);
+        if (!goldAlignDetector.isFound()) {
+            encoderMoveDrive(10, 10);
+            atLeftBlock = -1;
 
-        int[] previousEncoders = new int[4];
-        double FOVWidth = goldAlignDetector.getInitSize().width;
-        double CUBE_CENTERING_POWER_OFFSET = 0.0;
-        double initAlignmentError = (FOVWidth/2.0);
+        }if (!goldAlignDetector.isFound()) {
+            encoderMoveDrive(-20, 10);
+            atLeftBlock = 1;
+        }
 
         telemetry.addData("Cube Centering", "Centering the Gold Cube. Time: " + elapsedTime.seconds() + "s");
         telemetry.update();
 
         elapsedTime.reset();
-
-        if (!verboseLoops) {
-            //Align the robot with the gold cube
-            while (!goldAlignDetector.getAligned()
-                    && goldAlignDetector.isFound()
-                    && opMode.opModeIsActive()
-                    && !opMode.isStopRequested()
-                    && elapsedTime.seconds() < secondsTimeout
-                    && !hasAborted) {
-
-                int[] currentEncoders = getEncoderValues();
-
-
-                double alignmentError = ((FOVWidth/2.0) + goldAlignDetector.alignPosOffset) - goldAlignDetector.getXPosition();
-                double alignmentPercentError = Range.clip(Math.abs(alignmentError/initAlignmentError), 0, 1);
-
-                double movepower = -Math.signum(alignmentError) * alignmentPercentError * CUBE_CENTERING_POWER_OFFSET ;
-
-                if (Math.signum(movepower) == -1) moveright(movepower, movepower);
-                if (Math.signum(movepower) == 1) moveleft(movepower, movepower);
-
-                if (!hasAllEncodersMoved(previousEncoders, currentEncoders)) {
-                    CUBE_CENTERING_POWER_OFFSET += TURN_POWER_OFFSET_STEP;
-                }
-
-                previousEncoders = currentEncoders;
-
-            }
-        } else {
-            while (!goldAlignDetector.getAligned()
-                    && goldAlignDetector.isFound()
-                    && opMode.opModeIsActive()
-                    && !opMode.isStopRequested()
-                    && elapsedTime.seconds() < secondsTimeout
-                    && !hasAborted) {
-
-                int[] currentEncoders = getEncoderValues();
-
-                double alignmentError = ((FOVWidth/2.0) + goldAlignDetector.alignPosOffset) - goldAlignDetector.getXPosition();
-                double alignmentPercentError = Range.clip(Math.abs(alignmentError/initAlignmentError), 0, 1);
-
-                double turnPower = -Math.signum(alignmentError) * alignmentPercentError * CUBE_CENTERING_POWER_OFFSET;
-
-                setTurnPower(turnPower);
-
-                if (!hasAllEncodersMoved(previousEncoders, currentEncoders)) {
-                    CUBE_CENTERING_POWER_OFFSET += TURN_POWER_OFFSET_STEP;
-                }
-
-                previousEncoders = currentEncoders;
-
-                telemetry.addData("Cube Is Aligned", goldAlignDetector.getAligned());
-                telemetry.addData("Cube Position", goldAlignDetector.getXPosition());
-                telemetry.addData("Alignment Error", alignmentError);
-                telemetry.addData("Initial Alignment Error", initAlignmentError);
-                telemetry.addData("Alignment Percent Error", alignmentPercentError);
-                telemetry.addData("Cube Center Power Offset", CUBE_CENTERING_POWER_OFFSET);
-                telemetry.update();
-            }
-        }
-
-        abortMotion();
 
         boolean ifSuccess = goldAlignDetector.getAligned();
 
