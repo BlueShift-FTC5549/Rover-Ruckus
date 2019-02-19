@@ -68,8 +68,8 @@ public class Auto_Crater_All extends LinearOpMode {
         autoFourWheelDrive.cubePositionCenter(10);
 
         //Move the gold block and back up
-        autoFourWheelDrive.encoderMoveDrive(10, 10);
         autoFourWheelDrive.encoderMoveDrive(-10, 10);
+        autoFourWheelDrive.encoderMoveDrive(10, 10);
 
         //Center the robot with middle block
         autoFourWheelDrive.centerRobot();
