@@ -460,11 +460,11 @@ public class AutoFourWheelDrive {
         }
 
         if (!goldAlignDetector.isFound()) {
-            encoderMoveDrive(10, 10);
+            encoderMoveDrive(15, 10);
             atLeftBlock = -1;
 
         }if (!goldAlignDetector.isFound()) {
-            encoderMoveDrive(-20, 10);
+            encoderMoveDrive(-30, 10);
             atLeftBlock = 1;
         }
 
@@ -519,8 +519,8 @@ public class AutoFourWheelDrive {
 
     public void centerRobot(){
         //Move robot back to the center block
-        if (atLeftBlock == 1) encoderMoveDrive(10,10);
-        else if (atLeftBlock == -1) encoderMoveDrive(-10,10);
+        if (atLeftBlock == 1) encoderMoveDrive(15,10);
+        else if (atLeftBlock == -1) encoderMoveDrive(-15,10);
     }
     public int recordHeading() {
         if (headingStorage.isEmpty()) {

@@ -75,7 +75,7 @@ public class Auto_Depot_All extends LinearOpMode {
         autoFourWheelDrive.centerRobot();
 
         //Move the robot against the wall
-        autoFourWheelDrive.encoderMoveDrive(-30,10);
+        autoFourWheelDrive.encoderMoveDrive(-55,10);
 
         //Move robot forward and drop off marker
 

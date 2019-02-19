@@ -75,7 +75,7 @@ public class Auto_Crater_All extends LinearOpMode {
         autoFourWheelDrive.centerRobot();
 
         //Move the robot against the wall
-        autoFourWheelDrive.encoderMoveDrive(-40,10);
+        autoFourWheelDrive.encoderMoveDrive(-60,10);
 
         //Move robot forward and drop off marker
 
