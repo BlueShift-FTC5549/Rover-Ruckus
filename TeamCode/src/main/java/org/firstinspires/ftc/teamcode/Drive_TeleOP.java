@@ -25,7 +25,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -44,12 +43,10 @@ public class Drive_TeleOP extends OpMode {
 
     private CRServo servoSweeper;
 
-    private float motorDriveLeftPower, motorDriveRightPower;
     private float servoSweeperPower;
 
     //Driving constants and variables
     private float drivePowerMultiplier = 1.0f;
-    private boolean ifDisableFrontMotors = false;
     private static final float DRIVE_POWER_MULTIPLIER_SLOW = 0.6f;
     private static final float SERVO_MAX_POWER = 0.8f;
 
@@ -74,9 +71,9 @@ public class Drive_TeleOP extends OpMode {
 
         // Since one motor is reversed in relation to the other, we must reverse the motor on the right so positive powers mean forward.
         motorDriveLeftBack.setDirection(DcMotor.Direction.FORWARD);
-        motorDriveLeftFront.setDirection(DcMotor.Direction.REVERSE);
+        motorDriveLeftFront.setDirection(DcMotor.Direction.FORWARD);
         motorDriveRightBack.setDirection(DcMotor.Direction.REVERSE);
-        motorDriveRightFront.setDirection(DcMotor.Direction.FORWARD);
+        motorDriveRightFront.setDirection(DcMotor.Direction.REVERSE);
 
         motorDriveLeftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorDriveLeftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -127,32 +124,15 @@ public class Drive_TeleOP extends OpMode {
 
     @Override public void loop() {
         //Driving Code
-        float drive = -gamepad1.left_stick_y;
-        float turn  =  gamepad1.left_stick_x;
+        double speed = Math.pow(Math.pow(gamepad1.left_stick_x, 2) + Math.pow(gamepad1.left_stick_y, 2), 0.5);
+        double angle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x);
 
-        motorDriveLeftPower = drivePowerMultiplier
-                * (float)Range.clip(drive - turn, -1.0, 1.0);
-        motorDriveRightPower = drivePowerMultiplier
-                * (float)Range.clip(drive + turn, -1.0, 1.0);
+        double rotation = gamepad1.right_stick_x;
 
-        setSplitPower(motorDriveLeftPower, motorDriveRightPower);
-
-
-        //Box Slider and Bucket Code
-        float motorSliderPower = -gamepad1.right_stick_y;
-
-        motorSlider.setPower(motorSliderPower);
-        float motorBucketPower;
-
-        if (Math.abs(gamepad1.right_stick_x) > 0.05) {
-            motorBucketPower = gamepad1.right_stick_x ;
-        } else {
-            motorBucketPower = 0;
-        }
-
-        if (!gamepad2.a) {
-            motorBucket.setPower(motorBucketPower);
-        }
+        motorDriveLeftBack.setPower  (Math.sqrt(2) * speed * Math.cos(angle - (Math.PI/4.0)) - rotation);
+        motorDriveRightFront.setPower(Math.sqrt(2) * speed * Math.cos(angle - (Math.PI/4.0)) + rotation);
+        motorDriveLeftFront.setPower (Math.sqrt(2) * speed * Math.sin(angle - (Math.PI/4.0)) - rotation);
+        motorDriveRightBack.setPower (Math.sqrt(2) * speed * Math.sin(angle - (Math.PI/4.0)) + rotation);
 
         //Lift Code
         if (gamepad1.dpad_up) {
@@ -161,16 +141,6 @@ public class Drive_TeleOP extends OpMode {
             motorLift.setPower(-1.0);
         } else {
             motorLift.setPower(0);
-        }
-
-
-        //Sweeper Code
-        if (gamepad1.right_trigger > 0) {
-            servoSweeperPower = Range.clip(gamepad1.right_trigger, 0, SERVO_MAX_POWER);
-        } else if (gamepad1.right_bumper) {
-            servoSweeperPower = -SERVO_MAX_POWER;
-        } else {
-            servoSweeperPower = 0;
         }
 
         if (!gamepad2.b) {
@@ -208,58 +178,5 @@ public class Drive_TeleOP extends OpMode {
         motorFlipper.setPower(0);
         motorLift.setPower(0);
         motorSlider.setPower(0);
-    }
-
-
-
-    //Miscellaneous
-    /**
-     * Disable front motor movement
-     */
-    private void disableFrontMotors() {
-        ifDisableFrontMotors = true;
-
-        motorDriveLeftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorDriveRightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    /**
-     * Enable front motor movement
-     */
-    private void enableFrontMotors() {
-        ifDisableFrontMotors = false;
-
-        motorDriveLeftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorDriveRightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
-
-    /**
-     * Set the power of every motor to one power.
-     *
-     * @param power Desired motor power
-     */
-    private void setAllPower(double power) {
-        motorDriveLeftBack.setPower(power);
-        motorDriveLeftFront.setPower(power);
-        motorDriveRightBack.setPower(power);
-        motorDriveRightFront.setPower(power);
-    }
-
-    /**
-     * Set the left side to one power and the right side to another
-     *
-     * @param leftPower The power for the left motors
-     * @param rightPower The power for the right motors
-     */
-    private void setSplitPower(double leftPower, double rightPower) {
-        motorDriveLeftBack.setPower(leftPower);
-        motorDriveLeftFront.setPower(leftPower);
-        motorDriveRightBack.setPower(rightPower);
-        motorDriveRightFront.setPower(rightPower);
-
-        if (gamepad2.right_bumper) {
-            motorDriveRightFront.setPower(0);
-            motorDriveLeftFront.setPower(0);
-        }
     }
 }

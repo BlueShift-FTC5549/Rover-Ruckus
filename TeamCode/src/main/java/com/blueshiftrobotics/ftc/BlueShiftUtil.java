@@ -44,4 +44,47 @@ public class BlueShiftUtil {
             return rawDifference;
         }
     }
+
+    /**
+     * Calculate the Mean Absolute Error of a given array from a given target value. Useful for
+     * getting the average deviation from some target value for every value in an array. Modified
+     * by also taking the absolute value of the array value and target before computing difference.
+     *
+     * @param array Array of values
+     * @param target Target Value
+     * @return Mean Absolute Eror
+     */
+    public static double modifiedMeanAbsoluteError(int[] array, int target) {
+        double sum = 0;
+
+        for (int i = 0; i < array.length; i++) {
+            sum += Math.abs(Math.abs(array[i]) - Math.abs(target));
+        }
+
+        return sum / ((double)array.length);
+    }
+
+    /**
+     * Perform the sigmoid function for a given value `x`. Equal to (1 / (1+e^(-x))). Useful because
+     * it is a smooth logistic curve.
+     *
+     * @param x Value to sigmoid.
+     * @return Sigmoid value of x.
+     */
+    public static double sigmoid(double x) {
+        return Math.pow(1.0 + Math.exp(-x), -1.0);
+    }
+
+    /**
+     * Perform the derivative of the sigmoid function for a given value `x`. Equal to sigmoid *
+     * (1 - sigmoid). Shifted to the right by 0.5 to have the peak at 0.5, `x` is scaled by 5 to
+     * compress the curve horizontally, and the entire function is multiplied by 3.0 to have `y`
+     * peak at 0.75.
+     *
+     * @param x
+     * @return
+     */
+    public static double modifiedSigmoidPrime(double x) {
+        return 3.0*sigmoid(5.0*(x-0.5)) * (1.0 - sigmoid(5.0*(x-0.5)));
+    }
 }

@@ -23,7 +23,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.blueshiftrobotics.ftc.AutoAuxiliary;
 import com.blueshiftrobotics.ftc.AutoFourWheelDrive;
-import com.blueshiftrobotics.ftc.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -68,14 +67,14 @@ public class Auto_Crater_All extends LinearOpMode {
         autoFourWheelDrive.cubePositionCenter(10);
 
         //Move the gold block and back up
-        autoFourWheelDrive.encoderMoveDrive(-10, 10);
-        autoFourWheelDrive.encoderMoveDrive(10, 10);
+        autoFourWheelDrive.encoderStrafe(-10, 10);
+        autoFourWheelDrive.encoderStrafe(10, 10);
 
         //Center the robot with middle block
         autoFourWheelDrive.centerRobot();
 
         //Move the robot against the wall
-        autoFourWheelDrive.encoderMoveDrive(-60,10);
+        autoFourWheelDrive.encoderStrafe(-60,10);
 
         //Move robot forward and drop off marker
 

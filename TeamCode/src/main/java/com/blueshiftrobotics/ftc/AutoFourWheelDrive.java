@@ -21,24 +21,18 @@
 
 package com.blueshiftrobotics.ftc;
 
-import android.support.annotation.NonNull;
-
 import com.disnodeteam.dogecv.CameraViewDisplay;
 import com.disnodeteam.dogecv.DogeCV;
 import com.disnodeteam.dogecv.detectors.roverrukus.GoldAlignDetector;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 /**
  * Name Breakdown
@@ -91,11 +85,11 @@ public class AutoFourWheelDrive {
     private static final float TURN_POWER_OFFSET_STEP = (float)0.012;
 
     //Encoder Constants
-    private static final double COUNTS_PER_MOTOR_REV    = 1120;    // Andymark Neverest 20
+    private static final double COUNTS_PER_MOTOR_REV    = 1120;    // Andymark Neverest 40
     private static final double WHEEL_DIAMETER_INCHES   = 4.0;     // For figuring circumference
     private static final double COUNTS_PER_INCH         = COUNTS_PER_MOTOR_REV / (WHEEL_DIAMETER_INCHES * 3.1415);
-    private static final float  ENCODER_DRIVE_Kp        = 0.72f;
-    private static final int    ENCODER_DRIVE_ERROR_ALLOWANCE = 18;
+    private static final float  ENCODER_DRIVE_Kp        = 1.0f;
+    private static final int    ENCODER_DRIVE_ERROR_ALLOWANCE = 5;
     private static final float  ENCODER_DRIVE_POWER_OFFSET_STEP = (float)0.01;
     private static final int    ENCODER_NO_MOVEMENT_THRESHOLD = 15;
 
@@ -129,9 +123,9 @@ public class AutoFourWheelDrive {
 
 
         //Motor Calibration (Direction and Zero Power Behavior)
-        motorDriveLeftBack.setDirection(DcMotor.Direction.REVERSE);
+        motorDriveLeftBack.setDirection(DcMotor.Direction.FORWARD);
         motorDriveLeftFront.setDirection(DcMotor.Direction.FORWARD);
-        motorDriveRightBack.setDirection(DcMotor.Direction.FORWARD);
+        motorDriveRightBack.setDirection(DcMotor.Direction.REVERSE);
         motorDriveRightFront.setDirection(DcMotor.Direction.REVERSE);
 
         motorDriveLeftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //TODO: Decide whether to brake or not
@@ -234,20 +228,21 @@ public class AutoFourWheelDrive {
     }
 
     /**
-     * Drive the robot to a certain encoder value on both drive train motors. The powers of each
-     * motor is dependent on the percent distance not traveled yet, so, in essence, it uses a PID
-     * controller.
+     * Drive the robot to a certain encoder value on the drive train motors. For use with MECANUM
+     * drive trains only. This function strafes instead of drives, meaning it drives left and right
+     * laterally instead of forward and backwards as a tank drive would.
      *
      * @param targetDistance The distance in inches to travel
-     * @param secondsTimeout The maximum seconds to run the loop for
+     * @param secondsTimeout The maximum seconds to run the loop
      */
-    public void encoderMoveDrive(double targetDistance, double secondsTimeout) {
+    public void encoderStrafe(double targetDistance, double secondsTimeout) {
         hasAborted = false;
 
         //Reset encoder values to zero
         resetEncoders();
 
         //Find desired encoder value and initialize placeholder array
+        int[] currentEncoders = getEncoderValues();
         int[] previousEncoders = new int[4];
         int encoderTarget = (int)(targetDistance * COUNTS_PER_INCH);
         double ENCODER_DRIVE_POWER_OFFSET = 0.0;
@@ -261,67 +256,55 @@ public class AutoFourWheelDrive {
 
         if (!verboseLoops) {
             while (elapsedTime.seconds() <= secondsTimeout
-                    && (Math.abs(motorDriveLeftBack.getCurrentPosition() - encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE
-                    || Math.abs(motorDriveRightBack.getCurrentPosition() - encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE)
+                    && BlueShiftUtil.modifiedMeanAbsoluteError(currentEncoders, encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE
                     && opMode.opModeIsActive()
                     && !hasAborted
                     && !opMode.isStopRequested()) {
 
-                int[] currentEncoders = getEncoderValues();
+                currentEncoders = getEncoderValues();
 
-                int motorDriveLeftEncoderError = encoderTarget - motorDriveLeftBack.getCurrentPosition();
-                int motorDriveRightEncoderError = encoderTarget - motorDriveRightBack.getCurrentPosition();
-                double motorDriveLeftPercentEncoderError = (double)(motorDriveLeftEncoderError) / (double)encoderTarget;
-                double motorDriveRightPercentEncoderError = (double)(motorDriveRightEncoderError) / (double)encoderTarget;
+                double encoderMeanAbsoluteError = BlueShiftUtil.modifiedMeanAbsoluteError(currentEncoders, encoderTarget);
+                float percentEncoderError = (float)encoderMeanAbsoluteError / (float)encoderTarget;
 
-                double motorDriveLeftPower = Math.signum(motorDriveLeftEncoderError) * (ENCODER_DRIVE_Kp * Math.abs(motorDriveLeftPercentEncoderError) * (1 - Math.abs(motorDriveLeftPercentEncoderError)) + ENCODER_DRIVE_POWER_OFFSET);
-                double motorDriveRightPower = Math.signum(motorDriveRightEncoderError) * (ENCODER_DRIVE_Kp * Math.abs(motorDriveRightPercentEncoderError) * (1 - Math.abs(motorDriveRightPercentEncoderError)) + ENCODER_DRIVE_POWER_OFFSET);
+                double motorPower = Math.signum(targetDistance) * (ENCODER_DRIVE_Kp * BlueShiftUtil.modifiedSigmoidPrime(percentEncoderError) + ENCODER_DRIVE_POWER_OFFSET);
 
-                if (Math.signum(targetDistance) == -1) moveleft(motorDriveRightPower, motorDriveLeftPower);
-                else if (Math.signum(targetDistance) == 1) moveright(motorDriveRightPower, motorDriveLeftPower);
+                strafe(motorPower);
 
                 if (!hasAllEncodersMoved(previousEncoders, currentEncoders)) {
-                    ENCODER_DRIVE_POWER_OFFSET += (motorDriveLeftPercentEncoderError + motorDriveRightPercentEncoderError)/2.0 * ENCODER_DRIVE_POWER_OFFSET_STEP;
+                    ENCODER_DRIVE_POWER_OFFSET += ENCODER_DRIVE_POWER_OFFSET_STEP;
                 }
 
                 previousEncoders = currentEncoders;
             }
         } else {
             while (elapsedTime.seconds() <= secondsTimeout
-                    && (Math.abs(motorDriveLeftBack.getCurrentPosition() - encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE
-                    || Math.abs(motorDriveRightBack.getCurrentPosition() - encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE)
+                    && BlueShiftUtil.modifiedMeanAbsoluteError(currentEncoders, encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE
                     && opMode.opModeIsActive()
                     && !hasAborted
                     && !opMode.isStopRequested()) {
 
-                int[] currentEncoders = getEncoderValues();
+                currentEncoders = getEncoderValues();
 
-                int motorDriveLeftEncoderError = encoderTarget - motorDriveLeftBack.getCurrentPosition();
-                int motorDriveRightEncoderError = encoderTarget - motorDriveRightBack.getCurrentPosition();
-                double motorDriveLeftPercentEncoderError = (double)(motorDriveLeftEncoderError) / (double)encoderTarget;
-                double motorDriveRightPercentEncoderError = (double)(motorDriveRightEncoderError) / (double)encoderTarget;
+                double encoderMeanAbsoluteError = BlueShiftUtil.modifiedMeanAbsoluteError(currentEncoders, encoderTarget);
+                float percentEncoderError = (float)encoderMeanAbsoluteError / (float)encoderTarget;
 
-                double motorDriveLeftPower = Math.signum(motorDriveLeftEncoderError) * (ENCODER_DRIVE_Kp * Math.abs(motorDriveLeftPercentEncoderError) * (1 - Math.abs(motorDriveLeftPercentEncoderError)) + ENCODER_DRIVE_POWER_OFFSET);
-                double motorDriveRightPower = Math.signum(motorDriveRightEncoderError) * (ENCODER_DRIVE_Kp * Math.abs(motorDriveRightPercentEncoderError) * (1 - Math.abs(motorDriveRightPercentEncoderError)) + ENCODER_DRIVE_POWER_OFFSET);
+                double motorPower = Math.signum(targetDistance) * (ENCODER_DRIVE_Kp * BlueShiftUtil.modifiedSigmoidPrime(percentEncoderError) + ENCODER_DRIVE_POWER_OFFSET);
 
-                if (Math.signum(targetDistance) == -1) moveleft(motorDriveRightPower, motorDriveLeftPower);
-                else if (Math.signum(targetDistance) == 1) moveright(motorDriveRightPower, motorDriveLeftPower);
+                strafe(motorPower);
 
                 if (!hasAllEncodersMoved(previousEncoders, currentEncoders)) {
-                    ENCODER_DRIVE_POWER_OFFSET += (motorDriveLeftPercentEncoderError + motorDriveRightPercentEncoderError)/2.0 * ENCODER_DRIVE_POWER_OFFSET_STEP;
+                    ENCODER_DRIVE_POWER_OFFSET += ENCODER_DRIVE_POWER_OFFSET_STEP;
                 }
 
                 previousEncoders = currentEncoders;
 
-                telemetry.addData("Boolean checks", (Math.abs(motorDriveLeftBack.getCurrentPosition() - encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE
-                        || Math.abs(motorDriveRightBack.getCurrentPosition() - encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE));
-                telemetry.addData("Front Encoders", "(%7d):(%7d)", motorDriveLeftFront.getCurrentPosition(), motorDriveRightFront.getCurrentPosition());
-                telemetry.addData("Back Encoders", "(%7d):(%7d)", motorDriveLeftBack.getCurrentPosition(), motorDriveRightBack.getCurrentPosition());
-                telemetry.addData("Encoder Target", encoderTarget);
-                telemetry.addData("Encoder Errors", "(%7d):(%7d)", motorDriveLeftEncoderError, motorDriveRightEncoderError);
-                telemetry.addData("Percent Errors", "(%.2f):(%.2f)", motorDriveLeftPercentEncoderError, motorDriveRightPercentEncoderError);
-                telemetry.addData("Power", "Left (%.2f), Right (%.2f)", motorDriveLeftPower, motorDriveRightPower);
-                telemetry.addData("Timing", "(%.2f) of (%.2f)", elapsedTime.seconds(), secondsTimeout);
+                telemetry.addLine()
+                        .addData("Front Encoders", "(%7d):(%7d)", motorDriveLeftFront.getCurrentPosition(), motorDriveRightFront.getCurrentPosition())
+                        .addData("Back Encoders", "(%7d):(%7d)", motorDriveLeftBack.getCurrentPosition(), motorDriveRightBack.getCurrentPosition())
+                        .addData("Encoder Target", encoderTarget)
+                        .addData("Encoder MAE", encoderMeanAbsoluteError)
+                        .addData("Percent Errors", percentEncoderError)
+                        .addData("Power", motorPower);
                 telemetry.update();
             }
         }
@@ -647,16 +630,11 @@ public class AutoFourWheelDrive {
         motorDriveRightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorDriveRightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
-    public void moveleft(double rightpower, double leftpower){
-        motorDriveLeftFront.setPower(-leftpower);
-        motorDriveRightFront.setPower(rightpower);
-        motorDriveLeftBack.setPower(leftpower);
-        motorDriveRightBack.setPower(-rightpower);
-    }
-    public void moveright(double rightpower, double leftpower){
-        motorDriveLeftFront.setPower(leftpower);
-        motorDriveRightFront.setPower(-rightpower);
-        motorDriveLeftBack.setPower(-leftpower);
-        motorDriveRightBack.setPower(rightpower);
+
+    public void strafe(double power) {
+        motorDriveLeftFront.setPower(power);
+        motorDriveRightBack.setPower(power);
+        motorDriveRightFront.setPower(-power);
+        motorDriveLeftBack.setPower(-power);
     }
 }

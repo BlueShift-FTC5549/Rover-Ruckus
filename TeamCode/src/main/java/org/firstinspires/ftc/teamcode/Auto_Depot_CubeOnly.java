@@ -68,7 +68,7 @@ public class Auto_Depot_CubeOnly extends LinearOpMode {
         //Find the gold block
         autoFourWheelDrive.cubePositionCenter(10);
 
-        autoFourWheelDrive.stopDogeCV();
+        //autoFourWheelDrive.stopDogeCV();
 
         //Move the gold block and back up
         autoFourWheelDrive.encoderDrive(9.5, 10);
