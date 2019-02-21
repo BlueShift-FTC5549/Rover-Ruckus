@@ -111,7 +111,7 @@ public class IMU {
      * @return the current magnetic heading
      */
     public float getHeading() {
-        return revIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle + 180;
+        return getOrientation().firstAngle + 180;
     }
 
     public void initAccelerationLogging() {

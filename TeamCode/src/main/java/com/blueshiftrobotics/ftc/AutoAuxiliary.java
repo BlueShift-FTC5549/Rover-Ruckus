@@ -49,6 +49,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class AutoAuxiliary {
     //Robot Motors
     private DcMotor motorLift;
+    private DcMotor motorBucket;
+    private DcMotor motorSlider;
 
     //Instance Variables
     private boolean hasAborted;
@@ -58,6 +60,14 @@ public class AutoAuxiliary {
     private Telemetry telemetry;
     private LinearOpMode opMode;
     private ElapsedTime elapsedTime = new ElapsedTime();
+
+    //Arm Deployment Constants
+    private static final int SLIDER_HOME_ENCODER_VALUE     = 0;
+    private static final int SLIDER_DEPLOYED_ENCODER_VALUE = 1000;
+    private static final int BUCKET_HOME_ENCODER_VALUE     = 0;
+    private static final int BUCKET_DEPLOYED_ENCODER_VALUE = 1000;
+    private static final float SLIDER_MOVEMENT_POWER = 0.5f;
+    private static final float BUCKET_MOVEMENT_POWER = 0.5f;
 
     //Lift Constants
     private static final double COUNTS_PER_LIFT_MOTOR_REV = 1680;
@@ -79,8 +89,10 @@ public class AutoAuxiliary {
      * @param motorLiftName Name of the lift motor
      * @param verboseLoops Whether or not to use verbose loops
      */
-    public AutoAuxiliary(LinearOpMode opMode, String motorLiftName, boolean verboseLoops) {
+    public AutoAuxiliary(LinearOpMode opMode, String motorLiftName, String motorBucketName, String motorSliderName, boolean verboseLoops) {
         this.motorLift = opMode.hardwareMap.get(DcMotor.class, motorLiftName);
+        this.motorBucket = opMode.hardwareMap.get(DcMotor.class, motorBucketName);
+        this.motorSlider = opMode.hardwareMap.get(DcMotor.class, motorSliderName);
 
         this.telemetry = opMode.telemetry;
         this.opMode = opMode;
@@ -90,10 +102,46 @@ public class AutoAuxiliary {
 
 
         motorLift.setDirection(DcMotorSimple.Direction.FORWARD);
+        motorBucket.setDirection(DcMotorSimple.Direction.FORWARD);
+        motorSlider.setDirection(DcMotorSimple.Direction.FORWARD);
 
         motorLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBucket.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorSlider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         resetEncoders();
+    }
+
+    /**
+     * Deploy the arm from the original position to the extended position so that the robot can
+     * eject the team marker.
+     *
+     * @param secondsTimeout The maximum amount of seconds to run the loop for
+     */
+    public void deployArm(double secondsTimeout) {
+        telemetry.addData("Arm", "Deploying");
+        telemetry.update();
+
+        resetEncoderAndRunToPos(motorSlider);
+        resetEncoderAndRunToPos(motorBucket);
+
+        motorSlider.setTargetPosition(SLIDER_DEPLOYED_ENCODER_VALUE);
+        motorBucket.setTargetPosition(BUCKET_DEPLOYED_ENCODER_VALUE);
+        motorSlider.setPower(SLIDER_MOVEMENT_POWER);
+        motorBucket.setPower(BUCKET_MOVEMENT_POWER);
+
+        elapsedTime.reset();
+
+        while (elapsedTime.seconds() < secondsTimeout
+                && (motorSlider.isBusy()
+                || motorBucket.isBusy())) {
+            opMode.idle();
+        }
+
+        abortMotion();
+
+        telemetry.addData("Arm", "Deployment Complete");
+        telemetry.update();
     }
 
     /**
@@ -249,6 +297,8 @@ public class AutoAuxiliary {
         hasAborted = true;
 
         motorLift.setPower(0);
+        motorBucket.setPower(0);
+        motorSlider.setPower(0);
 
         telemetry.addData("Status", "Auxiliary Motion Aborted");
         telemetry.update();
@@ -261,8 +311,12 @@ public class AutoAuxiliary {
      */
     private void resetEncoders() {
         motorLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorBucket.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorSlider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         motorLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBucket.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorSlider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     /**
@@ -275,6 +329,19 @@ public class AutoAuxiliary {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    /**
+     * Stop a single motor and reset the encoder value to zero. Then change the run mode back so
+     * that power can be set. Different from the regular `resetEncoder` method as it sets the motor
+     * to RUN_TO_POSITION.
+     *
+     * @param motor The motor whose encoder is to be reset
+     */
+    private void resetEncoderAndRunToPos(DcMotor motor) {
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     /**

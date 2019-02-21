@@ -80,10 +80,10 @@ public class Drive_TeleOP extends OpMode {
         motorDriveRightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorDriveRightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        motorDriveLeftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorDriveLeftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorDriveRightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorDriveRightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorDriveLeftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER); //TODO: Decide run using encoder or not
+        motorDriveLeftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorDriveRightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorDriveRightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         //Set auxiliary motors parameters
@@ -124,15 +124,18 @@ public class Drive_TeleOP extends OpMode {
 
     @Override public void loop() {
         //Driving Code
-        double speed = Math.pow(Math.pow(gamepad1.left_stick_x, 2) + Math.pow(gamepad1.left_stick_y, 2), 0.5);
+        double speed = Math.sqrt(2) * Math.pow(Math.pow(gamepad1.left_stick_x, 2) + Math.pow(gamepad1.left_stick_y, 2), 0.5);
         double angle = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x);
-
         double rotation = gamepad1.right_stick_x;
 
-        motorDriveLeftBack.setPower  (Math.sqrt(2) * speed * Math.cos(angle - (Math.PI/4.0)) - rotation);
-        motorDriveRightFront.setPower(Math.sqrt(2) * speed * Math.cos(angle - (Math.PI/4.0)) + rotation);
-        motorDriveLeftFront.setPower (Math.sqrt(2) * speed * Math.sin(angle - (Math.PI/4.0)) - rotation);
-        motorDriveRightBack.setPower (Math.sqrt(2) * speed * Math.sin(angle - (Math.PI/4.0)) + rotation);
+        float primaryDiagonalSpeed = (float)(speed * Math.sin(angle - (Math.PI/4.0)) - rotation);
+        float secondaryDiagonalSpeed = (float)(speed * Math.cos(angle - (Math.PI/4.0)) - rotation);
+
+        motorDriveLeftBack.setPower(secondaryDiagonalSpeed);
+        motorDriveRightFront.setPower(secondaryDiagonalSpeed);
+        motorDriveLeftFront.setPower(primaryDiagonalSpeed);
+        motorDriveRightBack.setPower(primaryDiagonalSpeed);
+
 
         //Lift Code
         if (gamepad1.dpad_up) {
@@ -141,10 +144,6 @@ public class Drive_TeleOP extends OpMode {
             motorLift.setPower(-1.0);
         } else {
             motorLift.setPower(0);
-        }
-
-        if (!gamepad2.b) {
-            servoSweeper.setPower(servoSweeperPower);
         }
 
 
@@ -158,14 +157,28 @@ public class Drive_TeleOP extends OpMode {
         }
 
 
-        //Modifier Buttons. B = Slow Mode, Y = Disable top two motors
-        if (gamepad2.left_bumper) {
-            drivePowerMultiplier = DRIVE_POWER_MULTIPLIER_SLOW;
-
-            telemetry.addData("Drive Power Multiplier", drivePowerMultiplier);
+        //Bucket and Slider Code
+        if (gamepad1.a) {
+            motorSlider.setPower(0.5);
+        } else if (gamepad1.b) {
+            motorSlider.setPower(-0.5);
         } else {
-            drivePowerMultiplier = 1.0f;
+            motorSlider.setPower(0);
         }
+
+        if (gamepad1.x) {
+            motorBucket.setPower(0.75);
+        } else if (gamepad1.y) {
+            motorBucket.setPower(-0.75);
+        } else {
+            motorBucket.setPower(0);
+        }
+
+
+        telemetry.addData("Bucket Encoder", motorBucket.getCurrentPosition());
+        telemetry.addData("Slider Encoder", motorSlider.getCurrentPosition());
+        telemetry.addData("Flipper Encoder", motorFlipper.getCurrentPosition());
+        telemetry.addData("Lift Encoder", motorLift.getCurrentPosition());
     }
 
     @Override public void stop() {

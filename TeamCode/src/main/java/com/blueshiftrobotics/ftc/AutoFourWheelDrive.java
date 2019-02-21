@@ -49,7 +49,7 @@ import java.util.List;
  *   turn               - Use the REV IMU to precisely turn
  *   encoderDrive       - Use the motor encoders to drive a precise distance
  *   initDogeCV         - Activate the DogeCV Libraries for Gold Cube centering
- *   cubePositionCenter - Position the Gold Cube in the center of the phone camera view
+ *   cubeRemovalAndReturn - Position the Gold Cube in the center of the phone camera view
  *
  * A compilation of useful functions for use during the thirty-second autonomous phase of a FIRST
  * Tech Challenge competition. Created by the programming team of Blue Shift, a function catalog is
@@ -80,21 +80,19 @@ public class AutoFourWheelDrive {
     private List<Float> headingStorage;
 
     //Turning Constants
-    private static final float TURN_Kp = 0.78f;
-    private static final float TURN_ERROR_ALLOWANCE = (float)3.2; //In Degrees
+    private static final float TURN_Kp = 0.65f;
+    private static final float TURN_ERROR_ALLOWANCE = (float)6; //In Degrees
     private static final float TURN_POWER_OFFSET_STEP = (float)0.012;
 
     //Encoder Constants
     private static final double COUNTS_PER_MOTOR_REV    = 1120;    // Andymark Neverest 40
+    private static final double DRIVE_GEAR_REDUCTION    = 24.0/32.0;     // This is < 1.0 if geared UP
     private static final double WHEEL_DIAMETER_INCHES   = 4.0;     // For figuring circumference
-    private static final double COUNTS_PER_INCH         = COUNTS_PER_MOTOR_REV / (WHEEL_DIAMETER_INCHES * 3.1415);
-    private static final float  ENCODER_DRIVE_Kp        = 1.0f;
-    private static final int    ENCODER_DRIVE_ERROR_ALLOWANCE = 5;
+    private static final double COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
+    private static final float  ENCODER_DRIVE_Kp        = 0.75f;
+    private static final int    ENCODER_DRIVE_ERROR_ALLOWANCE = 200;
     private static final float  ENCODER_DRIVE_POWER_OFFSET_STEP = (float)0.01;
     private static final int    ENCODER_NO_MOVEMENT_THRESHOLD = 15;
-
-    //Constant that tells what block the robot is aligned to
-    private double atLeftBlock = 0;
 
     /**
      * Create a new instance of a four wheel drive library using the current hardware map and names
@@ -178,7 +176,7 @@ public class AutoFourWheelDrive {
                 double thetaError = BlueShiftUtil.getDegreeDifference(thetaCurrent, thetaTarget);
                 double thetaPercentError = Math.abs(thetaError / dTheta);
 
-                double turnPower = -Math.signum(thetaError) * (TURN_Kp * thetaPercentError * (1.0 - thetaPercentError) + turningPowerOffset);
+                double turnPower = Math.signum(thetaError) * (TURN_Kp * thetaPercentError * (1.0 - thetaPercentError) + turningPowerOffset);
 
                 setTurnPower(turnPower);
 
@@ -202,7 +200,7 @@ public class AutoFourWheelDrive {
                 double thetaError = BlueShiftUtil.getDegreeDifference(thetaCurrent, thetaTarget);
                 double thetaPercentError = Math.abs(thetaError / dTheta);
 
-                double turnPower = -Math.signum(thetaError) * (TURN_Kp * thetaPercentError * (1.0 - thetaPercentError) + turningPowerOffset);
+                double turnPower = Math.signum(thetaError) * (TURN_Kp * thetaPercentError * (1.0 - thetaPercentError) + turningPowerOffset);
 
                 setTurnPower(turnPower);
 
@@ -256,7 +254,7 @@ public class AutoFourWheelDrive {
 
         if (!verboseLoops) {
             while (elapsedTime.seconds() <= secondsTimeout
-                    && BlueShiftUtil.modifiedMeanAbsoluteError(currentEncoders, encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE
+                    && (Math.abs(BlueShiftUtil.modifiedMeanAbsoluteError(currentEncoders, encoderTarget)) - encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE
                     && opMode.opModeIsActive()
                     && !hasAborted
                     && !opMode.isStopRequested()) {
@@ -266,7 +264,7 @@ public class AutoFourWheelDrive {
                 double encoderMeanAbsoluteError = BlueShiftUtil.modifiedMeanAbsoluteError(currentEncoders, encoderTarget);
                 float percentEncoderError = (float)encoderMeanAbsoluteError / (float)encoderTarget;
 
-                double motorPower = Math.signum(targetDistance) * (ENCODER_DRIVE_Kp * BlueShiftUtil.modifiedSigmoidPrime(percentEncoderError) + ENCODER_DRIVE_POWER_OFFSET);
+                double motorPower = Math.signum(encoderMeanAbsoluteError) * (ENCODER_DRIVE_Kp * BlueShiftUtil.modifiedSigmoidPrime(Math.abs(percentEncoderError)) + ENCODER_DRIVE_POWER_OFFSET);
 
                 strafe(motorPower);
 
@@ -278,7 +276,7 @@ public class AutoFourWheelDrive {
             }
         } else {
             while (elapsedTime.seconds() <= secondsTimeout
-                    && BlueShiftUtil.modifiedMeanAbsoluteError(currentEncoders, encoderTarget) > ENCODER_DRIVE_ERROR_ALLOWANCE
+                    && Math.abs(BlueShiftUtil.modifiedMeanAbsoluteError(currentEncoders, encoderTarget)) > ENCODER_DRIVE_ERROR_ALLOWANCE
                     && opMode.opModeIsActive()
                     && !hasAborted
                     && !opMode.isStopRequested()) {
@@ -288,7 +286,7 @@ public class AutoFourWheelDrive {
                 double encoderMeanAbsoluteError = BlueShiftUtil.modifiedMeanAbsoluteError(currentEncoders, encoderTarget);
                 float percentEncoderError = (float)encoderMeanAbsoluteError / (float)encoderTarget;
 
-                double motorPower = Math.signum(targetDistance) * (ENCODER_DRIVE_Kp * BlueShiftUtil.modifiedSigmoidPrime(percentEncoderError) + ENCODER_DRIVE_POWER_OFFSET);
+                double motorPower = Math.signum(encoderMeanAbsoluteError) * (ENCODER_DRIVE_Kp * BlueShiftUtil.modifiedSigmoidPrime(Math.abs(percentEncoderError)) + ENCODER_DRIVE_POWER_OFFSET);
 
                 strafe(motorPower);
 
@@ -298,13 +296,13 @@ public class AutoFourWheelDrive {
 
                 previousEncoders = currentEncoders;
 
+                telemetry.addData("Front Encoders", "(%7d):(%7d)", motorDriveLeftFront.getCurrentPosition(), motorDriveRightFront.getCurrentPosition());
+                telemetry.addData("Back Encoders", "(%7d):(%7d)", motorDriveLeftBack.getCurrentPosition(), motorDriveRightBack.getCurrentPosition());
                 telemetry.addLine()
-                        .addData("Front Encoders", "(%7d):(%7d)", motorDriveLeftFront.getCurrentPosition(), motorDriveRightFront.getCurrentPosition())
-                        .addData("Back Encoders", "(%7d):(%7d)", motorDriveLeftBack.getCurrentPosition(), motorDriveRightBack.getCurrentPosition())
-                        .addData("Encoder Target", encoderTarget)
-                        .addData("Encoder MAE", encoderMeanAbsoluteError)
-                        .addData("Percent Errors", percentEncoderError)
-                        .addData("Power", motorPower);
+                        .addData("Encoder Target ", encoderTarget + "\n")
+                        .addData("Encoder MAE", encoderMeanAbsoluteError + "\n")
+                        .addData("Percent Errors", percentEncoderError + "\n")
+                        .addData("Power", motorPower + "\n");
                 telemetry.update();
             }
         }
@@ -316,6 +314,12 @@ public class AutoFourWheelDrive {
         telemetry.update();
     }
 
+    /**
+     * Drive the robot to a certain encoder value on the drive train motors.
+     *
+     * @param targetDistance The distance in inches to travel
+     * @param secondsTimeout The maximum seconds to run the loop
+     */
     public void encoderDrive(double targetDistance, double secondsTimeout) {
         hasAborted = false;
 
@@ -419,7 +423,7 @@ public class AutoFourWheelDrive {
 
         // Optional tuning
         goldAlignDetector.alignSize = 75; // How wide (in pixels) is the range in which the gold object will be aligned. (Represented by green bars in the preview)
-        goldAlignDetector.alignPosOffset = 227; // How far from center frame to offset this alignment zone.
+        goldAlignDetector.alignPosOffset = 0; // How far from center frame to offset this alignment zone.
         goldAlignDetector.downscale = 0.4; // How much to downscale the input frames
 
         goldAlignDetector.areaScoringMethod = DogeCV.AreaScoringMethod.MAX_AREA; // Can also be PERFECT_AREA
@@ -433,7 +437,16 @@ public class AutoFourWheelDrive {
         telemetry.addData("DogeCV", "Initialization Complete");
     }
 
-    public boolean cubePositionCenter(double secondsTimeout) {
+    /**
+     * Assuming the robot's side is aligned with the center debris (position 2). Depending on the
+     * given cube position, navigate to the side of that cube and remove it. Then, return back
+     * to aligned with the center.
+     *
+     * @param secondsTimeout The maximum seconds to run the loop for
+     * @param cubePosition The position (1, 2, or 3) of the cube
+     * @return If successful
+     */
+    public boolean cubeRemovalAndReturn(double secondsTimeout, int cubePosition) {
         elapsedTime.reset();
 
         if (elapsedTime.seconds() >= secondsTimeout
@@ -442,28 +455,23 @@ public class AutoFourWheelDrive {
             return false;
         }
 
-        if (!goldAlignDetector.isFound()) {
+        if (cubePosition == 1) {
             encoderDrive(17, 10);
-            atLeftBlock = -1;
-
-        }if (!goldAlignDetector.isFound()) {
-            encoderDrive(-34, 10);
-            atLeftBlock = 1;
+        } else if (cubePosition == 2) {
+            encoderDrive(-17, 10);
         }
 
-        telemetry.addData("Cube Centering", "Centering the Gold Cube. Time: " + elapsedTime.seconds() + "s");
-        telemetry.update();
+        //Move the gold block and back up
+        encoderStrafe(-20, 10);
+        encoderStrafe(20, 10);
 
-        elapsedTime.reset();
+        if (cubePosition == 1) {
+            encoderDrive(-17, 10);
+        } else if (cubePosition == 2) {
+            encoderDrive(17, 10);
+        }
 
-        boolean ifSuccess = goldAlignDetector.getAligned();
-
-        goldAlignDetector.disable();
-
-        telemetry.addData("Cube Centering", "Cube Centering Finished" + ifSuccess);
-        telemetry.update();
-
-        return ifSuccess;
+        return true;
     }
 
 
@@ -499,12 +507,6 @@ public class AutoFourWheelDrive {
      *
      * @return The index of the stored heading
      */
-
-    public void centerRobot(){
-        //Move robot back to the center block
-        if (atLeftBlock == 1) encoderDrive(17,10);
-        else if (atLeftBlock == -1) encoderDrive(-17,10);
-    }
     public int recordHeading() {
         if (headingStorage.isEmpty()) {
             headingStorage = Arrays.asList(imu.getHeading());
@@ -634,7 +636,12 @@ public class AutoFourWheelDrive {
     public void strafe(double power) {
         motorDriveLeftFront.setPower(power);
         motorDriveRightBack.setPower(power);
+
         motorDriveRightFront.setPower(-power);
         motorDriveLeftBack.setPower(-power);
+    }
+
+    public boolean isCubeFound() {
+        return goldAlignDetector.isFound();
     }
 }

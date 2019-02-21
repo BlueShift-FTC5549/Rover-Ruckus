@@ -37,11 +37,19 @@ public class Diag_EncoderDrive extends LinearOpMode {
 
         waitForStart();
 
-        autoFourWheelDrive.encoderDrive(15, 15);
+        autoFourWheelDrive.encoderDrive(15, 10);
 
         sleep(3000);
 
-        autoFourWheelDrive.encoderDrive(-15, 15);
+        autoFourWheelDrive.encoderDrive(-15, 10);
+
+        sleep(3000);
+
+        autoFourWheelDrive.encoderStrafe(15, 10);
+
+        sleep(3000);
+
+        autoFourWheelDrive.encoderStrafe(-15, 10);
 
 
         telemetry.addData("Status", "Finished!");

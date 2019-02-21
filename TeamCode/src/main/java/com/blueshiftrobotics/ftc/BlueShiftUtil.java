@@ -56,12 +56,19 @@ public class BlueShiftUtil {
      */
     public static double modifiedMeanAbsoluteError(int[] array, int target) {
         double sum = 0;
+        double signedSum = 0;
 
-        for (int i = 0; i < array.length; i++) {
-            sum += Math.abs(Math.abs(array[i]) - Math.abs(target));
-        }
+        //Motor indeces 1 and 2 move backward compared to 0 and 4, so they are negative
+        sum += Math.abs(array[0] - target);
+        sum += Math.abs(-array[1] - target);
+        sum += Math.abs(-array[2] - target);
+        sum += Math.abs(array[3] - target);
+        signedSum += array[0] - target;
+        signedSum += -array[1] - target;
+        signedSum += -array[2] - target;
+        signedSum += array[3] - target;
 
-        return sum / ((double)array.length);
+        return Math.signum(signedSum) * (sum / ((double)array.length));
     }
 
     /**

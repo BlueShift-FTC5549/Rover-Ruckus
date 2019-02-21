@@ -38,7 +38,7 @@ public class Auto_Depot_All extends LinearOpMode {
         setTelemetryStatus("Initializing");
 
         autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu", true);
-        autoAuxiliary = new AutoAuxiliary(this, "motorLift", false);
+        autoAuxiliary = new AutoAuxiliary(this, "motorLift", "motorBucket", "motorSlider", false);
         autoFourWheelDrive.initDogeCV();
 
         setTelemetryStatus("Initialized");
@@ -49,35 +49,35 @@ public class Auto_Depot_All extends LinearOpMode {
         initialize();
 
         waitForStart();
-
         telemetry.clearAll();
+        int cubePosition = 0; //1, 2, or 3. Corresponds left to right from the perspective of the lander
 
-        autoAuxiliary.liftDrop(10);
+        autoAuxiliary.liftDrop(15);
+        autoFourWheelDrive.encoderStrafe(-5.0, 10); //Free the lift hook from the lander
+        autoFourWheelDrive.turn(65, 6); //Turn the an angle <90 to get cube position 3 in view
 
-        //Free the lift hook from the lander
-        autoFourWheelDrive.turn(-10, 2.5);
-        autoFourWheelDrive.encoderDrive(-1, 3);
+        sleep(50); //Sleep for a small interval and check if the cube is in position 3
+        if (autoFourWheelDrive.isCubeFound()) { cubePosition = 3; }
 
-        //Turn the rest of the angle to be facing away from the lander
-        autoFourWheelDrive.turn(-80, 6);
+        autoFourWheelDrive.turn(25, 6); //Turn the rest of the angle to complete 90
 
-        int centeredHeadingIndex = autoFourWheelDrive.recordHeading();
+        //Finalize cube position and tell driver
+        if (autoFourWheelDrive.isCubeFound()) {
+            cubePosition = 2;
+        } else if (cubePosition == 0){
+            cubePosition = 1;
+        }
+        setTelemetryStatus("Cube Position: " + cubePosition);
 
-        //Find the gold block
-        autoFourWheelDrive.cubePositionCenter(10);
+        autoFourWheelDrive.encoderStrafe(-15,10); //Get closer to the cube
 
-        //Move the gold block and back up
-        autoFourWheelDrive.encoderStrafe(-10, 10);
-        autoFourWheelDrive.encoderStrafe(10, 10);
+        //Remove the gold cube
+        setTelemetryStatus("Removing Gold Cube and Returning");
+        autoFourWheelDrive.cubeRemovalAndReturn(10, cubePosition);
 
-        //Center the robot with middle block
-        autoFourWheelDrive.centerRobot();
-
-        //Move the robot against the wall
-        autoFourWheelDrive.encoderStrafe(-55,10);
-
-        //Move robot forward and drop off marker
-
+        setTelemetryStatus("Aligned, Turning to Deploy Arm");
+        autoFourWheelDrive.turn(-90, 10);
+        autoAuxiliary.deployArm(15);
     }
 
     public void setTelemetryStatus(String status) {

@@ -46,38 +46,41 @@ public class Auto_Crater_All extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        int cubePosition; //1, 2, or 3. Corresponds left to right from the perspective of the lander
+
         initialize();
 
         waitForStart();
 
         telemetry.clearAll();
 
-        autoAuxiliary.liftDrop(10);
+        autoAuxiliary.liftDrop(15);
 
         //Free the lift hook from the lander
-        autoFourWheelDrive.turn(-10, 2.5);
-        autoFourWheelDrive.encoderDrive(-1, 3);
+        autoFourWheelDrive.encoderStrafe(-5.0, 10);
 
         //Turn the rest of the angle to be facing away from the lander
-        autoFourWheelDrive.turn(-80, 6);
+        autoFourWheelDrive.turn(45, 6);
 
-        int centeredHeadingIndex = autoFourWheelDrive.recordHeading();
+        if (autoFourWheelDrive.isCubeFound()) { cubePosition = 3; }
+
+        autoFourWheelDrive.turn(45, 6);
+
+        if (autoFourWheelDrive.isCubeFound()) {
+            cubePosition = 2;
+        } else {
+            cubePosition = 1;
+        }
+
+        telemetry.addData("Cube Position: ", cubePosition);
+
+
+        autoFourWheelDrive.encoderStrafe(-15,10);
+        telemetry.addData("Status","Turning");
 
         //Find the gold block
-        autoFourWheelDrive.cubePositionCenter(10);
-
-        //Move the gold block and back up
-        autoFourWheelDrive.encoderStrafe(-10, 10);
-        autoFourWheelDrive.encoderStrafe(10, 10);
-
-        //Center the robot with middle block
-        autoFourWheelDrive.centerRobot();
-
-        //Move the robot against the wall
-        autoFourWheelDrive.encoderStrafe(-60,10);
-
-        //Move robot forward and drop off marker
-
+        telemetry.addData("Status","Aligning");
+        autoFourWheelDrive.cubeRemovalAndReturn(10, cubePosition);
     }
 
     public void setTelemetryStatus(String status) {
