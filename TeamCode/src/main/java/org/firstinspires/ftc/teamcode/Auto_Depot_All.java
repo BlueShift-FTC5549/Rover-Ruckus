@@ -25,6 +25,7 @@ import com.blueshiftrobotics.ftc.AutoAuxiliary;
 import com.blueshiftrobotics.ftc.AutoFourWheelDrive;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="Depot All", group="Depot")
@@ -33,13 +34,13 @@ public class Auto_Depot_All extends LinearOpMode {
 
     private AutoFourWheelDrive autoFourWheelDrive;
     private AutoAuxiliary autoAuxiliary;
+    private CRServo servoSweeper;
 
     private void initialize() {
         setTelemetryStatus("Initializing");
 
         autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu", true);
-        autoAuxiliary = new AutoAuxiliary(this, "motorLift", "motorBucket", "motorSlider", false);
-        autoFourWheelDrive.initDogeCV();
+        autoAuxiliary = new AutoAuxiliary(this, "motorLift", "motorBucket", "motorSlider", "servoSweeper", false);
 
         setTelemetryStatus("Initialized");
     }
@@ -49,27 +50,37 @@ public class Auto_Depot_All extends LinearOpMode {
         initialize();
 
         waitForStart();
+
+        autoFourWheelDrive.initDogeCV();
+
         telemetry.clearAll();
         int cubePosition = 0; //1, 2, or 3. Corresponds left to right from the perspective of the lander
 
         autoAuxiliary.liftDrop(15);
         autoFourWheelDrive.encoderStrafe(-5.0, 10); //Free the lift hook from the lander
-        autoFourWheelDrive.turn(65, 6); //Turn the an angle <90 to get cube position 3 in view
+        sleep(100);
+        autoFourWheelDrive.encoderDrive(5, 5);
+        sleep(100);
+        autoFourWheelDrive.turn(64, 10); //Turn the an angle <90 to get cube position 3 in view
 
-        sleep(50); //Sleep for a small interval and check if the cube is in position 3
+        sleep(250); //Sleep for a small interval and check if the cube is in position 3
         if (autoFourWheelDrive.isCubeFound()) { cubePosition = 3; }
 
-        autoFourWheelDrive.turn(25, 6); //Turn the rest of the angle to complete 90
+        sleep(750);
+
+        autoFourWheelDrive.turn(22, 10); //Turn the rest of the angle to complete 90
 
         //Finalize cube position and tell driver
-        if (autoFourWheelDrive.isCubeFound()) {
+        if (autoFourWheelDrive.isCubeFound() && cubePosition != 3) {
             cubePosition = 2;
         } else if (cubePosition == 0){
             cubePosition = 1;
         }
         setTelemetryStatus("Cube Position: " + cubePosition);
 
-        autoFourWheelDrive.encoderStrafe(-15,10); //Get closer to the cube
+        sleep(750);
+
+        autoFourWheelDrive.encoderStrafe(-14,10); //Get closer to the cube
 
         //Remove the gold cube
         setTelemetryStatus("Removing Gold Cube and Returning");
@@ -77,7 +88,16 @@ public class Auto_Depot_All extends LinearOpMode {
 
         setTelemetryStatus("Aligned, Turning to Deploy Arm");
         autoFourWheelDrive.turn(-90, 10);
-        autoAuxiliary.deployArm(15);
+        autoAuxiliary.deployArm(7);
+
+        setTelemetryStatus("Ejecting Marker");
+        autoAuxiliary.ejectMarker(3);
+
+        autoAuxiliary.retractArm(7);
+
+        autoFourWheelDrive.disableDogeCV();
+
+        //autoFourWheelDrive.encoderStrafe(48, 15);
     }
 
     public void setTelemetryStatus(String status) {

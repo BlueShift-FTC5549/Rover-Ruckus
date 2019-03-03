@@ -22,6 +22,7 @@
 package com.blueshiftrobotics.ftc;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -52,6 +53,9 @@ public class AutoAuxiliary {
     private DcMotor motorBucket;
     private DcMotor motorSlider;
 
+    //Servos
+    private CRServo servoSweeper;
+
     //Instance Variables
     private boolean hasAborted;
     private boolean verboseLoops;
@@ -63,11 +67,11 @@ public class AutoAuxiliary {
 
     //Arm Deployment Constants
     private static final int SLIDER_HOME_ENCODER_VALUE     = 0;
-    private static final int SLIDER_DEPLOYED_ENCODER_VALUE = 1000;
+    private static final int SLIDER_DEPLOYED_ENCODER_VALUE = -3200;
     private static final int BUCKET_HOME_ENCODER_VALUE     = 0;
-    private static final int BUCKET_DEPLOYED_ENCODER_VALUE = 1000;
-    private static final float SLIDER_MOVEMENT_POWER = 0.5f;
-    private static final float BUCKET_MOVEMENT_POWER = 0.5f;
+    private static final int BUCKET_DEPLOYED_ENCODER_VALUE = -435;
+    private static final float SLIDER_MOVEMENT_POWER = -0.55f;
+    private static final float BUCKET_MOVEMENT_POWER = -0.25f;
 
     //Lift Constants
     private static final double COUNTS_PER_LIFT_MOTOR_REV = 1680;
@@ -80,6 +84,8 @@ public class AutoAuxiliary {
     //Misc Constants
     private static final double LOADED_DIRECTION_TEST_POWER = 1.0;
     private static final long   LOADED_DIRECTION_TIME_INTERVAL = 100; //In ms
+    private static final float  SERVO_MAX_POWER = 0.8f;
+    private static final long   MARKER_EJECTION_TIME_INTERVAL = 1000; //In ms
 
     /**
      * Create a new instance of an auxiliary autonomous library using all necessary objects and
@@ -89,10 +95,11 @@ public class AutoAuxiliary {
      * @param motorLiftName Name of the lift motor
      * @param verboseLoops Whether or not to use verbose loops
      */
-    public AutoAuxiliary(LinearOpMode opMode, String motorLiftName, String motorBucketName, String motorSliderName, boolean verboseLoops) {
+    public AutoAuxiliary(LinearOpMode opMode, String motorLiftName, String motorBucketName, String motorSliderName, String servoSweeperName, boolean verboseLoops) {
         this.motorLift = opMode.hardwareMap.get(DcMotor.class, motorLiftName);
         this.motorBucket = opMode.hardwareMap.get(DcMotor.class, motorBucketName);
         this.motorSlider = opMode.hardwareMap.get(DcMotor.class, motorSliderName);
+        this.servoSweeper = opMode.hardwareMap.get(CRServo.class, servoSweeperName);
 
         this.telemetry = opMode.telemetry;
         this.opMode = opMode;
@@ -119,6 +126,8 @@ public class AutoAuxiliary {
      * @param secondsTimeout The maximum amount of seconds to run the loop for
      */
     public void deployArm(double secondsTimeout) {
+        hasAborted = false;
+
         telemetry.addData("Arm", "Deploying");
         telemetry.update();
 
@@ -128,20 +137,103 @@ public class AutoAuxiliary {
         motorSlider.setTargetPosition(SLIDER_DEPLOYED_ENCODER_VALUE);
         motorBucket.setTargetPosition(BUCKET_DEPLOYED_ENCODER_VALUE);
         motorSlider.setPower(SLIDER_MOVEMENT_POWER);
-        motorBucket.setPower(BUCKET_MOVEMENT_POWER);
 
         elapsedTime.reset();
 
         while (elapsedTime.seconds() < secondsTimeout
-                && (motorSlider.isBusy()
-                || motorBucket.isBusy())) {
+                && motorSlider.isBusy()
+                && !opMode.isStopRequested()
+                && !hasAborted) {
             opMode.idle();
         }
+
+        motorSlider.setPower(0);
+
+        motorBucket.setPower(BUCKET_MOVEMENT_POWER);
+
+        while (elapsedTime.seconds() < secondsTimeout
+                && motorBucket.isBusy()
+                && !opMode.isStopRequested()
+                && !hasAborted) {
+            opMode.idle();
+        }
+
+        motorBucket.setPower(0);
+
 
         abortMotion();
 
         telemetry.addData("Arm", "Deployment Complete");
         telemetry.update();
+    }
+
+    /**
+     * Retract the arm from a deployed state.
+     *
+     * @param secondsTimeout The maximum amount of seconds to run the loop for
+     */
+    public void retractArm(double secondsTimeout) {
+        hasAborted = false;
+
+        telemetry.addData("Arm", "Deploying");
+        telemetry.update();
+
+        motorSlider.setTargetPosition(SLIDER_HOME_ENCODER_VALUE);
+        motorBucket.setTargetPosition(BUCKET_HOME_ENCODER_VALUE);
+
+        elapsedTime.reset();
+
+        motorBucket.setPower(-BUCKET_MOVEMENT_POWER);
+
+        while (elapsedTime.seconds() < secondsTimeout
+                && motorBucket.isBusy()
+                && !opMode.isStopRequested()
+                && !hasAborted) {
+            opMode.idle();
+        }
+
+        motorBucket.setPower(0);
+
+        motorSlider.setPower(-SLIDER_MOVEMENT_POWER);
+
+        while (elapsedTime.seconds() < secondsTimeout
+                && motorSlider.isBusy()
+                && !opMode.isStopRequested()
+                && !hasAborted) {
+            opMode.idle();
+        }
+
+        motorSlider.setPower(0);
+
+        abortMotion();
+
+        telemetry.addData("Arm", "Retraction Complete");
+        telemetry.update();
+    }
+
+    /**
+     * Eject the team marker that has been placed inside of the sweeper.
+     *
+     * @param secondsTimeout The maximum amount of seconds to run the loop for
+     */
+    public void ejectMarker(double secondsTimeout) {
+        hasAborted = false;
+
+        telemetry.addData("Marker Ejection", "Starting");
+        telemetry.update();
+
+        elapsedTime.reset();
+
+        while (elapsedTime.seconds() < secondsTimeout
+                && elapsedTime.seconds() < MARKER_EJECTION_TIME_INTERVAL
+                && !opMode.isStopRequested()
+                && !hasAborted) {
+            servoSweeper.setPower(SERVO_MAX_POWER);
+        }
+
+        abortMotion();
+
+        telemetry.addData("Marker Ejection", "Complete");
     }
 
     /**
@@ -299,6 +391,8 @@ public class AutoAuxiliary {
         motorLift.setPower(0);
         motorBucket.setPower(0);
         motorSlider.setPower(0);
+
+        servoSweeper.setPower(0);
 
         telemetry.addData("Status", "Auxiliary Motion Aborted");
         telemetry.update();

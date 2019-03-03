@@ -38,49 +38,53 @@ public class Auto_Crater_All extends LinearOpMode {
         setTelemetryStatus("Initializing");
 
         autoFourWheelDrive = new AutoFourWheelDrive(this,"motorDriveLeft", "motorDriveRight", "imu", true);
-        autoAuxiliary = new AutoAuxiliary(this, "motorLift", false);
-        autoFourWheelDrive.initDogeCV();
+        autoAuxiliary = new AutoAuxiliary(this, "motorLift", "motorBucket", "motorSlider", "servoSweeper", false);
 
         setTelemetryStatus("Initialized");
     }
 
     @Override
     public void runOpMode() {
-        int cubePosition; //1, 2, or 3. Corresponds left to right from the perspective of the lander
-
         initialize();
 
         waitForStart();
 
+        autoFourWheelDrive.initDogeCV();
+
         telemetry.clearAll();
+        int cubePosition = 0; //1, 2, or 3. Corresponds left to right from the perspective of the lander
 
         autoAuxiliary.liftDrop(15);
+        autoFourWheelDrive.encoderStrafe(-5.0, 10); //Free the lift hook from the lander
+        sleep(100);
+        autoFourWheelDrive.encoderDrive(5, 5);
+        sleep(100);
+        autoFourWheelDrive.turn(65, 10); //Turn the an angle <90 to get cube position 3 in view
 
-        //Free the lift hook from the lander
-        autoFourWheelDrive.encoderStrafe(-5.0, 10);
-
-        //Turn the rest of the angle to be facing away from the lander
-        autoFourWheelDrive.turn(45, 6);
-
+        sleep(250); //Sleep for a small interval and check if the cube is in position 3
         if (autoFourWheelDrive.isCubeFound()) { cubePosition = 3; }
 
-        autoFourWheelDrive.turn(45, 6);
+        sleep(750);
 
-        if (autoFourWheelDrive.isCubeFound()) {
+        autoFourWheelDrive.turn(23, 10); //Turn the rest of the angle to complete 90
+
+        //Finalize cube position and tell driver
+        if (autoFourWheelDrive.isCubeFound() && cubePosition != 3) {
             cubePosition = 2;
-        } else {
+        } else if (cubePosition == 0){
             cubePosition = 1;
         }
+        setTelemetryStatus("Cube Position: " + cubePosition);
 
-        telemetry.addData("Cube Position: ", cubePosition);
+        sleep(750);
 
+        autoFourWheelDrive.encoderStrafe(-14,10); //Get closer to the cube
 
-        autoFourWheelDrive.encoderStrafe(-15,10);
-        telemetry.addData("Status","Turning");
+        //Remove the gold cube
+        setTelemetryStatus("Removing Gold Cube and Returning");
+        autoFourWheelDrive.cubeRemovalAndPark(10, cubePosition);
 
-        //Find the gold block
-        telemetry.addData("Status","Aligning");
-        autoFourWheelDrive.cubeRemovalAndReturn(10, cubePosition);
+        autoFourWheelDrive.disableDogeCV();
     }
 
     public void setTelemetryStatus(String status) {

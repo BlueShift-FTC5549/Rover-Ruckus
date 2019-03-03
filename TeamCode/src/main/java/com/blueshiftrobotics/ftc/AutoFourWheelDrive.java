@@ -27,6 +27,7 @@ import com.disnodeteam.dogecv.detectors.roverrukus.GoldAlignDetector;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -80,19 +81,19 @@ public class AutoFourWheelDrive {
     private List<Float> headingStorage;
 
     //Turning Constants
-    private static final float TURN_Kp = 0.65f;
-    private static final float TURN_ERROR_ALLOWANCE = (float)6; //In Degrees
-    private static final float TURN_POWER_OFFSET_STEP = (float)0.012;
+    private static final float TURN_Kp = 0.75f;
+    private static final float TURN_ERROR_ALLOWANCE = (float)5; //In Degrees
+    private static final float TURN_POWER_OFFSET_STEP = (float)0.015;
 
     //Encoder Constants
     private static final double COUNTS_PER_MOTOR_REV    = 1120;    // Andymark Neverest 40
     private static final double DRIVE_GEAR_REDUCTION    = 24.0/32.0;     // This is < 1.0 if geared UP
     private static final double WHEEL_DIAMETER_INCHES   = 4.0;     // For figuring circumference
     private static final double COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
-    private static final float  ENCODER_DRIVE_Kp        = 0.75f;
+    private static final float  ENCODER_DRIVE_Kp        = 0.85f;
     private static final int    ENCODER_DRIVE_ERROR_ALLOWANCE = 200;
-    private static final float  ENCODER_DRIVE_POWER_OFFSET_STEP = (float)0.01;
-    private static final int    ENCODER_NO_MOVEMENT_THRESHOLD = 15;
+    private static final float  ENCODER_DRIVE_POWER_OFFSET_STEP = (float)0.013;
+    private static final int    ENCODER_NO_MOVEMENT_THRESHOLD = 12;
 
     /**
      * Create a new instance of a four wheel drive library using the current hardware map and names
@@ -154,7 +155,7 @@ public class AutoFourWheelDrive {
         int[] previousEncoders = new int[4];
         float thetaInit = imu.getHeading();
         float thetaTarget = (thetaInit + dTheta) % 360;
-        float turningPowerOffset = 0;
+        float turningPowerOffset = 0.16f;
 
         telemetry.addData("Turning", "Starting at " + thetaInit + " degrees");
         telemetry.update();
@@ -243,7 +244,7 @@ public class AutoFourWheelDrive {
         int[] currentEncoders = getEncoderValues();
         int[] previousEncoders = new int[4];
         int encoderTarget = (int)(targetDistance * COUNTS_PER_INCH);
-        double ENCODER_DRIVE_POWER_OFFSET = 0.0;
+        double ENCODER_DRIVE_POWER_OFFSET = 0.18;
 
         //Telemetry Information
         telemetry.addData("Encoder Driving", "Starting at %7d : %7d", motorDriveLeftBack.getCurrentPosition(), motorDriveRightBack.getCurrentPosition());
@@ -262,9 +263,9 @@ public class AutoFourWheelDrive {
                 currentEncoders = getEncoderValues();
 
                 double encoderMeanAbsoluteError = BlueShiftUtil.modifiedMeanAbsoluteError(currentEncoders, encoderTarget);
-                float percentEncoderError = (float)encoderMeanAbsoluteError / (float)encoderTarget;
+                float percentEncoderError = (float)Range.clip(Math.abs((float)encoderMeanAbsoluteError / (float)encoderTarget), 0.0, 1.0);
 
-                double motorPower = Math.signum(encoderMeanAbsoluteError) * (ENCODER_DRIVE_Kp * BlueShiftUtil.modifiedSigmoidPrime(Math.abs(percentEncoderError)) + ENCODER_DRIVE_POWER_OFFSET);
+                double motorPower = Math.signum(encoderMeanAbsoluteError) * (ENCODER_DRIVE_Kp * percentEncoderError * (1 - percentEncoderError) + ENCODER_DRIVE_POWER_OFFSET);
 
                 strafe(motorPower);
 
@@ -284,9 +285,9 @@ public class AutoFourWheelDrive {
                 currentEncoders = getEncoderValues();
 
                 double encoderMeanAbsoluteError = BlueShiftUtil.modifiedMeanAbsoluteError(currentEncoders, encoderTarget);
-                float percentEncoderError = (float)encoderMeanAbsoluteError / (float)encoderTarget;
+                float percentEncoderError = (float)Range.clip(Math.abs((float)encoderMeanAbsoluteError / (float)encoderTarget), 0.0, 1.0);
 
-                double motorPower = Math.signum(encoderMeanAbsoluteError) * (ENCODER_DRIVE_Kp * BlueShiftUtil.modifiedSigmoidPrime(Math.abs(percentEncoderError)) + ENCODER_DRIVE_POWER_OFFSET);
+                double motorPower = Math.signum(encoderMeanAbsoluteError) * (ENCODER_DRIVE_Kp * percentEncoderError * (1 - percentEncoderError) + ENCODER_DRIVE_POWER_OFFSET);
 
                 strafe(motorPower);
 
@@ -329,7 +330,7 @@ public class AutoFourWheelDrive {
         //Find desired encoder value and initialize placeholder array
         int[] previousEncoders = new int[4];
         int encoderTarget = (int)(targetDistance * COUNTS_PER_INCH);
-        double ENCODER_DRIVE_POWER_OFFSET = 0.0;
+        double ENCODER_DRIVE_POWER_OFFSET = 0.15;
 
         //Telemetry Information
         telemetry.addData("Encoder Driving", "Starting at %7d : %7d", motorDriveLeftBack.getCurrentPosition(), motorDriveRightBack.getCurrentPosition());
@@ -456,24 +457,47 @@ public class AutoFourWheelDrive {
         }
 
         if (cubePosition == 1) {
-            encoderDrive(17, 10);
-        } else if (cubePosition == 2) {
+            encoderDrive(18.5, 10);
+        } else if (cubePosition == 3) {
             encoderDrive(-17, 10);
         }
 
         //Move the gold block and back up
-        encoderStrafe(-20, 10);
-        encoderStrafe(20, 10);
+        encoderStrafe(-15, 10);
+        encoderStrafe(15, 10);
 
         if (cubePosition == 1) {
-            encoderDrive(-17, 10);
-        } else if (cubePosition == 2) {
-            encoderDrive(17, 10);
+            encoderDrive(-12, 10);
+        } else if (cubePosition == 3) {
+            encoderDrive(22, 10);
         }
 
         return true;
     }
 
+    public boolean cubeRemovalAndPark(double secondsTimeout, int cubePosition) {
+        elapsedTime.reset();
+
+        if (elapsedTime.seconds() >= secondsTimeout
+                || opMode.isStopRequested()) {
+            abortMotion();
+            return false;
+        }
+
+        if (cubePosition == 1) {
+            encoderDrive(18.5, 10);
+        } else if (cubePosition == 3) {
+            encoderDrive(-17, 10);
+        }
+
+        //Move the gold block and park
+        encoderStrafe(-16, 10);
+        return true;
+    }
+
+    public void disableDogeCV() {
+        goldAlignDetector.disable();
+    }
 
     //Utility Functions
 
@@ -627,10 +651,10 @@ public class AutoFourWheelDrive {
         motorDriveRightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorDriveRightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        motorDriveLeftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorDriveLeftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorDriveRightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorDriveRightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorDriveLeftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorDriveLeftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorDriveRightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorDriveRightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void strafe(double power) {

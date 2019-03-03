@@ -108,7 +108,7 @@ public class GoldAlignDetector extends DogeCVDetector {
         double xPos; // Current Gold X Pos
         double yPos; // ADDED BY BLUESHIFT5549
 
-        if(bestRect != null && bestRect.y >= workingMat.height()*(0.75)){ //TODO: Review the y cut off
+        if(bestRect != null && bestRect.y >= workingMat.height()*(0.6)){ //TODO: Review the y cut off
             // Show chosen result
             Imgproc.rectangle(displayMat, bestRect.tl(), bestRect.br(), new Scalar(255,0,0),4);
             Imgproc.putText(displayMat, "Chosen", bestRect.tl(),0,1,new Scalar(255,255,255));
